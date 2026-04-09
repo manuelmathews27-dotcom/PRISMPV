@@ -1,0 +1,1225 @@
+"drug","pt","quarter","count_a","count_b","count_c","count_d"
+"AVANDIA","myocardial infarction",2004-01-01,11,232,1311,50339
+"AVANDIA","myocardial infarction",2004-04-01,9,195,969,44136
+"AVANDIA","myocardial infarction",2004-07-01,4,1140,1042,59466
+"AVANDIA","myocardial infarction",2004-10-01,8,251,1986,51123
+"AVANDIA","myocardial infarction",2005-01-01,11,240,2134,59195
+"AVANDIA","myocardial infarction",2005-04-01,8,244,2005,49952
+"AVANDIA","myocardial infarction",2005-07-01,20,1067,3143,58458
+"AVANDIA","myocardial infarction",2005-10-01,25,529,4864,63229
+"AVANDIA","myocardial infarction",2006-01-01,50,565,6113,61767
+"AVANDIA","myocardial infarction",2006-04-01,54,752,6262,57600
+"AVANDIA","myocardial infarction",2006-07-01,11,1331,1514,53795
+"AVANDIA","myocardial infarction",2006-10-01,13,711,1983,72694
+"AVANDIA","myocardial infarction",2007-01-01,4,549,1445,55511
+"AVANDIA","myocardial infarction",2007-04-01,64,731,1436,56775
+"AVANDIA","myocardial infarction",2007-07-01,66,1181,3384,71358
+"AVANDIA","myocardial infarction",2007-10-01,41,567,1958,82269
+"AVANDIA","myocardial infarction",2008-01-01,21,324,1274,73809
+"AVANDIA","myocardial infarction",2008-04-01,35,309,1536,74191
+"AVANDIA","myocardial infarction",2008-07-01,302,1096,1577,75926
+"AVANDIA","myocardial infarction",2008-10-01,165,364,1428,87133
+"AVANDIA","myocardial infarction",2009-01-01,283,553,1658,75933
+"AVANDIA","myocardial infarction",2009-04-01,254,630,1618,75339
+"AVANDIA","myocardial infarction",2009-07-01,425,1685,1803,90814
+"AVANDIA","myocardial infarction",2009-10-01,503,1079,2224,96718
+"AVANDIA","myocardial infarction",2010-01-01,449,929,1987,94478
+"AVANDIA","myocardial infarction",2010-04-01,897,1859,2722,97991
+"AVANDIA","myocardial infarction",2010-07-01,2453,4634,5568,158597
+"AVANDIA","myocardial infarction",2010-10-01,1192,2182,2997,133113
+"ACTOS","bladder cancer",2004-01-01,0,207,2648,50339
+"ACTOS","bladder cancer",2004-04-01,1,203,3251,44136
+"ACTOS","bladder cancer",2004-07-01,2,247,4419,59466
+"ACTOS","bladder cancer",2004-10-01,0,253,3990,51123
+"ACTOS","bladder cancer",2005-01-01,0,230,3826,59195
+"ACTOS","bladder cancer",2005-04-01,1,209,3583,49952
+"ACTOS","bladder cancer",2005-07-01,2,302,3955,58458
+"ACTOS","bladder cancer",2005-10-01,0,619,3564,63229
+"ACTOS","bladder cancer",2006-01-01,4,583,4020,61767
+"ACTOS","bladder cancer",2006-04-01,1,761,3548,57600
+"ACTOS","bladder cancer",2006-07-01,1,703,3656,53795
+"ACTOS","bladder cancer",2006-10-01,2,820,3840,72694
+"ACTOS","bladder cancer",2007-01-01,0,691,3454,55511
+"ACTOS","bladder cancer",2007-04-01,3,696,4402,56775
+"ACTOS","bladder cancer",2007-07-01,0,727,3331,71358
+"ACTOS","bladder cancer",2007-10-01,2,707,3970,82269
+"ACTOS","bladder cancer",2008-01-01,0,550,4202,73809
+"ACTOS","bladder cancer",2008-04-01,0,536,4429,74191
+"ACTOS","bladder cancer",2008-07-01,3,590,4118,75926
+"ACTOS","bladder cancer",2008-10-01,2,352,6006,87133
+"ACTOS","bladder cancer",2009-01-01,1,343,7161,75933
+"ACTOS","bladder cancer",2009-04-01,2,393,5801,75339
+"ACTOS","bladder cancer",2009-07-01,0,556,5378,90814
+"ACTOS","bladder cancer",2009-10-01,1,477,6209,96718
+"ACTOS","bladder cancer",2010-01-01,2,336,4615,94478
+"ACTOS","bladder cancer",2010-04-01,3,451,8893,97991
+"ACTOS","bladder cancer",2010-07-01,5,800,8085,158597
+"ACTOS","bladder cancer",2010-10-01,25,474,6460,133113
+"ACTOS","bladder cancer",2011-01-01,13,479,5641,126562
+"ACTOS","bladder cancer",2011-04-01,35,503,7115,134575
+"ACTOS","bladder cancer",2011-07-01,319,917,6266,143821
+"ACTOS","bladder cancer",2011-10-01,554,1073,7072,153635
+"ACTOS","bladder cancer",2012-01-01,293,818,7946,175679
+"ACTOS","bladder cancer",2012-04-01,81,458,9139,167346
+"ACTOS","bladder cancer",2012-07-01,106,468,11055,176037
+"ACTOS","bladder cancer",2012-10-01,113,389,9656,181781
+"ACTOS","bladder cancer",2013-01-01,117,441,9200,208938
+"ACTOS","bladder cancer",2013-04-01,11,231,9510,166176
+"ACTOS","bladder cancer",2013-07-01,12,270,9371,179319
+"ACTOS","bladder cancer",2013-10-01,23,343,10568,219551
+"INVOKANA","amputation",2014-01-01,0,152,85,251344
+"INVOKANA","amputation",2014-04-01,0,224,84,217954
+"INVOKANA","amputation",2014-07-01,0,268,111,208116
+"INVOKANA","amputation",2014-10-01,0,NA,NA,NA
+"INVOKANA","amputation",2015-01-01,NA,NA,NA,NA
+"INVOKANA","amputation",2015-04-01,NA,NA,NA,NA
+"INVOKANA","amputation",2015-07-01,NA,NA,NA,NA
+"INVOKANA","amputation",2015-10-01,NA,NA,NA,NA
+"INVOKANA","amputation",2016-01-01,NA,NA,NA,NA
+"INVOKANA","amputation",2016-04-01,NA,NA,NA,NA
+"INVOKANA","amputation",2016-07-01,10,1010,166,278731
+"INVOKANA","amputation",2016-10-01,16,967,150,275013
+"INVOKANA","amputation",2017-01-01,3,739,121,314173
+"INVOKANA","amputation",2017-04-01,39,1336,194,311493
+"INVOKANA","amputation",2017-07-01,65,1386,195,317753
+"INVOKANA","amputation",2017-10-01,85,672,221,308358
+"INVOKANA","amputation",2018-01-01,554,1243,703,358616
+"INVOKANA","amputation",2018-04-01,716,1249,839,393919
+"INVOKANA","amputation",2018-07-01,500,1136,615,346338
+"INVOKANA","amputation",2018-10-01,445,800,581,329245
+"JANUVIA","pancreatitis",2006-01-01,0,0,387,61767
+"JANUVIA","pancreatitis",2006-04-01,0,0,345,57600
+"JANUVIA","pancreatitis",2006-07-01,0,0,379,53795
+"JANUVIA","pancreatitis",2006-10-01,0,27,601,72694
+"JANUVIA","pancreatitis",2007-01-01,6,604,493,55511
+"JANUVIA","pancreatitis",2007-04-01,5,1068,793,56775
+"JANUVIA","pancreatitis",2007-07-01,8,1053,843,71358
+"JANUVIA","pancreatitis",2007-10-01,9,854,410,82269
+"JANUVIA","pancreatitis",2008-01-01,11,606,372,73809
+"JANUVIA","pancreatitis",2008-04-01,10,153,354,74191
+"JANUVIA","pancreatitis",2008-07-01,15,875,467,75926
+"JANUVIA","pancreatitis",2008-10-01,14,782,513,87133
+"JANUVIA","pancreatitis",2009-01-01,13,592,512,75933
+"JANUVIA","pancreatitis",2009-04-01,13,538,524,75339
+"JANUVIA","pancreatitis",2009-07-01,40,603,1666,90814
+"JANUVIA","pancreatitis",2009-10-01,81,688,849,96718
+"JANUVIA","pancreatitis",2010-01-01,22,254,600,94478
+"JANUVIA","pancreatitis",2010-04-01,26,345,653,97991
+"JANUVIA","pancreatitis",2010-07-01,22,418,1324,158597
+"JANUVIA","pancreatitis",2010-10-01,220,558,921,133113
+"JANUVIA","pancreatitis",2011-01-01,26,373,702,126562
+"JANUVIA","pancreatitis",2011-04-01,24,415,1051,134575
+"JANUVIA","pancreatitis",2011-07-01,39,464,1193,143821
+"JANUVIA","pancreatitis",2011-10-01,176,596,1216,153635
+"ZOCOR","rhabdomyolysis",2004-01-01,148,898,398,50339
+"ZOCOR","rhabdomyolysis",2004-04-01,39,602,300,44136
+"ZOCOR","rhabdomyolysis",2004-07-01,43,872,333,59466
+"ZOCOR","rhabdomyolysis",2004-10-01,29,822,380,51123
+"ZOCOR","rhabdomyolysis",2005-01-01,142,1016,466,59195
+"ZOCOR","rhabdomyolysis",2005-04-01,44,755,325,49952
+"ZOCOR","rhabdomyolysis",2005-07-01,26,923,319,58458
+"ZOCOR","rhabdomyolysis",2005-10-01,28,989,369,63229
+"ZOCOR","rhabdomyolysis",2006-01-01,154,1089,408,61767
+"ZOCOR","rhabdomyolysis",2006-04-01,37,910,276,57600
+"ZOCOR","rhabdomyolysis",2006-07-01,34,678,295,53795
+"ZOCOR","rhabdomyolysis",2006-10-01,21,715,432,72694
+"ZOCOR","rhabdomyolysis",2007-01-01,90,605,331,55511
+"ZOCOR","rhabdomyolysis",2007-04-01,22,579,312,56775
+"ZOCOR","rhabdomyolysis",2007-07-01,25,602,280,71358
+"ZOCOR","rhabdomyolysis",2007-10-01,13,654,316,82269
+"ZOCOR","rhabdomyolysis",2008-01-01,39,595,329,73809
+"ZOCOR","rhabdomyolysis",2008-04-01,10,558,291,74191
+"ZOCOR","rhabdomyolysis",2008-07-01,15,556,344,75926
+"ZOCOR","rhabdomyolysis",2008-10-01,21,583,348,87133
+"ZOCOR","rhabdomyolysis",2009-01-01,29,501,315,75933
+"ZOCOR","rhabdomyolysis",2009-04-01,22,578,342,75339
+"ZOCOR","rhabdomyolysis",2009-07-01,29,782,340,90814
+"ZOCOR","rhabdomyolysis",2009-10-01,12,629,444,96718
+"ZOCOR","rhabdomyolysis",2010-01-01,39,617,305,94478
+"ZOCOR","rhabdomyolysis",2010-04-01,29,708,389,97991
+"ZOCOR","rhabdomyolysis",2010-07-01,23,1506,448,158597
+"ZOCOR","rhabdomyolysis",2010-10-01,32,690,423,133113
+"ZOCOR","rhabdomyolysis",2011-01-01,30,818,379,126562
+"ZOCOR","rhabdomyolysis",2011-04-01,25,1019,390,134575
+"ZOCOR","rhabdomyolysis",2011-07-01,25,985,374,143821
+"ZOCOR","rhabdomyolysis",2011-10-01,20,703,480,153635
+"ZOCOR","rhabdomyolysis",2012-01-01,51,1043,442,175679
+"ZOCOR","rhabdomyolysis",2012-04-01,19,796,434,167346
+"ZOCOR","rhabdomyolysis",2012-07-01,86,1089,529,176037
+"ZOCOR","rhabdomyolysis",2012-10-01,8,558,422,181781
+"ZOCOR","rhabdomyolysis",2013-01-01,24,675,464,208938
+"ZOCOR","rhabdomyolysis",2013-04-01,6,589,386,166176
+"ZOCOR","rhabdomyolysis",2013-07-01,8,610,362,179319
+"ZOCOR","rhabdomyolysis",2013-10-01,2,668,425,219551
+"LIPITOR","diabetes mellitus",2004-01-01,29,1063,1417,50339
+"LIPITOR","diabetes mellitus",2004-04-01,18,936,1144,44136
+"LIPITOR","diabetes mellitus",2004-07-01,20,1454,1251,59466
+"LIPITOR","diabetes mellitus",2004-10-01,23,1446,1362,51123
+"LIPITOR","diabetes mellitus",2005-01-01,27,1259,1386,59195
+"LIPITOR","diabetes mellitus",2005-04-01,30,1268,1344,49952
+"LIPITOR","diabetes mellitus",2005-07-01,50,1696,1772,58458
+"LIPITOR","diabetes mellitus",2005-10-01,55,1985,3525,63229
+"LIPITOR","diabetes mellitus",2006-01-01,79,1788,3963,61767
+"LIPITOR","diabetes mellitus",2006-04-01,70,1690,5356,57600
+"LIPITOR","diabetes mellitus",2006-07-01,26,1420,4837,53795
+"LIPITOR","diabetes mellitus",2006-10-01,44,1842,5977,72694
+"LIPITOR","diabetes mellitus",2007-01-01,28,1232,4875,55511
+"LIPITOR","diabetes mellitus",2007-04-01,39,1382,6376,56775
+"LIPITOR","diabetes mellitus",2007-07-01,24,1435,6025,71358
+"LIPITOR","diabetes mellitus",2007-10-01,23,1888,5249,82269
+"LIPITOR","diabetes mellitus",2008-01-01,18,1356,3877,73809
+"LIPITOR","diabetes mellitus",2008-04-01,14,1364,3690,74191
+"LIPITOR","diabetes mellitus",2008-07-01,26,1355,4342,75926
+"LIPITOR","diabetes mellitus",2008-10-01,23,1265,2911,87133
+"LIPITOR","diabetes mellitus",2009-01-01,18,1262,2861,75933
+"LIPITOR","diabetes mellitus",2009-04-01,125,1491,4156,75339
+"LIPITOR","diabetes mellitus",2009-07-01,281,1872,5754,90814
+"LIPITOR","diabetes mellitus",2009-10-01,78,1709,4873,96718
+"LIPITOR","diabetes mellitus",2010-01-01,45,1440,3468,94478
+"LIPITOR","diabetes mellitus",2010-04-01,90,1937,4837,97991
+"LIPITOR","diabetes mellitus",2010-07-01,246,7268,8503,158597
+"LIPITOR","diabetes mellitus",2010-10-01,56,3308,5537,133113
+"LIPITOR","diabetes mellitus",2011-01-01,63,2493,5961,126562
+"LIPITOR","diabetes mellitus",2011-04-01,38,2580,6624,134575
+"LIPITOR","diabetes mellitus",2011-07-01,151,3015,8923,143821
+"LIPITOR","diabetes mellitus",2011-10-01,57,2301,7594,153635
+"LIPITOR","diabetes mellitus",2012-01-01,105,3541,7967,175679
+"LIPITOR","diabetes mellitus",2012-04-01,130,3450,7683,167346
+"LIPITOR","diabetes mellitus",2012-07-01,97,3491,7864,176037
+"LIPITOR","diabetes mellitus",2012-10-01,62,2128,6427,181781
+"LIPITOR","diabetes mellitus",2013-01-01,62,2777,7235,208938
+"LIPITOR","diabetes mellitus",2013-04-01,102,2465,8159,166176
+"LIPITOR","diabetes mellitus",2013-07-01,189,2443,10456,179319
+"LIPITOR","diabetes mellitus",2013-10-01,228,2535,7017,219551
+"LIPITOR","diabetes mellitus",2014-01-01,3886,6749,11411,251344
+"LIPITOR","diabetes mellitus",2014-04-01,367,2547,39921,217954
+"LIPITOR","diabetes mellitus",2014-07-01,549,2729,22540,208116
+"LIPITOR","diabetes mellitus",2014-10-01,345,2388,9391,197676
+"CRESTOR","diabetes mellitus",2004-01-01,1,498,1417,50339
+"CRESTOR","diabetes mellitus",2004-04-01,1,197,1144,44136
+"CRESTOR","diabetes mellitus",2004-07-01,13,1916,1251,59466
+"CRESTOR","diabetes mellitus",2004-10-01,2,287,1362,51123
+"CRESTOR","diabetes mellitus",2005-01-01,4,1212,1386,59195
+"CRESTOR","diabetes mellitus",2005-04-01,4,242,1344,49952
+"CRESTOR","diabetes mellitus",2005-07-01,3,248,1772,58458
+"CRESTOR","diabetes mellitus",2005-10-01,4,286,3525,63229
+"CRESTOR","diabetes mellitus",2006-01-01,5,231,3963,61767
+"CRESTOR","diabetes mellitus",2006-04-01,5,285,5356,57600
+"CRESTOR","diabetes mellitus",2006-07-01,3,254,4837,53795
+"CRESTOR","diabetes mellitus",2006-10-01,9,2228,5977,72694
+"CRESTOR","diabetes mellitus",2007-01-01,5,287,4875,55511
+"CRESTOR","diabetes mellitus",2007-04-01,7,712,6376,56775
+"CRESTOR","diabetes mellitus",2007-07-01,5,408,6025,71358
+"CRESTOR","diabetes mellitus",2007-10-01,14,887,5249,82269
+"CRESTOR","diabetes mellitus",2008-01-01,3,439,3877,73809
+"CRESTOR","diabetes mellitus",2008-04-01,8,561,3690,74191
+"CRESTOR","diabetes mellitus",2008-07-01,11,504,4342,75926
+"CRESTOR","diabetes mellitus",2008-10-01,17,2146,2911,87133
+"CRESTOR","diabetes mellitus",2009-01-01,24,759,2861,75933
+"CRESTOR","diabetes mellitus",2009-04-01,28,823,4156,75339
+"CRESTOR","diabetes mellitus",2009-07-01,40,1100,5754,90814
+"CRESTOR","diabetes mellitus",2009-10-01,18,3037,4873,96718
+"CRESTOR","diabetes mellitus",2010-01-01,12,752,3468,94478
+"CRESTOR","diabetes mellitus",2010-04-01,32,930,4837,97991
+"CRESTOR","diabetes mellitus",2010-07-01,45,2190,8503,158597
+"CRESTOR","diabetes mellitus",2010-10-01,42,3265,5537,133113
+"CRESTOR","diabetes mellitus",2011-01-01,49,1359,5961,126562
+"CRESTOR","diabetes mellitus",2011-04-01,55,1644,6624,134575
+"CRESTOR","diabetes mellitus",2011-07-01,79,2308,8923,143821
+"CRESTOR","diabetes mellitus",2011-10-01,104,3818,7594,153635
+"CRESTOR","diabetes mellitus",2012-01-01,82,2023,7967,175679
+"CRESTOR","diabetes mellitus",2012-04-01,146,2563,7683,167346
+"CRESTOR","diabetes mellitus",2012-07-01,139,3046,7864,176037
+"CRESTOR","diabetes mellitus",2012-10-01,121,2991,6427,181781
+"CRESTOR","diabetes mellitus",2013-01-01,146,2014,7235,208938
+"CRESTOR","diabetes mellitus",2013-04-01,48,1555,8159,166176
+"CRESTOR","diabetes mellitus",2013-07-01,37,1706,10456,179319
+"CRESTOR","diabetes mellitus",2013-10-01,27,1856,7017,219551
+"CRESTOR","diabetes mellitus",2014-01-01,416,2456,11411,251344
+"CRESTOR","diabetes mellitus",2014-04-01,43,1474,39921,217954
+"CRESTOR","diabetes mellitus",2014-07-01,42,1711,22540,208116
+"CRESTOR","diabetes mellitus",2014-10-01,43,1883,9391,197676
+"PRAVACHOL","diabetes mellitus",2004-01-01,3,161,1417,50339
+"PRAVACHOL","diabetes mellitus",2004-04-01,3,156,1144,44136
+"PRAVACHOL","diabetes mellitus",2004-07-01,1,234,1251,59466
+"PRAVACHOL","diabetes mellitus",2004-10-01,0,490,1362,51123
+"PRAVACHOL","diabetes mellitus",2005-01-01,3,188,1386,59195
+"PRAVACHOL","diabetes mellitus",2005-04-01,5,187,1344,49952
+"PRAVACHOL","diabetes mellitus",2005-07-01,4,218,1772,58458
+"PRAVACHOL","diabetes mellitus",2005-10-01,8,547,3525,63229
+"PRAVACHOL","diabetes mellitus",2006-01-01,17,279,3963,61767
+"PRAVACHOL","diabetes mellitus",2006-04-01,18,288,5356,57600
+"PRAVACHOL","diabetes mellitus",2006-07-01,2,169,4837,53795
+"PRAVACHOL","diabetes mellitus",2006-10-01,3,209,5977,72694
+"PRAVACHOL","diabetes mellitus",2007-01-01,2,136,4875,55511
+"PRAVACHOL","diabetes mellitus",2007-04-01,1,105,6376,56775
+"PRAVACHOL","diabetes mellitus",2007-07-01,1,108,6025,71358
+"PRAVACHOL","diabetes mellitus",2007-10-01,1,234,5249,82269
+"PRAVACHOL","diabetes mellitus",2008-01-01,0,104,3877,73809
+"PRAVACHOL","diabetes mellitus",2008-04-01,0,99,3690,74191
+"PRAVACHOL","diabetes mellitus",2008-07-01,2,114,4342,75926
+"PRAVACHOL","diabetes mellitus",2008-10-01,1,151,2911,87133
+"PRAVACHOL","diabetes mellitus",2009-01-01,4,99,2861,75933
+"PRAVACHOL","diabetes mellitus",2009-04-01,10,112,4156,75339
+"PRAVACHOL","diabetes mellitus",2009-07-01,27,172,5754,90814
+"PRAVACHOL","diabetes mellitus",2009-10-01,7,172,4873,96718
+"PRAVACHOL","diabetes mellitus",2010-01-01,1,114,3468,94478
+"PRAVACHOL","diabetes mellitus",2010-04-01,14,149,4837,97991
+"PRAVACHOL","diabetes mellitus",2010-07-01,20,305,8503,158597
+"PRAVACHOL","diabetes mellitus",2010-10-01,5,185,5537,133113
+"PRAVACHOL","diabetes mellitus",2011-01-01,7,138,5961,126562
+"PRAVACHOL","diabetes mellitus",2011-04-01,6,175,6624,134575
+"PRAVACHOL","diabetes mellitus",2011-07-01,10,193,8923,143821
+"PRAVACHOL","diabetes mellitus",2011-10-01,5,193,7594,153635
+"PRAVACHOL","diabetes mellitus",2012-01-01,9,217,7967,175679
+"PRAVACHOL","diabetes mellitus",2012-04-01,12,197,7683,167346
+"PRAVACHOL","diabetes mellitus",2012-07-01,7,184,7864,176037
+"PRAVACHOL","diabetes mellitus",2012-10-01,4,155,6427,181781
+"PRAVACHOL","diabetes mellitus",2013-01-01,4,167,7235,208938
+"PRAVACHOL","diabetes mellitus",2013-04-01,4,151,8159,166176
+"PRAVACHOL","diabetes mellitus",2013-07-01,4,123,10456,179319
+"PRAVACHOL","diabetes mellitus",2013-10-01,1,138,7017,219551
+"PRAVACHOL","diabetes mellitus",2014-01-01,12,194,11411,251344
+"PRAVACHOL","diabetes mellitus",2014-04-01,2,205,39921,217954
+"PRAVACHOL","diabetes mellitus",2014-07-01,2,172,22540,208116
+"PRAVACHOL","diabetes mellitus",2014-10-01,0,148,9391,197676
+"CIPRO","tendon rupture",2004-01-01,0,89,101,50339
+"CIPRO","tendon rupture",2004-04-01,2,76,89,44136
+"CIPRO","tendon rupture",2004-07-01,1,102,79,59466
+"CIPRO","tendon rupture",2004-10-01,0,97,125,51123
+"CIPRO","tendon rupture",2005-01-01,1,118,116,59195
+"CIPRO","tendon rupture",2005-04-01,2,88,126,49952
+"CIPRO","tendon rupture",2005-07-01,3,84,120,58458
+"CIPRO","tendon rupture",2005-10-01,2,158,176,63229
+"CIPRO","tendon rupture",2006-01-01,2,129,148,61767
+"CIPRO","tendon rupture",2006-04-01,4,139,143,57600
+"CIPRO","tendon rupture",2006-07-01,2,91,131,53795
+"CIPRO","tendon rupture",2006-10-01,12,137,195,72694
+"CIPRO","tendon rupture",2007-01-01,2,69,101,55511
+"CIPRO","tendon rupture",2007-04-01,1,80,104,56775
+"CIPRO","tendon rupture",2007-07-01,1,92,127,71358
+"CIPRO","tendon rupture",2007-10-01,9,104,208,82269
+"CIPRO","tendon rupture",2008-01-01,4,196,427,73809
+"CIPRO","tendon rupture",2008-04-01,0,152,230,74191
+"CIPRO","tendon rupture",2008-07-01,18,327,340,75926
+"CIPRO","tendon rupture",2008-10-01,9,171,371,87133
+"CIPRO","tendon rupture",2009-01-01,10,128,290,75933
+"CIPRO","tendon rupture",2009-04-01,7,157,377,75339
+"CIPRO","tendon rupture",2009-07-01,6,205,345,90814
+"CIPRO","tendon rupture",2009-10-01,4,206,306,96718
+"CIPRO","tendon rupture",2010-01-01,11,173,287,94478
+"CIPRO","tendon rupture",2010-04-01,6,164,276,97991
+"CIPRO","tendon rupture",2010-07-01,11,215,336,158597
+"CIPRO","tendon rupture",2010-10-01,7,188,403,133113
+"LEVAQUIN","tendon rupture",2004-01-01,4,172,101,50339
+"LEVAQUIN","tendon rupture",2004-04-01,2,155,89,44136
+"LEVAQUIN","tendon rupture",2004-07-01,3,161,79,59466
+"LEVAQUIN","tendon rupture",2004-10-01,27,301,125,51123
+"LEVAQUIN","tendon rupture",2005-01-01,6,201,116,59195
+"LEVAQUIN","tendon rupture",2005-04-01,4,204,126,49952
+"LEVAQUIN","tendon rupture",2005-07-01,8,249,120,58458
+"LEVAQUIN","tendon rupture",2005-10-01,46,458,176,63229
+"LEVAQUIN","tendon rupture",2006-01-01,6,291,148,61767
+"LEVAQUIN","tendon rupture",2006-04-01,10,326,143,57600
+"LEVAQUIN","tendon rupture",2006-07-01,4,236,131,53795
+"LEVAQUIN","tendon rupture",2006-10-01,50,520,195,72694
+"LEVAQUIN","tendon rupture",2007-01-01,5,234,101,55511
+"LEVAQUIN","tendon rupture",2007-04-01,7,246,104,56775
+"LEVAQUIN","tendon rupture",2007-07-01,4,239,127,71358
+"LEVAQUIN","tendon rupture",2007-10-01,65,517,208,82269
+"LEVAQUIN","tendon rupture",2008-01-01,11,322,427,73809
+"LEVAQUIN","tendon rupture",2008-04-01,11,317,230,74191
+"LEVAQUIN","tendon rupture",2008-07-01,40,448,340,75926
+"LEVAQUIN","tendon rupture",2008-10-01,24,329,371,87133
+"LEVAQUIN","tendon rupture",2009-01-01,27,369,290,75933
+"LEVAQUIN","tendon rupture",2009-04-01,26,447,377,75339
+"LEVAQUIN","tendon rupture",2009-07-01,28,437,345,90814
+"LEVAQUIN","tendon rupture",2009-10-01,16,349,306,96718
+"LEVAQUIN","tendon rupture",2010-01-01,65,525,287,94478
+"LEVAQUIN","tendon rupture",2010-04-01,72,491,276,97991
+"LEVAQUIN","tendon rupture",2010-07-01,87,597,336,158597
+"LEVAQUIN","tendon rupture",2010-10-01,131,556,403,133113
+"AVELOX","tendon rupture",2004-01-01,7,194,101,50339
+"AVELOX","tendon rupture",2004-04-01,1,89,89,44136
+"AVELOX","tendon rupture",2004-07-01,0,76,79,59466
+"AVELOX","tendon rupture",2004-10-01,0,66,125,51123
+"AVELOX","tendon rupture",2005-01-01,4,164,116,59195
+"AVELOX","tendon rupture",2005-04-01,0,106,126,49952
+"AVELOX","tendon rupture",2005-07-01,1,96,120,58458
+"AVELOX","tendon rupture",2005-10-01,0,81,176,63229
+"AVELOX","tendon rupture",2006-01-01,0,130,148,61767
+"AVELOX","tendon rupture",2006-04-01,1,159,143,57600
+"AVELOX","tendon rupture",2006-07-01,6,294,131,53795
+"AVELOX","tendon rupture",2006-10-01,1,116,195,72694
+"AVELOX","tendon rupture",2007-01-01,0,156,101,55511
+"AVELOX","tendon rupture",2007-04-01,2,146,104,56775
+"AVELOX","tendon rupture",2007-07-01,1,369,127,71358
+"AVELOX","tendon rupture",2007-10-01,2,160,208,82269
+"AVELOX","tendon rupture",2008-01-01,5,649,427,73809
+"AVELOX","tendon rupture",2008-04-01,8,636,230,74191
+"AVELOX","tendon rupture",2008-07-01,12,1213,340,75926
+"AVELOX","tendon rupture",2008-10-01,10,384,371,87133
+"AVELOX","tendon rupture",2009-01-01,10,437,290,75933
+"AVELOX","tendon rupture",2009-04-01,11,492,377,75339
+"AVELOX","tendon rupture",2009-07-01,18,415,345,90814
+"AVELOX","tendon rupture",2009-10-01,10,384,306,96718
+"AVELOX","tendon rupture",2010-01-01,7,309,287,94478
+"AVELOX","tendon rupture",2010-04-01,11,255,276,97991
+"AVELOX","tendon rupture",2010-07-01,13,301,336,158597
+"AVELOX","tendon rupture",2010-10-01,5,226,403,133113
+"FLOXIN","tendon rupture",2004-01-01,0,6,101,50339
+"FLOXIN","tendon rupture",2004-04-01,0,4,89,44136
+"FLOXIN","tendon rupture",2004-07-01,0,2,79,59466
+"FLOXIN","tendon rupture",2004-10-01,0,1,125,51123
+"FLOXIN","tendon rupture",2005-01-01,0,2,116,59195
+"FLOXIN","tendon rupture",2005-04-01,0,1,126,49952
+"FLOXIN","tendon rupture",2005-07-01,0,9,120,58458
+"FLOXIN","tendon rupture",2005-10-01,0,4,176,63229
+"FLOXIN","tendon rupture",2006-01-01,0,5,148,61767
+"FLOXIN","tendon rupture",2006-04-01,0,4,143,57600
+"FLOXIN","tendon rupture",2006-07-01,0,3,131,53795
+"FLOXIN","tendon rupture",2006-10-01,0,2,195,72694
+"FLOXIN","tendon rupture",2007-01-01,0,3,101,55511
+"FLOXIN","tendon rupture",2007-04-01,0,3,104,56775
+"FLOXIN","tendon rupture",2007-07-01,1,7,127,71358
+"FLOXIN","tendon rupture",2007-10-01,2,9,208,82269
+"FLOXIN","tendon rupture",2008-01-01,0,5,427,73809
+"FLOXIN","tendon rupture",2008-04-01,0,5,230,74191
+"FLOXIN","tendon rupture",2008-07-01,1,3,340,75926
+"FLOXIN","tendon rupture",2008-10-01,1,4,371,87133
+"FLOXIN","tendon rupture",2009-01-01,0,1,290,75933
+"FLOXIN","tendon rupture",2009-04-01,0,4,377,75339
+"FLOXIN","tendon rupture",2009-07-01,0,2,345,90814
+"FLOXIN","tendon rupture",2009-10-01,0,4,306,96718
+"FLOXIN","tendon rupture",2010-01-01,0,0,287,94478
+"FLOXIN","tendon rupture",2010-04-01,0,2,276,97991
+"FLOXIN","tendon rupture",2010-07-01,0,3,336,158597
+"FLOXIN","tendon rupture",2010-10-01,0,1,403,133113
+"ABILIFY","pathological gambling",2012-01-01,0,575,74,175679
+"ABILIFY","pathological gambling",2012-04-01,0,609,51,167346
+"ABILIFY","pathological gambling",2012-07-01,1,591,36,176037
+"ABILIFY","pathological gambling",2012-10-01,1,2214,23,181781
+"ABILIFY","pathological gambling",2013-01-01,0,502,20,208938
+"ABILIFY","pathological gambling",2013-04-01,0,472,32,166176
+"ABILIFY","pathological gambling",2013-07-01,1,1844,43,179319
+"ABILIFY","pathological gambling",2013-10-01,1,553,13,219551
+"ABILIFY","pathological gambling",2014-01-01,1,670,38,251344
+"ABILIFY","pathological gambling",2014-04-01,1,571,10,217954
+"ABILIFY","pathological gambling",2014-07-01,8,3565,39,208116
+"ABILIFY","pathological gambling",2014-10-01,2,1378,26,197676
+"ABILIFY","pathological gambling",2015-01-01,8,1509,40,284630
+"ABILIFY","pathological gambling",2015-04-01,88,1448,145,254771
+"ABILIFY","pathological gambling",2015-07-01,1,2260,19,354101
+"ABILIFY","pathological gambling",2015-10-01,2,1815,24,294278
+"ABILIFY","pathological gambling",2016-01-01,0,1704,65,342211
+"ABILIFY","pathological gambling",2016-04-01,0,1641,53,290110
+"ABILIFY","pathological gambling",2016-07-01,0,1487,62,278731
+"ABILIFY","pathological gambling",2016-10-01,0,1320,82,275013
+"ABILIFY","pathological gambling",2017-01-01,0,1012,97,314173
+"ABILIFY","pathological gambling",2017-04-01,0,1111,144,311493
+"ABILIFY","pathological gambling",2017-07-01,0,1086,155,317753
+"ABILIFY","pathological gambling",2017-10-01,0,6640,324,308358
+"ABILIFY","pathological gambling",2018-01-01,0,3291,45,358616
+"ABILIFY","pathological gambling",2018-04-01,0,1440,376,393919
+"ABILIFY","pathological gambling",2018-07-01,0,1280,301,346338
+"ABILIFY","pathological gambling",2018-10-01,0,948,197,329245
+"SEROQUEL","cerebrovascular accident",2004-01-01,0,334,791,50339
+"SEROQUEL","cerebrovascular accident",2004-04-01,0,297,705,44136
+"SEROQUEL","cerebrovascular accident",2004-07-01,3,379,880,59466
+"SEROQUEL","cerebrovascular accident",2004-10-01,4,351,1565,51123
+"SEROQUEL","cerebrovascular accident",2005-01-01,10,479,1495,59195
+"SEROQUEL","cerebrovascular accident",2005-04-01,9,392,1371,49952
+"SEROQUEL","cerebrovascular accident",2005-07-01,4,473,2024,58458
+"SEROQUEL","cerebrovascular accident",2005-10-01,5,446,3434,63229
+"SEROQUEL","cerebrovascular accident",2006-01-01,9,550,4181,61767
+"SEROQUEL","cerebrovascular accident",2006-04-01,8,534,4246,57600
+"SEROQUEL","cerebrovascular accident",2006-07-01,5,489,1259,53795
+"SEROQUEL","cerebrovascular accident",2006-10-01,12,1468,1224,72694
+"SEROQUEL","cerebrovascular accident",2007-01-01,5,798,1193,55511
+"SEROQUEL","cerebrovascular accident",2007-04-01,5,963,1312,56775
+"SEROQUEL","cerebrovascular accident",2007-07-01,13,3178,2089,71358
+"SEROQUEL","cerebrovascular accident",2007-10-01,6,545,1190,82269
+"ZYPREXA","cerebrovascular accident",2004-01-01,4,359,791,50339
+"ZYPREXA","cerebrovascular accident",2004-04-01,5,415,705,44136
+"ZYPREXA","cerebrovascular accident",2004-07-01,8,411,880,59466
+"ZYPREXA","cerebrovascular accident",2004-10-01,11,480,1565,51123
+"ZYPREXA","cerebrovascular accident",2005-01-01,5,525,1495,59195
+"ZYPREXA","cerebrovascular accident",2005-04-01,14,595,1371,49952
+"ZYPREXA","cerebrovascular accident",2005-07-01,7,435,2024,58458
+"ZYPREXA","cerebrovascular accident",2005-10-01,13,950,3434,63229
+"ZYPREXA","cerebrovascular accident",2006-01-01,17,519,4181,61767
+"ZYPREXA","cerebrovascular accident",2006-04-01,16,504,4246,57600
+"ZYPREXA","cerebrovascular accident",2006-07-01,10,687,1259,53795
+"ZYPREXA","cerebrovascular accident",2006-10-01,39,1404,1224,72694
+"ZYPREXA","cerebrovascular accident",2007-01-01,5,608,1193,55511
+"ZYPREXA","cerebrovascular accident",2007-04-01,60,1530,1312,56775
+"ZYPREXA","cerebrovascular accident",2007-07-01,7,410,2089,71358
+"ZYPREXA","cerebrovascular accident",2007-10-01,9,478,1190,82269
+"RISPERDAL","cerebrovascular accident",2004-01-01,8,403,791,50339
+"RISPERDAL","cerebrovascular accident",2004-04-01,7,411,705,44136
+"RISPERDAL","cerebrovascular accident",2004-07-01,30,599,880,59466
+"RISPERDAL","cerebrovascular accident",2004-10-01,4,382,1565,51123
+"RISPERDAL","cerebrovascular accident",2005-01-01,6,501,1495,59195
+"RISPERDAL","cerebrovascular accident",2005-04-01,11,360,1371,49952
+"RISPERDAL","cerebrovascular accident",2005-07-01,7,382,2024,58458
+"RISPERDAL","cerebrovascular accident",2005-10-01,5,447,3434,63229
+"RISPERDAL","cerebrovascular accident",2006-01-01,16,449,4181,61767
+"RISPERDAL","cerebrovascular accident",2006-04-01,7,394,4246,57600
+"RISPERDAL","cerebrovascular accident",2006-07-01,20,788,1259,53795
+"RISPERDAL","cerebrovascular accident",2006-10-01,9,496,1224,72694
+"RISPERDAL","cerebrovascular accident",2007-01-01,4,529,1193,55511
+"RISPERDAL","cerebrovascular accident",2007-04-01,4,510,1312,56775
+"RISPERDAL","cerebrovascular accident",2007-07-01,5,426,2089,71358
+"RISPERDAL","cerebrovascular accident",2007-10-01,1,424,1190,82269
+"CELEBREX","myocardial infarction",2000-01-01,0,0,0,5
+"CELEBREX","myocardial infarction",2000-04-01,0,0,0,2
+"CELEBREX","myocardial infarction",2000-07-01,0,0,0,2
+"CELEBREX","myocardial infarction",2000-10-01,0,0,0,5
+"CELEBREX","myocardial infarction",2001-01-01,0,0,0,6
+"CELEBREX","myocardial infarction",2001-04-01,0,0,1,13
+"CELEBREX","myocardial infarction",2001-07-01,0,0,3,12
+"CELEBREX","myocardial infarction",2001-10-01,0,0,2,18
+"CELEBREX","myocardial infarction",2002-01-01,0,0,0,33
+"CELEBREX","myocardial infarction",2002-04-01,0,0,0,16
+"CELEBREX","myocardial infarction",2002-07-01,0,0,1,20
+"CELEBREX","myocardial infarction",2002-10-01,0,0,0,17
+"CELEBREX","myocardial infarction",2003-01-01,0,1,0,16
+"CELEBREX","myocardial infarction",2003-04-01,0,2,1,32
+"CELEBREX","myocardial infarction",2003-07-01,0,0,1,67
+"CELEBREX","myocardial infarction",2003-10-01,0,0,4,68
+"CELEBREX","myocardial infarction",2004-01-01,31,713,1311,50339
+"CELEBREX","myocardial infarction",2004-04-01,12,488,969,44136
+"CELEBREX","myocardial infarction",2004-07-01,12,803,1042,59466
+"CELEBREX","myocardial infarction",2004-10-01,67,831,1986,51123
+"CELEBREX","myocardial infarction",2005-01-01,131,1205,2134,59195
+"CELEBREX","myocardial infarction",2005-04-01,117,1025,2005,49952
+"CELEBREX","myocardial infarction",2005-07-01,226,1316,3143,58458
+"CELEBREX","myocardial infarction",2005-10-01,118,778,4864,63229
+"CELEBREX","myocardial infarction",2006-01-01,166,863,6113,61767
+"CELEBREX","myocardial infarction",2006-04-01,305,954,6262,57600
+"CELEBREX","myocardial infarction",2006-07-01,387,1304,1514,53795
+"CELEBREX","myocardial infarction",2006-10-01,339,1336,1983,72694
+"CELEBREX","myocardial infarction",2007-01-01,173,659,1445,55511
+"CELEBREX","myocardial infarction",2007-04-01,224,1416,1436,56775
+"CELEBREX","myocardial infarction",2007-07-01,2108,3722,3384,71358
+"CELEBREX","myocardial infarction",2007-10-01,160,758,1958,82269
+"VIOXX","myocardial infarction",2000-01-01,0,0,0,5
+"VIOXX","myocardial infarction",2000-04-01,0,0,0,2
+"VIOXX","myocardial infarction",2000-07-01,0,0,0,2
+"VIOXX","myocardial infarction",2000-10-01,0,0,0,5
+"VIOXX","myocardial infarction",2001-01-01,0,0,0,6
+"VIOXX","myocardial infarction",2001-04-01,0,0,1,13
+"VIOXX","myocardial infarction",2001-07-01,0,0,3,12
+"VIOXX","myocardial infarction",2001-10-01,0,1,2,18
+"VIOXX","myocardial infarction",2002-01-01,0,0,0,33
+"VIOXX","myocardial infarction",2002-04-01,0,0,0,16
+"VIOXX","myocardial infarction",2002-07-01,0,0,1,20
+"VIOXX","myocardial infarction",2002-10-01,0,0,0,17
+"VIOXX","myocardial infarction",2003-01-01,0,0,0,16
+"VIOXX","myocardial infarction",2003-04-01,0,1,1,32
+"VIOXX","myocardial infarction",2003-07-01,0,0,1,67
+"VIOXX","myocardial infarction",2003-10-01,0,1,4,68
+"VIOXX","myocardial infarction",2004-01-01,179,1047,1311,50339
+"VIOXX","myocardial infarction",2004-04-01,54,577,969,44136
+"VIOXX","myocardial infarction",2004-07-01,62,1185,1042,59466
+"VIOXX","myocardial infarction",2004-10-01,963,3759,1986,51123
+"VIOXX","myocardial infarction",2005-01-01,864,2438,2134,59195
+"VIOXX","myocardial infarction",2005-04-01,779,1792,2005,49952
+"VIOXX","myocardial infarction",2005-07-01,1865,3636,3143,58458
+"VIOXX","myocardial infarction",2005-10-01,3523,6428,4864,63229
+"VOLTAREN","myocardial infarction",2000-01-01,0,0,0,5
+"VOLTAREN","myocardial infarction",2000-04-01,0,0,0,2
+"VOLTAREN","myocardial infarction",2000-07-01,0,0,0,2
+"VOLTAREN","myocardial infarction",2000-10-01,0,0,0,5
+"VOLTAREN","myocardial infarction",2001-01-01,0,0,0,6
+"VOLTAREN","myocardial infarction",2001-04-01,0,0,1,13
+"VOLTAREN","myocardial infarction",2001-07-01,0,0,3,12
+"VOLTAREN","myocardial infarction",2001-10-01,1,1,2,18
+"VOLTAREN","myocardial infarction",2002-01-01,0,2,0,33
+"VOLTAREN","myocardial infarction",2002-04-01,0,0,0,16
+"VOLTAREN","myocardial infarction",2002-07-01,0,0,1,20
+"VOLTAREN","myocardial infarction",2002-10-01,0,0,0,17
+"VOLTAREN","myocardial infarction",2003-01-01,0,0,0,16
+"VOLTAREN","myocardial infarction",2003-04-01,0,0,1,32
+"VOLTAREN","myocardial infarction",2003-07-01,0,0,1,67
+"VOLTAREN","myocardial infarction",2003-10-01,0,2,4,68
+"VOLTAREN","myocardial infarction",2004-01-01,3,166,1311,50339
+"VOLTAREN","myocardial infarction",2004-04-01,3,157,969,44136
+"VOLTAREN","myocardial infarction",2004-07-01,1,179,1042,59466
+"VOLTAREN","myocardial infarction",2004-10-01,6,223,1986,51123
+"VOLTAREN","myocardial infarction",2005-01-01,3,157,2134,59195
+"VOLTAREN","myocardial infarction",2005-04-01,3,174,2005,49952
+"VOLTAREN","myocardial infarction",2005-07-01,6,180,3143,58458
+"VOLTAREN","myocardial infarction",2005-10-01,4,185,4864,63229
+"VOLTAREN","myocardial infarction",2006-01-01,6,170,6113,61767
+"VOLTAREN","myocardial infarction",2006-04-01,10,184,6262,57600
+"VOLTAREN","myocardial infarction",2006-07-01,1,172,1514,53795
+"VOLTAREN","myocardial infarction",2006-10-01,2,178,1983,72694
+"VOLTAREN","myocardial infarction",2007-01-01,3,165,1445,55511
+"VOLTAREN","myocardial infarction",2007-04-01,1,214,1436,56775
+"VOLTAREN","myocardial infarction",2007-07-01,7,182,3384,71358
+"VOLTAREN","myocardial infarction",2007-10-01,3,224,1958,82269
+"MOBIC","myocardial infarction",2000-01-01,0,0,0,5
+"MOBIC","myocardial infarction",2000-04-01,0,0,0,2
+"MOBIC","myocardial infarction",2000-07-01,0,0,0,2
+"MOBIC","myocardial infarction",2000-10-01,0,0,0,5
+"MOBIC","myocardial infarction",2001-01-01,0,0,0,6
+"MOBIC","myocardial infarction",2001-04-01,0,0,1,13
+"MOBIC","myocardial infarction",2001-07-01,0,0,3,12
+"MOBIC","myocardial infarction",2001-10-01,0,0,2,18
+"MOBIC","myocardial infarction",2002-01-01,0,0,0,33
+"MOBIC","myocardial infarction",2002-04-01,0,0,0,16
+"MOBIC","myocardial infarction",2002-07-01,0,0,1,20
+"MOBIC","myocardial infarction",2002-10-01,0,0,0,17
+"MOBIC","myocardial infarction",2003-01-01,0,0,0,16
+"MOBIC","myocardial infarction",2003-04-01,0,0,1,32
+"MOBIC","myocardial infarction",2003-07-01,0,0,1,67
+"MOBIC","myocardial infarction",2003-10-01,0,0,4,68
+"MOBIC","myocardial infarction",2004-01-01,3,105,1311,50339
+"MOBIC","myocardial infarction",2004-04-01,0,78,969,44136
+"MOBIC","myocardial infarction",2004-07-01,3,114,1042,59466
+"MOBIC","myocardial infarction",2004-10-01,1,123,1986,51123
+"MOBIC","myocardial infarction",2005-01-01,5,147,2134,59195
+"MOBIC","myocardial infarction",2005-04-01,16,171,2005,49952
+"MOBIC","myocardial infarction",2005-07-01,13,170,3143,58458
+"MOBIC","myocardial infarction",2005-10-01,18,192,4864,63229
+"MOBIC","myocardial infarction",2006-01-01,10,159,6113,61767
+"MOBIC","myocardial infarction",2006-04-01,17,203,6262,57600
+"MOBIC","myocardial infarction",2006-07-01,7,139,1514,53795
+"MOBIC","myocardial infarction",2006-10-01,7,158,1983,72694
+"MOBIC","myocardial infarction",2007-01-01,3,142,1445,55511
+"MOBIC","myocardial infarction",2007-04-01,3,125,1436,56775
+"MOBIC","myocardial infarction",2007-07-01,6,146,3384,71358
+"MOBIC","myocardial infarction",2007-10-01,7,174,1958,82269
+"NEXIUM","clostridium difficile colitis",2004-01-01,0,455,258,50339
+"NEXIUM","clostridium difficile colitis",2004-04-01,1,337,256,44136
+"NEXIUM","clostridium difficile colitis",2004-07-01,1,658,284,59466
+"NEXIUM","clostridium difficile colitis",2004-10-01,1,571,294,51123
+"NEXIUM","clostridium difficile colitis",2005-01-01,3,622,314,59195
+"NEXIUM","clostridium difficile colitis",2005-04-01,3,555,347,49952
+"NEXIUM","clostridium difficile colitis",2005-07-01,4,725,337,58458
+"NEXIUM","clostridium difficile colitis",2005-10-01,3,808,303,63229
+"NEXIUM","clostridium difficile colitis",2006-01-01,3,773,367,61767
+"NEXIUM","clostridium difficile colitis",2006-04-01,3,879,376,57600
+"NEXIUM","clostridium difficile colitis",2006-07-01,3,770,382,53795
+"NEXIUM","clostridium difficile colitis",2006-10-01,1,990,399,72694
+"NEXIUM","clostridium difficile colitis",2007-01-01,1,759,378,55511
+"NEXIUM","clostridium difficile colitis",2007-04-01,2,1581,438,56775
+"NEXIUM","clostridium difficile colitis",2007-07-01,3,848,419,71358
+"NEXIUM","clostridium difficile colitis",2007-10-01,0,888,471,82269
+"NEXIUM","clostridium difficile colitis",2008-01-01,5,863,447,73809
+"NEXIUM","clostridium difficile colitis",2008-04-01,5,1746,479,74191
+"NEXIUM","clostridium difficile colitis",2008-07-01,4,947,516,75926
+"NEXIUM","clostridium difficile colitis",2008-10-01,6,1017,621,87133
+"NEXIUM","clostridium difficile colitis",2009-01-01,1,1135,595,75933
+"NEXIUM","clostridium difficile colitis",2009-04-01,1,2298,680,75339
+"NEXIUM","clostridium difficile colitis",2009-07-01,4,1454,732,90814
+"NEXIUM","clostridium difficile colitis",2009-10-01,11,1353,690,96718
+"NEXIUM","clostridium difficile colitis",2010-01-01,6,1177,747,94478
+"NEXIUM","clostridium difficile colitis",2010-04-01,5,2778,723,97991
+"NEXIUM","clostridium difficile colitis",2010-07-01,2,2614,783,158597
+"NEXIUM","clostridium difficile colitis",2010-10-01,5,1433,1015,133113
+"NEXIUM","clostridium difficile colitis",2011-01-01,6,2084,1376,126562
+"NEXIUM","clostridium difficile colitis",2011-04-01,5,6062,1235,134575
+"NEXIUM","clostridium difficile colitis",2011-07-01,1,2380,1346,143821
+"NEXIUM","clostridium difficile colitis",2011-10-01,3,2436,1354,153635
+"NEXIUM","clostridium difficile colitis",2012-01-01,14,3140,2186,175679
+"NEXIUM","clostridium difficile colitis",2012-04-01,8,11107,1571,167346
+"NEXIUM","clostridium difficile colitis",2012-07-01,4,4612,1457,176037
+"NEXIUM","clostridium difficile colitis",2012-10-01,4,3786,1380,181781
+"NEXIUM","clostridium difficile colitis",2013-01-01,3,2563,2229,208938
+"NEXIUM","clostridium difficile colitis",2013-04-01,3,2313,1224,166176
+"NEXIUM","clostridium difficile colitis",2013-07-01,1,1358,1410,179319
+"NEXIUM","clostridium difficile colitis",2013-10-01,2,1850,1330,219551
+"NEXIUM","clostridium difficile colitis",2014-01-01,6,2505,3871,251344
+"NEXIUM","clostridium difficile colitis",2014-04-01,4,1948,1268,217954
+"NEXIUM","clostridium difficile colitis",2014-07-01,1,1945,1356,208116
+"NEXIUM","clostridium difficile colitis",2014-10-01,4,2053,1277,197676
+"PRILOSEC","clostridium difficile colitis",2004-01-01,3,351,258,50339
+"PRILOSEC","clostridium difficile colitis",2004-04-01,0,346,256,44136
+"PRILOSEC","clostridium difficile colitis",2004-07-01,0,426,284,59466
+"PRILOSEC","clostridium difficile colitis",2004-10-01,1,347,294,51123
+"PRILOSEC","clostridium difficile colitis",2005-01-01,0,339,314,59195
+"PRILOSEC","clostridium difficile colitis",2005-04-01,2,327,347,49952
+"PRILOSEC","clostridium difficile colitis",2005-07-01,1,412,337,58458
+"PRILOSEC","clostridium difficile colitis",2005-10-01,0,451,303,63229
+"PRILOSEC","clostridium difficile colitis",2006-01-01,1,483,367,61767
+"PRILOSEC","clostridium difficile colitis",2006-04-01,1,512,376,57600
+"PRILOSEC","clostridium difficile colitis",2006-07-01,0,368,382,53795
+"PRILOSEC","clostridium difficile colitis",2006-10-01,1,467,399,72694
+"PRILOSEC","clostridium difficile colitis",2007-01-01,2,330,378,55511
+"PRILOSEC","clostridium difficile colitis",2007-04-01,1,405,438,56775
+"PRILOSEC","clostridium difficile colitis",2007-07-01,0,403,419,71358
+"PRILOSEC","clostridium difficile colitis",2007-10-01,2,468,471,82269
+"PRILOSEC","clostridium difficile colitis",2008-01-01,1,408,447,73809
+"PRILOSEC","clostridium difficile colitis",2008-04-01,0,494,479,74191
+"PRILOSEC","clostridium difficile colitis",2008-07-01,3,475,516,75926
+"PRILOSEC","clostridium difficile colitis",2008-10-01,0,468,621,87133
+"PRILOSEC","clostridium difficile colitis",2009-01-01,2,468,595,75933
+"PRILOSEC","clostridium difficile colitis",2009-04-01,0,723,680,75339
+"PRILOSEC","clostridium difficile colitis",2009-07-01,2,876,732,90814
+"PRILOSEC","clostridium difficile colitis",2009-10-01,1,1112,690,96718
+"PRILOSEC","clostridium difficile colitis",2010-01-01,2,595,747,94478
+"PRILOSEC","clostridium difficile colitis",2010-04-01,0,1164,723,97991
+"PRILOSEC","clostridium difficile colitis",2010-07-01,0,1464,783,158597
+"PRILOSEC","clostridium difficile colitis",2010-10-01,1,806,1015,133113
+"PRILOSEC","clostridium difficile colitis",2011-01-01,6,1002,1376,126562
+"PRILOSEC","clostridium difficile colitis",2011-04-01,3,1817,1235,134575
+"PRILOSEC","clostridium difficile colitis",2011-07-01,0,1032,1346,143821
+"PRILOSEC","clostridium difficile colitis",2011-10-01,0,996,1354,153635
+"PRILOSEC","clostridium difficile colitis",2012-01-01,6,1720,2186,175679
+"PRILOSEC","clostridium difficile colitis",2012-04-01,5,2863,1571,167346
+"PRILOSEC","clostridium difficile colitis",2012-07-01,2,1456,1457,176037
+"PRILOSEC","clostridium difficile colitis",2012-10-01,3,1214,1380,181781
+"PRILOSEC","clostridium difficile colitis",2013-01-01,3,1555,2229,208938
+"PRILOSEC","clostridium difficile colitis",2013-04-01,0,1373,1224,166176
+"PRILOSEC","clostridium difficile colitis",2013-07-01,6,857,1410,179319
+"PRILOSEC","clostridium difficile colitis",2013-10-01,0,1191,1330,219551
+"PRILOSEC","clostridium difficile colitis",2014-01-01,2,1836,3871,251344
+"PRILOSEC","clostridium difficile colitis",2014-04-01,0,1362,1268,217954
+"PRILOSEC","clostridium difficile colitis",2014-07-01,2,1027,1356,208116
+"PRILOSEC","clostridium difficile colitis",2014-10-01,3,1050,1277,197676
+"PREVACID","clostridium difficile colitis",2004-01-01,1,436,258,50339
+"PREVACID","clostridium difficile colitis",2004-04-01,0,395,256,44136
+"PREVACID","clostridium difficile colitis",2004-07-01,1,596,284,59466
+"PREVACID","clostridium difficile colitis",2004-10-01,1,506,294,51123
+"PREVACID","clostridium difficile colitis",2005-01-01,0,530,314,59195
+"PREVACID","clostridium difficile colitis",2005-04-01,3,472,347,49952
+"PREVACID","clostridium difficile colitis",2005-07-01,1,564,337,58458
+"PREVACID","clostridium difficile colitis",2005-10-01,0,674,303,63229
+"PREVACID","clostridium difficile colitis",2006-01-01,4,649,367,61767
+"PREVACID","clostridium difficile colitis",2006-04-01,1,665,376,57600
+"PREVACID","clostridium difficile colitis",2006-07-01,3,431,382,53795
+"PREVACID","clostridium difficile colitis",2006-10-01,0,563,399,72694
+"PREVACID","clostridium difficile colitis",2007-01-01,2,342,378,55511
+"PREVACID","clostridium difficile colitis",2007-04-01,4,389,438,56775
+"PREVACID","clostridium difficile colitis",2007-07-01,0,429,419,71358
+"PREVACID","clostridium difficile colitis",2007-10-01,1,467,471,82269
+"PREVACID","clostridium difficile colitis",2008-01-01,0,357,447,73809
+"PREVACID","clostridium difficile colitis",2008-04-01,0,400,479,74191
+"PREVACID","clostridium difficile colitis",2008-07-01,2,402,516,75926
+"PREVACID","clostridium difficile colitis",2008-10-01,0,392,621,87133
+"PREVACID","clostridium difficile colitis",2009-01-01,2,363,595,75933
+"PREVACID","clostridium difficile colitis",2009-04-01,1,504,680,75339
+"PREVACID","clostridium difficile colitis",2009-07-01,2,609,732,90814
+"PREVACID","clostridium difficile colitis",2009-10-01,0,505,690,96718
+"PREVACID","clostridium difficile colitis",2010-01-01,0,419,747,94478
+"PREVACID","clostridium difficile colitis",2010-04-01,2,493,723,97991
+"PREVACID","clostridium difficile colitis",2010-07-01,1,1180,783,158597
+"PREVACID","clostridium difficile colitis",2010-10-01,2,517,1015,133113
+"PREVACID","clostridium difficile colitis",2011-01-01,8,640,1376,126562
+"PREVACID","clostridium difficile colitis",2011-04-01,3,631,1235,134575
+"PREVACID","clostridium difficile colitis",2011-07-01,2,636,1346,143821
+"PREVACID","clostridium difficile colitis",2011-10-01,1,505,1354,153635
+"PREVACID","clostridium difficile colitis",2012-01-01,5,837,2186,175679
+"PREVACID","clostridium difficile colitis",2012-04-01,3,1052,1571,167346
+"PREVACID","clostridium difficile colitis",2012-07-01,1,605,1457,176037
+"PREVACID","clostridium difficile colitis",2012-10-01,3,463,1380,181781
+"PREVACID","clostridium difficile colitis",2013-01-01,2,659,2229,208938
+"PREVACID","clostridium difficile colitis",2013-04-01,1,523,1224,166176
+"PREVACID","clostridium difficile colitis",2013-07-01,1,341,1410,179319
+"PREVACID","clostridium difficile colitis",2013-10-01,0,498,1330,219551
+"PREVACID","clostridium difficile colitis",2014-01-01,0,676,3871,251344
+"PREVACID","clostridium difficile colitis",2014-04-01,1,318,1268,217954
+"PREVACID","clostridium difficile colitis",2014-07-01,2,352,1356,208116
+"PREVACID","clostridium difficile colitis",2014-10-01,0,338,1277,197676
+"PROTONIX","clostridium difficile colitis",2004-01-01,1,345,258,50339
+"PROTONIX","clostridium difficile colitis",2004-04-01,0,337,256,44136
+"PROTONIX","clostridium difficile colitis",2004-07-01,2,469,284,59466
+"PROTONIX","clostridium difficile colitis",2004-10-01,3,366,294,51123
+"PROTONIX","clostridium difficile colitis",2005-01-01,2,460,314,59195
+"PROTONIX","clostridium difficile colitis",2005-04-01,3,404,347,49952
+"PROTONIX","clostridium difficile colitis",2005-07-01,3,532,337,58458
+"PROTONIX","clostridium difficile colitis",2005-10-01,2,525,303,63229
+"PROTONIX","clostridium difficile colitis",2006-01-01,4,618,367,61767
+"PROTONIX","clostridium difficile colitis",2006-04-01,4,527,376,57600
+"PROTONIX","clostridium difficile colitis",2006-07-01,0,460,382,53795
+"PROTONIX","clostridium difficile colitis",2006-10-01,3,507,399,72694
+"PROTONIX","clostridium difficile colitis",2007-01-01,1,396,378,55511
+"PROTONIX","clostridium difficile colitis",2007-04-01,1,418,438,56775
+"PROTONIX","clostridium difficile colitis",2007-07-01,1,463,419,71358
+"PROTONIX","clostridium difficile colitis",2007-10-01,3,453,471,82269
+"PROTONIX","clostridium difficile colitis",2008-01-01,5,430,447,73809
+"PROTONIX","clostridium difficile colitis",2008-04-01,3,421,479,74191
+"PROTONIX","clostridium difficile colitis",2008-07-01,1,465,516,75926
+"PROTONIX","clostridium difficile colitis",2008-10-01,1,398,621,87133
+"PROTONIX","clostridium difficile colitis",2009-01-01,2,398,595,75933
+"PROTONIX","clostridium difficile colitis",2009-04-01,2,500,680,75339
+"PROTONIX","clostridium difficile colitis",2009-07-01,6,677,732,90814
+"PROTONIX","clostridium difficile colitis",2009-10-01,2,518,690,96718
+"PROTONIX","clostridium difficile colitis",2010-01-01,4,464,747,94478
+"PROTONIX","clostridium difficile colitis",2010-04-01,4,519,723,97991
+"PROTONIX","clostridium difficile colitis",2010-07-01,3,1423,783,158597
+"PROTONIX","clostridium difficile colitis",2010-10-01,6,738,1015,133113
+"PROTONIX","clostridium difficile colitis",2011-01-01,2,715,1376,126562
+"PROTONIX","clostridium difficile colitis",2011-04-01,4,757,1235,134575
+"PROTONIX","clostridium difficile colitis",2011-07-01,0,738,1346,143821
+"PROTONIX","clostridium difficile colitis",2011-10-01,1,608,1354,153635
+"PROTONIX","clostridium difficile colitis",2012-01-01,6,1114,2186,175679
+"PROTONIX","clostridium difficile colitis",2012-04-01,7,1200,1571,167346
+"PROTONIX","clostridium difficile colitis",2012-07-01,3,851,1457,176037
+"PROTONIX","clostridium difficile colitis",2012-10-01,3,639,1380,181781
+"PROTONIX","clostridium difficile colitis",2013-01-01,3,960,2229,208938
+"PROTONIX","clostridium difficile colitis",2013-04-01,2,755,1224,166176
+"PROTONIX","clostridium difficile colitis",2013-07-01,3,654,1410,179319
+"PROTONIX","clostridium difficile colitis",2013-10-01,2,878,1330,219551
+"PROTONIX","clostridium difficile colitis",2014-01-01,5,1258,3871,251344
+"PROTONIX","clostridium difficile colitis",2014-04-01,4,689,1268,217954
+"PROTONIX","clostridium difficile colitis",2014-07-01,5,758,1356,208116
+"PROTONIX","clostridium difficile colitis",2014-10-01,1,778,1277,197676
+"HUMIRA","tuberculosis",2004-01-01,3,1299,82,50339
+"HUMIRA","tuberculosis",2004-04-01,6,1486,79,44136
+"HUMIRA","tuberculosis",2004-07-01,13,1709,102,59466
+"HUMIRA","tuberculosis",2004-10-01,7,1551,129,51123
+"HUMIRA","tuberculosis",2005-01-01,7,1645,109,59195
+"HUMIRA","tuberculosis",2005-04-01,12,1361,118,49952
+"HUMIRA","tuberculosis",2005-07-01,10,1340,110,58458
+"HUMIRA","tuberculosis",2005-10-01,8,1181,112,63229
+"HUMIRA","tuberculosis",2006-01-01,10,357,221,61767
+"HUMIRA","tuberculosis",2006-04-01,6,318,134,57600
+"HUMIRA","tuberculosis",2006-07-01,7,420,111,53795
+"HUMIRA","tuberculosis",2006-10-01,6,416,124,72694
+"HUMIRA","tuberculosis",2007-01-01,8,498,121,55511
+"HUMIRA","tuberculosis",2007-04-01,7,522,116,56775
+"HUMIRA","tuberculosis",2007-07-01,8,591,132,71358
+"HUMIRA","tuberculosis",2007-10-01,13,2227,204,82269
+"HUMIRA","tuberculosis",2008-01-01,15,3308,137,73809
+"HUMIRA","tuberculosis",2008-04-01,23,2722,178,74191
+"HUMIRA","tuberculosis",2008-07-01,16,2799,145,75926
+"HUMIRA","tuberculosis",2008-10-01,12,3401,149,87133
+"HUMIRA","tuberculosis",2009-01-01,23,3780,155,75933
+"HUMIRA","tuberculosis",2009-04-01,16,4137,192,75339
+"HUMIRA","tuberculosis",2009-07-01,20,8883,253,90814
+"HUMIRA","tuberculosis",2009-10-01,11,1162,165,96718
+"HUMIRA","tuberculosis",2010-01-01,25,5060,131,94478
+"HUMIRA","tuberculosis",2010-04-01,19,1152,153,97991
+"HUMIRA","tuberculosis",2010-07-01,17,1415,166,158597
+"HUMIRA","tuberculosis",2010-10-01,18,1373,202,133113
+"HUMIRA","tuberculosis",2011-01-01,41,13405,169,126562
+"HUMIRA","tuberculosis",2011-04-01,25,1684,199,134575
+"HUMIRA","tuberculosis",2011-07-01,23,1825,185,143821
+"HUMIRA","tuberculosis",2011-10-01,31,2413,228,153635
+"ENBREL","tuberculosis",2004-01-01,1,207,82,50339
+"ENBREL","tuberculosis",2004-04-01,1,245,79,44136
+"ENBREL","tuberculosis",2004-07-01,4,285,102,59466
+"ENBREL","tuberculosis",2004-10-01,8,329,129,51123
+"ENBREL","tuberculosis",2005-01-01,3,323,109,59195
+"ENBREL","tuberculosis",2005-04-01,11,352,118,49952
+"ENBREL","tuberculosis",2005-07-01,5,382,110,58458
+"ENBREL","tuberculosis",2005-10-01,10,593,112,63229
+"ENBREL","tuberculosis",2006-01-01,7,384,221,61767
+"ENBREL","tuberculosis",2006-04-01,3,498,134,57600
+"ENBREL","tuberculosis",2006-07-01,9,594,111,53795
+"ENBREL","tuberculosis",2006-10-01,28,7282,124,72694
+"ENBREL","tuberculosis",2007-01-01,12,612,121,55511
+"ENBREL","tuberculosis",2007-04-01,15,758,116,56775
+"ENBREL","tuberculosis",2007-07-01,31,728,132,71358
+"ENBREL","tuberculosis",2007-10-01,40,15253,204,82269
+"ENBREL","tuberculosis",2008-01-01,15,799,137,73809
+"ENBREL","tuberculosis",2008-04-01,26,752,178,74191
+"ENBREL","tuberculosis",2008-07-01,8,815,145,75926
+"ENBREL","tuberculosis",2008-10-01,22,14055,149,87133
+"ENBREL","tuberculosis",2009-01-01,21,728,155,75933
+"ENBREL","tuberculosis",2009-04-01,30,848,192,75339
+"ENBREL","tuberculosis",2009-07-01,26,837,253,90814
+"ENBREL","tuberculosis",2009-10-01,20,11867,165,96718
+"ENBREL","tuberculosis",2010-01-01,5,830,131,94478
+"ENBREL","tuberculosis",2010-04-01,6,774,153,97991
+"ENBREL","tuberculosis",2010-07-01,7,1160,166,158597
+"ENBREL","tuberculosis",2010-10-01,35,19107,202,133113
+"ENBREL","tuberculosis",2011-01-01,9,1268,169,126562
+"ENBREL","tuberculosis",2011-04-01,10,1629,199,134575
+"ENBREL","tuberculosis",2011-07-01,5,1475,185,143821
+"ENBREL","tuberculosis",2011-10-01,47,24289,228,153635
+"REMICADE","lymphoma",2004-01-01,8,897,130,50339
+"REMICADE","lymphoma",2004-04-01,12,677,144,44136
+"REMICADE","lymphoma",2004-07-01,16,657,110,59466
+"REMICADE","lymphoma",2004-10-01,58,1460,178,51123
+"REMICADE","lymphoma",2005-01-01,25,633,199,59195
+"REMICADE","lymphoma",2005-04-01,16,718,164,49952
+"REMICADE","lymphoma",2005-07-01,25,617,148,58458
+"REMICADE","lymphoma",2005-10-01,26,686,180,63229
+"REMICADE","lymphoma",2006-01-01,24,753,180,61767
+"REMICADE","lymphoma",2006-04-01,38,880,191,57600
+"REMICADE","lymphoma",2006-07-01,38,890,195,53795
+"REMICADE","lymphoma",2006-10-01,39,751,209,72694
+"REMICADE","lymphoma",2007-01-01,21,929,134,55511
+"REMICADE","lymphoma",2007-04-01,27,938,147,56775
+"REMICADE","lymphoma",2007-07-01,23,818,147,71358
+"REMICADE","lymphoma",2007-10-01,29,882,198,82269
+"REMICADE","lymphoma",2008-01-01,19,851,142,73809
+"REMICADE","lymphoma",2008-04-01,27,909,183,74191
+"REMICADE","lymphoma",2008-07-01,30,1078,226,75926
+"REMICADE","lymphoma",2008-10-01,24,1021,220,87133
+"CIMZIA","tuberculosis",2008-01-01,0,0,137,73809
+"CIMZIA","tuberculosis",2008-04-01,0,2,178,74191
+"CIMZIA","tuberculosis",2008-07-01,0,5,145,75926
+"CIMZIA","tuberculosis",2008-10-01,0,18,149,87133
+"CIMZIA","tuberculosis",2009-01-01,0,28,155,75933
+"CIMZIA","tuberculosis",2009-04-01,0,327,192,75339
+"CIMZIA","tuberculosis",2009-07-01,2,986,253,90814
+"CIMZIA","tuberculosis",2009-10-01,0,863,165,96718
+"CIMZIA","tuberculosis",2010-01-01,0,570,131,94478
+"CIMZIA","tuberculosis",2010-04-01,0,743,153,97991
+"CIMZIA","tuberculosis",2010-07-01,1,850,166,158597
+"CIMZIA","tuberculosis",2010-10-01,2,1276,202,133113
+"CIMZIA","tuberculosis",2011-01-01,3,1229,169,126562
+"CIMZIA","tuberculosis",2011-04-01,7,1521,199,134575
+"CIMZIA","tuberculosis",2011-07-01,2,270,185,143821
+"CIMZIA","tuberculosis",2011-10-01,9,224,228,153635
+"CIMZIA","tuberculosis",2012-01-01,2,297,233,175679
+"CIMZIA","tuberculosis",2012-04-01,12,404,264,167346
+"CIMZIA","tuberculosis",2012-07-01,5,388,266,176037
+"CIMZIA","tuberculosis",2012-10-01,8,332,337,181781
+"FOSAMAX","osteonecrosis of jaw",2004-01-01,0,614,76,50339
+"FOSAMAX","osteonecrosis of jaw",2004-04-01,2,451,76,44136
+"FOSAMAX","osteonecrosis of jaw",2004-07-01,1,705,80,59466
+"FOSAMAX","osteonecrosis of jaw",2004-10-01,0,643,73,51123
+"FOSAMAX","osteonecrosis of jaw",2005-01-01,0,666,104,59195
+"FOSAMAX","osteonecrosis of jaw",2005-04-01,5,534,344,49952
+"FOSAMAX","osteonecrosis of jaw",2005-07-01,3,640,195,58458
+"FOSAMAX","osteonecrosis of jaw",2005-10-01,3,953,197,63229
+"FOSAMAX","osteonecrosis of jaw",2006-01-01,1,692,220,61767
+"FOSAMAX","osteonecrosis of jaw",2006-04-01,6,804,205,57600
+"FOSAMAX","osteonecrosis of jaw",2006-07-01,8,613,239,53795
+"FOSAMAX","osteonecrosis of jaw",2006-10-01,9,928,219,72694
+"FOSAMAX","osteonecrosis of jaw",2007-01-01,5,592,196,55511
+"FOSAMAX","osteonecrosis of jaw",2007-04-01,9,564,180,56775
+"FOSAMAX","osteonecrosis of jaw",2007-07-01,6,551,205,71358
+"FOSAMAX","osteonecrosis of jaw",2007-10-01,14,1774,198,82269
+"FOSAMAX","osteonecrosis of jaw",2008-01-01,4,714,184,73809
+"FOSAMAX","osteonecrosis of jaw",2008-04-01,26,600,240,74191
+"FOSAMAX","osteonecrosis of jaw",2008-07-01,22,604,271,75926
+"FOSAMAX","osteonecrosis of jaw",2008-10-01,34,852,248,87133
+"ACTONEL","osteonecrosis of jaw",2004-01-01,0,200,76,50339
+"ACTONEL","osteonecrosis of jaw",2004-04-01,0,174,76,44136
+"ACTONEL","osteonecrosis of jaw",2004-07-01,2,247,80,59466
+"ACTONEL","osteonecrosis of jaw",2004-10-01,0,200,73,51123
+"ACTONEL","osteonecrosis of jaw",2005-01-01,1,249,104,59195
+"ACTONEL","osteonecrosis of jaw",2005-04-01,0,205,344,49952
+"ACTONEL","osteonecrosis of jaw",2005-07-01,1,227,195,58458
+"ACTONEL","osteonecrosis of jaw",2005-10-01,2,254,197,63229
+"ACTONEL","osteonecrosis of jaw",2006-01-01,2,219,220,61767
+"ACTONEL","osteonecrosis of jaw",2006-04-01,2,219,205,57600
+"ACTONEL","osteonecrosis of jaw",2006-07-01,6,222,239,53795
+"ACTONEL","osteonecrosis of jaw",2006-10-01,6,270,219,72694
+"ACTONEL","osteonecrosis of jaw",2007-01-01,1,192,196,55511
+"ACTONEL","osteonecrosis of jaw",2007-04-01,2,202,180,56775
+"ACTONEL","osteonecrosis of jaw",2007-07-01,2,232,205,71358
+"ACTONEL","osteonecrosis of jaw",2007-10-01,9,294,198,82269
+"ACTONEL","osteonecrosis of jaw",2008-01-01,3,237,184,73809
+"ACTONEL","osteonecrosis of jaw",2008-04-01,9,233,240,74191
+"ACTONEL","osteonecrosis of jaw",2008-07-01,1,266,271,75926
+"ACTONEL","osteonecrosis of jaw",2008-10-01,5,319,248,87133
+"BONIVA","osteonecrosis of jaw",2004-01-01,0,0,76,50339
+"BONIVA","osteonecrosis of jaw",2004-04-01,0,0,76,44136
+"BONIVA","osteonecrosis of jaw",2004-07-01,0,0,80,59466
+"BONIVA","osteonecrosis of jaw",2004-10-01,0,0,73,51123
+"BONIVA","osteonecrosis of jaw",2005-01-01,0,1,104,59195
+"BONIVA","osteonecrosis of jaw",2005-04-01,0,16,344,49952
+"BONIVA","osteonecrosis of jaw",2005-07-01,0,368,195,58458
+"BONIVA","osteonecrosis of jaw",2005-10-01,1,796,197,63229
+"BONIVA","osteonecrosis of jaw",2006-01-01,2,993,220,61767
+"BONIVA","osteonecrosis of jaw",2006-04-01,0,1147,205,57600
+"BONIVA","osteonecrosis of jaw",2006-07-01,1,191,239,53795
+"BONIVA","osteonecrosis of jaw",2006-10-01,1,267,219,72694
+"BONIVA","osteonecrosis of jaw",2007-01-01,2,152,196,55511
+"BONIVA","osteonecrosis of jaw",2007-04-01,0,207,180,56775
+"BONIVA","osteonecrosis of jaw",2007-07-01,1,317,205,71358
+"BONIVA","osteonecrosis of jaw",2007-10-01,1,269,198,82269
+"BONIVA","osteonecrosis of jaw",2008-01-01,0,302,184,73809
+"BONIVA","osteonecrosis of jaw",2008-04-01,4,345,240,74191
+"BONIVA","osteonecrosis of jaw",2008-07-01,2,354,271,75926
+"BONIVA","osteonecrosis of jaw",2008-10-01,2,359,248,87133
+"BONIVA","osteonecrosis of jaw",2009-01-01,0,271,323,75933
+"BONIVA","osteonecrosis of jaw",2009-04-01,3,324,248,75339
+"BONIVA","osteonecrosis of jaw",2009-07-01,2,410,238,90814
+"BONIVA","osteonecrosis of jaw",2009-10-01,3,347,300,96718
+"RECLAST","osteonecrosis of jaw",2007-01-01,0,0,196,55511
+"RECLAST","osteonecrosis of jaw",2007-04-01,0,2,180,56775
+"RECLAST","osteonecrosis of jaw",2007-07-01,0,18,205,71358
+"RECLAST","osteonecrosis of jaw",2007-10-01,0,35,198,82269
+"RECLAST","osteonecrosis of jaw",2008-01-01,0,34,184,73809
+"RECLAST","osteonecrosis of jaw",2008-04-01,0,109,240,74191
+"RECLAST","osteonecrosis of jaw",2008-07-01,0,136,271,75926
+"RECLAST","osteonecrosis of jaw",2008-10-01,1,155,248,87133
+"RECLAST","osteonecrosis of jaw",2009-01-01,0,176,323,75933
+"RECLAST","osteonecrosis of jaw",2009-04-01,0,188,248,75339
+"RECLAST","osteonecrosis of jaw",2009-07-01,0,204,238,90814
+"RECLAST","osteonecrosis of jaw",2009-10-01,0,209,300,96718
+"RECLAST","osteonecrosis of jaw",2010-01-01,1,260,250,94478
+"RECLAST","osteonecrosis of jaw",2010-04-01,0,288,458,97991
+"RECLAST","osteonecrosis of jaw",2010-07-01,6,356,746,158597
+"RECLAST","osteonecrosis of jaw",2010-10-01,1,327,670,133113
+"RECLAST","osteonecrosis of jaw",2011-01-01,3,309,535,126562
+"RECLAST","osteonecrosis of jaw",2011-04-01,6,336,773,134575
+"RECLAST","osteonecrosis of jaw",2011-07-01,10,383,739,143821
+"RECLAST","osteonecrosis of jaw",2011-10-01,6,346,764,153635
+"PLAVIX","drug interaction",2004-01-01,16,683,972,50339
+"PLAVIX","drug interaction",2004-04-01,13,434,821,44136
+"PLAVIX","drug interaction",2004-07-01,16,645,928,59466
+"PLAVIX","drug interaction",2004-10-01,18,565,797,51123
+"PLAVIX","drug interaction",2005-01-01,19,919,894,59195
+"PLAVIX","drug interaction",2005-04-01,20,634,853,49952
+"PLAVIX","drug interaction",2005-07-01,12,812,778,58458
+"PLAVIX","drug interaction",2005-10-01,15,890,805,63229
+"PLAVIX","drug interaction",2006-01-01,25,1296,778,61767
+"PLAVIX","drug interaction",2006-04-01,18,1004,834,57600
+"PLAVIX","drug interaction",2006-07-01,15,724,776,53795
+"PLAVIX","drug interaction",2006-10-01,13,921,871,72694
+"PLAVIX","drug interaction",2007-01-01,29,1167,757,55511
+"PLAVIX","drug interaction",2007-04-01,18,716,898,56775
+"PLAVIX","drug interaction",2007-07-01,22,833,958,71358
+"PLAVIX","drug interaction",2007-10-01,21,854,980,82269
+"PLAVIX","drug interaction",2008-01-01,31,1292,898,73809
+"PLAVIX","drug interaction",2008-04-01,28,825,1150,74191
+"PLAVIX","drug interaction",2008-07-01,36,897,1063,75926
+"PLAVIX","drug interaction",2008-10-01,22,961,916,87133
+"PLAVIX","drug interaction",2009-01-01,26,961,1077,75933
+"PLAVIX","drug interaction",2009-04-01,30,1182,1076,75339
+"PLAVIX","drug interaction",2009-07-01,33,1571,1105,90814
+"PLAVIX","drug interaction",2009-10-01,26,1276,1155,96718
+"PLAVIX","drug interaction",2010-01-01,21,1176,1014,94478
+"PLAVIX","drug interaction",2010-04-01,46,1291,1391,97991
+"PLAVIX","drug interaction",2010-07-01,55,2840,1968,158597
+"PLAVIX","drug interaction",2010-10-01,47,1493,1322,133113
+"PLAVIX","drug interaction",2011-01-01,33,1321,1274,126562
+"PLAVIX","drug interaction",2011-04-01,47,1605,1559,134575
+"PLAVIX","drug interaction",2011-07-01,37,2031,1358,143821
+"PLAVIX","drug interaction",2011-10-01,23,1517,1204,153635
+"PLAVIX","drug interaction",2012-01-01,26,1824,1515,175679
+"PLAVIX","drug interaction",2012-04-01,44,1789,1617,167346
+"PLAVIX","drug interaction",2012-07-01,23,1918,1505,176037
+"PLAVIX","drug interaction",2012-10-01,40,1262,1614,181781
+"PRADAXA","gastrointestinal haemorrhage",2010-01-01,0,6,3182,94478
+"PRADAXA","gastrointestinal haemorrhage",2010-04-01,0,1,3151,97991
+"PRADAXA","gastrointestinal haemorrhage",2010-07-01,0,4,3348,158597
+"PRADAXA","gastrointestinal haemorrhage",2010-10-01,37,373,3925,133113
+"PRADAXA","gastrointestinal haemorrhage",2011-01-01,201,3116,4607,126562
+"PRADAXA","gastrointestinal haemorrhage",2011-04-01,255,3236,4952,134575
+"PRADAXA","gastrointestinal haemorrhage",2011-07-01,311,2511,5939,143821
+"PRADAXA","gastrointestinal haemorrhage",2011-10-01,298,2587,5633,153635
+"PRADAXA","gastrointestinal haemorrhage",2012-01-01,370,2541,6659,175679
+"PRADAXA","gastrointestinal haemorrhage",2012-04-01,357,2485,6340,167346
+"PRADAXA","gastrointestinal haemorrhage",2012-07-01,298,2171,6461,176037
+"PRADAXA","gastrointestinal haemorrhage",2012-10-01,234,1798,6330,181781
+"PRADAXA","gastrointestinal haemorrhage",2013-01-01,330,1962,7523,208938
+"PRADAXA","gastrointestinal haemorrhage",2013-04-01,751,2565,7017,166176
+"PRADAXA","gastrointestinal haemorrhage",2013-07-01,353,1758,6269,179319
+"PRADAXA","gastrointestinal haemorrhage",2013-10-01,358,1695,7123,219551
+"PRADAXA","gastrointestinal haemorrhage",2014-01-01,342,1770,11067,251344
+"PRADAXA","gastrointestinal haemorrhage",2014-04-01,248,1467,7464,217954
+"PRADAXA","gastrointestinal haemorrhage",2014-07-01,913,2677,7698,208116
+"PRADAXA","gastrointestinal haemorrhage",2014-10-01,127,1285,7418,197676
+"XARELTO","gastrointestinal haemorrhage",2011-01-01,3,24,4607,126562
+"XARELTO","gastrointestinal haemorrhage",2011-04-01,1,14,4952,134575
+"XARELTO","gastrointestinal haemorrhage",2011-07-01,1,125,5939,143821
+"XARELTO","gastrointestinal haemorrhage",2011-10-01,8,248,5633,153635
+"XARELTO","gastrointestinal haemorrhage",2012-01-01,21,502,6659,175679
+"XARELTO","gastrointestinal haemorrhage",2012-04-01,55,864,6340,167346
+"XARELTO","gastrointestinal haemorrhage",2012-07-01,73,1014,6461,176037
+"XARELTO","gastrointestinal haemorrhage",2012-10-01,96,1300,6330,181781
+"XARELTO","gastrointestinal haemorrhage",2013-01-01,137,1524,7523,208938
+"XARELTO","gastrointestinal haemorrhage",2013-04-01,124,1737,7017,166176
+"XARELTO","gastrointestinal haemorrhage",2013-07-01,138,1903,6269,179319
+"XARELTO","gastrointestinal haemorrhage",2013-10-01,136,2067,7123,219551
+"XARELTO","gastrointestinal haemorrhage",2014-01-01,136,1999,11067,251344
+"XARELTO","gastrointestinal haemorrhage",2014-04-01,153,2220,7464,217954
+"XARELTO","gastrointestinal haemorrhage",2014-07-01,152,2192,7698,208116
+"XARELTO","gastrointestinal haemorrhage",2014-10-01,211,2579,7418,197676
+"XARELTO","gastrointestinal haemorrhage",2015-01-01,223,2768,9425,284630
+"XARELTO","gastrointestinal haemorrhage",2015-04-01,1510,11750,10494,254771
+"XARELTO","gastrointestinal haemorrhage",2015-07-01,1528,6307,12542,354101
+"XARELTO","gastrointestinal haemorrhage",2015-10-01,1682,5963,12441,294278
+"ELIQUIS","gastrointestinal haemorrhage",2013-01-01,0,32,7523,208938
+"ELIQUIS","gastrointestinal haemorrhage",2013-04-01,4,147,7017,166176
+"ELIQUIS","gastrointestinal haemorrhage",2013-07-01,15,368,6269,179319
+"ELIQUIS","gastrointestinal haemorrhage",2013-10-01,34,544,7123,219551
+"ELIQUIS","gastrointestinal haemorrhage",2014-01-01,33,663,11067,251344
+"ELIQUIS","gastrointestinal haemorrhage",2014-04-01,51,917,7464,217954
+"ELIQUIS","gastrointestinal haemorrhage",2014-07-01,54,884,7698,208116
+"ELIQUIS","gastrointestinal haemorrhage",2014-10-01,43,1089,7418,197676
+"ELIQUIS","gastrointestinal haemorrhage",2015-01-01,52,1253,9425,284630
+"ELIQUIS","gastrointestinal haemorrhage",2015-04-01,80,1416,10494,254771
+"ELIQUIS","gastrointestinal haemorrhage",2015-07-01,88,1830,12542,354101
+"ELIQUIS","gastrointestinal haemorrhage",2015-10-01,122,2066,12441,294278
+"ELIQUIS","gastrointestinal haemorrhage",2016-01-01,124,2100,12304,342211
+"ELIQUIS","gastrointestinal haemorrhage",2016-04-01,169,2747,15315,290110
+"ELIQUIS","gastrointestinal haemorrhage",2016-07-01,122,2715,11744,278731
+"ELIQUIS","gastrointestinal haemorrhage",2016-10-01,139,3001,10016,275013
+"AMBIEN","somnambulism",2010-01-01,24,615,64,94478
+"AMBIEN","somnambulism",2010-04-01,12,640,60,97991
+"AMBIEN","somnambulism",2010-07-01,17,1506,125,158597
+"AMBIEN","somnambulism",2010-10-01,16,642,71,133113
+"AMBIEN","somnambulism",2011-01-01,7,781,49,126562
+"AMBIEN","somnambulism",2011-04-01,10,717,59,134575
+"AMBIEN","somnambulism",2011-07-01,7,863,72,143821
+"AMBIEN","somnambulism",2011-10-01,4,741,66,153635
+"AMBIEN","somnambulism",2012-01-01,11,1349,69,175679
+"AMBIEN","somnambulism",2012-04-01,13,966,92,167346
+"AMBIEN","somnambulism",2012-07-01,9,994,87,176037
+"AMBIEN","somnambulism",2012-10-01,5,802,64,181781
+"AMBIEN","somnambulism",2013-01-01,9,1218,101,208938
+"AMBIEN","somnambulism",2013-04-01,2,705,57,166176
+"AMBIEN","somnambulism",2013-07-01,25,876,92,179319
+"AMBIEN","somnambulism",2013-10-01,8,953,92,219551
+"AMBIEN","somnambulism",2014-01-01,10,1349,44,251344
+"AMBIEN","somnambulism",2014-04-01,13,686,64,217954
+"AMBIEN","somnambulism",2014-07-01,30,834,83,208116
+"AMBIEN","somnambulism",2014-10-01,1,723,54,197676
+"AMBIEN","somnambulism",2015-01-01,2,1501,117,284630
+"AMBIEN","somnambulism",2015-04-01,3,948,93,254771
+"AMBIEN","somnambulism",2015-07-01,14,1678,260,354101
+"AMBIEN","somnambulism",2015-10-01,4,1043,99,294278
+"AMBIEN","somnambulism",2016-01-01,8,1315,77,342211
+"AMBIEN","somnambulism",2016-04-01,5,1230,134,290110
+"AMBIEN","somnambulism",2016-07-01,15,1563,200,278731
+"AMBIEN","somnambulism",2016-10-01,5,1128,119,275013
+"AMBIEN","somnambulism",2017-01-01,4,978,91,314173
+"AMBIEN","somnambulism",2017-04-01,4,958,95,311493
+"AMBIEN","somnambulism",2017-07-01,10,1006,114,317753
+"AMBIEN","somnambulism",2017-10-01,6,794,109,308358
+"AMBIEN","somnambulism",2018-01-01,4,1019,112,358616
+"AMBIEN","somnambulism",2018-04-01,60,1266,166,393919
+"AMBIEN","somnambulism",2018-07-01,80,1455,182,346338
+"AMBIEN","somnambulism",2018-10-01,14,795,82,329245
+"AMBIEN","somnambulism",2019-01-01,10,967,93,361154
+"AMBIEN","somnambulism",2019-04-01,10,875,99,360214
+"AMBIEN","somnambulism",2019-07-01,9,720,92,371439
+"AMBIEN","somnambulism",2019-10-01,6,740,74,341388
+"AMBIEN","somnambulism",2020-01-01,4,719,69,380405
+"AMBIEN","somnambulism",2020-04-01,2,589,72,355644
+"AMBIEN","somnambulism",2020-07-01,5,692,77,363570
+"AMBIEN","somnambulism",2020-10-01,6,608,67,355498
+"LUNESTA","somnambulism",2010-01-01,2,112,64,94478
+"LUNESTA","somnambulism",2010-04-01,1,109,60,97991
+"LUNESTA","somnambulism",2010-07-01,4,360,125,158597
+"LUNESTA","somnambulism",2010-10-01,2,105,71,133113
+"LUNESTA","somnambulism",2011-01-01,0,138,49,126562
+"LUNESTA","somnambulism",2011-04-01,0,122,59,134575
+"LUNESTA","somnambulism",2011-07-01,0,140,72,143821
+"LUNESTA","somnambulism",2011-10-01,3,124,66,153635
+"LUNESTA","somnambulism",2012-01-01,2,232,69,175679
+"LUNESTA","somnambulism",2012-04-01,3,170,92,167346
+"LUNESTA","somnambulism",2012-07-01,0,147,87,176037
+"LUNESTA","somnambulism",2012-10-01,1,138,64,181781
+"LUNESTA","somnambulism",2013-01-01,2,173,101,208938
+"LUNESTA","somnambulism",2013-04-01,0,124,57,166176
+"LUNESTA","somnambulism",2013-07-01,0,132,92,179319
+"LUNESTA","somnambulism",2013-10-01,1,196,92,219551
+"LUNESTA","somnambulism",2014-01-01,0,230,44,251344
+"LUNESTA","somnambulism",2014-04-01,1,118,64,217954
+"LUNESTA","somnambulism",2014-07-01,0,120,83,208116
+"LUNESTA","somnambulism",2014-10-01,0,105,54,197676
+"LUNESTA","somnambulism",2015-01-01,1,216,117,284630
+"LUNESTA","somnambulism",2015-04-01,2,143,93,254771
+"LUNESTA","somnambulism",2015-07-01,3,309,260,354101
+"LUNESTA","somnambulism",2015-10-01,1,202,99,294278
+"LUNESTA","somnambulism",2016-01-01,1,199,77,342211
+"LUNESTA","somnambulism",2016-04-01,2,288,134,290110
+"LUNESTA","somnambulism",2016-07-01,1,369,200,278731
+"LUNESTA","somnambulism",2016-10-01,0,304,119,275013
+"LUNESTA","somnambulism",2017-01-01,0,190,91,314173
+"LUNESTA","somnambulism",2017-04-01,1,203,95,311493
+"LUNESTA","somnambulism",2017-07-01,1,232,114,317753
+"LUNESTA","somnambulism",2017-10-01,1,202,109,308358
+"LUNESTA","somnambulism",2018-01-01,0,246,112,358616
+"LUNESTA","somnambulism",2018-04-01,2,214,166,393919
+"LUNESTA","somnambulism",2018-07-01,0,218,182,346338
+"LUNESTA","somnambulism",2018-10-01,0,198,82,329245
+"LUNESTA","somnambulism",2019-01-01,3,236,93,361154
+"LUNESTA","somnambulism",2019-04-01,1,249,99,360214
+"LUNESTA","somnambulism",2019-07-01,2,203,92,371439
+"LUNESTA","somnambulism",2019-10-01,0,198,74,341388
+"LUNESTA","somnambulism",2020-01-01,1,184,69,380405
+"LUNESTA","somnambulism",2020-04-01,0,144,72,355644
+"LUNESTA","somnambulism",2020-07-01,0,177,77,363570
+"LUNESTA","somnambulism",2020-10-01,0,221,67,355498
+"SONATA","somnambulism",2010-01-01,0,14,64,94478
+"SONATA","somnambulism",2010-04-01,0,14,60,97991
+"SONATA","somnambulism",2010-07-01,0,42,125,158597
+"SONATA","somnambulism",2010-10-01,2,53,71,133113
+"SONATA","somnambulism",2011-01-01,0,21,49,126562
+"SONATA","somnambulism",2011-04-01,0,10,59,134575
+"SONATA","somnambulism",2011-07-01,0,34,72,143821
+"SONATA","somnambulism",2011-10-01,0,10,66,153635
+"SONATA","somnambulism",2012-01-01,0,38,69,175679
+"SONATA","somnambulism",2012-04-01,2,25,92,167346
+"SONATA","somnambulism",2012-07-01,0,18,87,176037
+"SONATA","somnambulism",2012-10-01,0,12,64,181781
+"SONATA","somnambulism",2013-01-01,1,24,101,208938
+"SONATA","somnambulism",2013-04-01,0,15,57,166176
+"SONATA","somnambulism",2013-07-01,0,15,92,179319
+"SONATA","somnambulism",2013-10-01,0,19,92,219551
+"SONATA","somnambulism",2014-01-01,0,25,44,251344
+"SONATA","somnambulism",2014-04-01,0,14,64,217954
+"SONATA","somnambulism",2014-07-01,0,20,83,208116
+"SONATA","somnambulism",2014-10-01,0,7,54,197676
+"SONATA","somnambulism",2015-01-01,0,35,117,284630
+"SONATA","somnambulism",2015-04-01,0,33,93,254771
+"SONATA","somnambulism",2015-07-01,0,65,260,354101
+"SONATA","somnambulism",2015-10-01,2,29,99,294278
+"SONATA","somnambulism",2016-01-01,0,25,77,342211
+"SONATA","somnambulism",2016-04-01,0,66,134,290110
+"SONATA","somnambulism",2016-07-01,1,95,200,278731
+"SONATA","somnambulism",2016-10-01,0,55,119,275013
+"SONATA","somnambulism",2017-01-01,0,19,91,314173
+"SONATA","somnambulism",2017-04-01,0,27,95,311493
+"SONATA","somnambulism",2017-07-01,1,26,114,317753
+"SONATA","somnambulism",2017-10-01,0,16,109,308358
+"SONATA","somnambulism",2018-01-01,1,28,112,358616
+"SONATA","somnambulism",2018-04-01,0,21,166,393919
+"SONATA","somnambulism",2018-07-01,0,18,182,346338
+"SONATA","somnambulism",2018-10-01,0,17,82,329245
+"SONATA","somnambulism",2019-01-01,0,17,93,361154
+"SONATA","somnambulism",2019-04-01,0,18,99,360214
+"SONATA","somnambulism",2019-07-01,1,14,92,371439
+"SONATA","somnambulism",2019-10-01,0,13,74,341388
+"SONATA","somnambulism",2020-01-01,0,14,69,380405
+"SONATA","somnambulism",2020-04-01,0,11,72,355644
+"SONATA","somnambulism",2020-07-01,0,15,77,363570
+"SONATA","somnambulism",2020-10-01,0,11,67,355498
+"ROZEREM","somnambulism",2010-01-01,0,32,64,94478
+"ROZEREM","somnambulism",2010-04-01,0,36,60,97991
+"ROZEREM","somnambulism",2010-07-01,1,63,125,158597
+"ROZEREM","somnambulism",2010-10-01,0,26,71,133113
+"ROZEREM","somnambulism",2011-01-01,0,20,49,126562
+"ROZEREM","somnambulism",2011-04-01,1,27,59,134575
+"ROZEREM","somnambulism",2011-07-01,0,40,72,143821
+"ROZEREM","somnambulism",2011-10-01,0,30,66,153635
+"ROZEREM","somnambulism",2012-01-01,0,29,69,175679
+"ROZEREM","somnambulism",2012-04-01,0,41,92,167346
+"ROZEREM","somnambulism",2012-07-01,0,42,87,176037
+"ROZEREM","somnambulism",2012-10-01,1,38,64,181781
+"ROZEREM","somnambulism",2013-01-01,0,35,101,208938
+"ROZEREM","somnambulism",2013-04-01,0,33,57,166176
+"ROZEREM","somnambulism",2013-07-01,0,40,92,179319
+"ROZEREM","somnambulism",2013-10-01,0,46,92,219551
+"ROZEREM","somnambulism",2014-01-01,0,39,44,251344
+"ROZEREM","somnambulism",2014-04-01,0,34,64,217954
+"ROZEREM","somnambulism",2014-07-01,0,57,83,208116
+"ROZEREM","somnambulism",2014-10-01,0,44,54,197676
+"ROZEREM","somnambulism",2015-01-01,1,58,117,284630
+"ROZEREM","somnambulism",2015-04-01,0,59,93,254771
+"ROZEREM","somnambulism",2015-07-01,1,133,260,354101
+"ROZEREM","somnambulism",2015-10-01,1,71,99,294278
+"ROZEREM","somnambulism",2016-01-01,0,42,77,342211
+"ROZEREM","somnambulism",2016-04-01,0,93,134,290110
+"ROZEREM","somnambulism",2016-07-01,0,122,200,278731
+"ROZEREM","somnambulism",2016-10-01,0,118,119,275013
+"ROZEREM","somnambulism",2017-01-01,0,81,91,314173
+"ROZEREM","somnambulism",2017-04-01,0,93,95,311493
+"ROZEREM","somnambulism",2017-07-01,0,85,114,317753
+"ROZEREM","somnambulism",2017-10-01,1,116,109,308358
+"ROZEREM","somnambulism",2018-01-01,0,67,112,358616
+"ROZEREM","somnambulism",2018-04-01,1,99,166,393919
+"ROZEREM","somnambulism",2018-07-01,1,82,182,346338
+"ROZEREM","somnambulism",2018-10-01,0,84,82,329245
+"ROZEREM","somnambulism",2019-01-01,0,93,93,361154
+"ROZEREM","somnambulism",2019-04-01,0,77,99,360214
+"ROZEREM","somnambulism",2019-07-01,0,76,92,371439
+"ROZEREM","somnambulism",2019-10-01,0,76,74,341388
+"ROZEREM","somnambulism",2020-01-01,0,41,69,380405
+"ROZEREM","somnambulism",2020-04-01,1,46,72,355644
+"ROZEREM","somnambulism",2020-07-01,0,53,77,363570
+"ROZEREM","somnambulism",2020-10-01,0,63,67,355498

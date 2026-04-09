@@ -1,0 +1,10 @@
+library(curl)
+library(jsonlite)
+h <- new_handle()
+handle_setopt(h, timeout = 10L)
+resp <- curl_fetch_memory("https://api.fda.gov/drug/label.json?search=openfda.brand_name:HUMIRA&limit=1", handle = h)
+body <- fromJSON(rawToChar(resp$content))
+bbw <- body$results$boxed_warning[[1]]
+clean <- gsub("<[^>]+>", "", bbw)
+clean <- trimws(gsub("\\s+", " ", clean))
+cat(clean)

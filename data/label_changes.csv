@@ -1,0 +1,41 @@
+drug_name,generic_name,therapeutic_class,approval_year,signal_quarter,label_change_date,label_change_type,adverse_event,source_notes
+Avandia,rosiglitazone,Antidiabetic,1999,2007 Q1,2007-08-14,Boxed Warning Added,Myocardial infarction,Nissen & Wolski NEJM meta-analysis triggered FDA review; Boxed Warning added Aug 2007
+Actos,pioglitazone,Antidiabetic,1999,2010 Q2,2011-06-15,Warning Added,Bladder cancer,French cohort study signal; FDA added bladder cancer warning June 2011
+Invokana,canagliflozin,Antidiabetic,2013,,2017-05-16,Boxed Warning Added,Lower limb amputation,CANVAS trial + FAERS postmarket data; Boxed Warning for amputation risk May 2017
+Januvia,sitagliptin,Antidiabetic,2006,,2009-09-25,Warning Added,Pancreatitis,Postmarket reports of acute pancreatitis; warning added Sep 2009
+Zocor,simvastatin,Statin,1991,2009 Q2,2011-06-08,Contraindication Added,Rhabdomyolysis,FDA restricted 80mg dose after SEARCH trial data; contraindication for high-dose June 2011
+Lipitor,atorvastatin,Statin,1996,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
+Crestor,rosuvastatin,Statin,2003,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
+Pravachol,pravastatin,Statin,1991,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
+Cipro,ciprofloxacin,Fluoroquinolone,1987,2006 Q2,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone signal; Boxed Warning July 2008
+Levaquin,levofloxacin,Fluoroquinolone,1996,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
+Avelox,moxifloxacin,Fluoroquinolone,1999,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
+Floxin,ofloxacin,Fluoroquinolone,1990,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
+Abilify,aripiprazole,Antipsychotic,2002,,2016-05-03,Warning Added,Pathological gambling,FDA safety communication May 2016 for compulsive behaviors including gambling
+Seroquel,quetiapine,Antipsychotic,1997,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
+Zyprexa,olanzapine,Antipsychotic,1996,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
+Risperdal,risperidone,Antipsychotic,1993,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
+Celebrex,celecoxib,NSAID,1998,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005 following Vioxx withdrawal
+Vioxx,rofecoxib,NSAID,1999,,2004-09-30,Withdrawn,Myocardial infarction,Withdrawn after APPROVe trial confirmed increased CV risk Sep 2004
+Voltaren,diclofenac,NSAID,1988,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005
+Mobic,meloxicam,NSAID,2000,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005
+Nexium,esomeprazole,PPI,2001,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 for C. difficile-associated diarrhea risk with PPI use
+Prilosec,omeprazole,PPI,1989,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
+Prevacid,lansoprazole,PPI,1995,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
+Protonix,pantoprazole,PPI,2000,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
+Humira,adalimumab,TNF Inhibitor,2002,,2008-09-04,Boxed Warning Updated,Tuberculosis,Postmarket TB reactivation reports; strengthened Boxed Warning for serious infections Sep 2008
+Enbrel,etanercept,TNF Inhibitor,1998,,2008-09-04,Boxed Warning Updated,Tuberculosis,Class-wide TNF inhibitor TB/serious infection Boxed Warning update Sep 2008
+Remicade,infliximab,TNF Inhibitor,1998,,2006-10-19,Boxed Warning Updated,Lymphoma,Postmarket hepatosplenic T-cell lymphoma reports; Boxed Warning updated Oct 2006
+Cimzia,certolizumab pegol,TNF Inhibitor,2008,,2009-10-07,Boxed Warning Updated,Tuberculosis,TB risk warning updated based on class data + early postmarket reports Oct 2009
+Fosamax,alendronate,Bisphosphonate,1995,,2005-11-12,Warning Added,Osteonecrosis of jaw,Postmarket dental literature case series; FDA notified HCPs Nov 2005
+Actonel,risedronate,Bisphosphonate,2000,,2005-11-12,Warning Added,Osteonecrosis of jaw,Class-wide bisphosphonate ONJ warning Nov 2005
+Boniva,ibandronate,Bisphosphonate,2003,,2007-05-09,Warning Added,Osteonecrosis of jaw,ONJ warning added to label based on accumulating postmarket evidence May 2007
+Reclast,zoledronic acid,Bisphosphonate,2007,,2009-09-01,Warning Added,Osteonecrosis of jaw,ONJ warning based on class-wide bisphosphonate signal Sep 2009
+Plavix,clopidogrel,Antithrombotic,1997,2008 Q3,2010-03-12,Boxed Warning Added,CYP2C19 Drug interaction,Pharmacogenomics signal for CYP2C19 poor metabolizers; Boxed Warning March 2010
+Pradaxa,dabigatran,Antithrombotic,2010,,2012-11-02,Warning Updated,Gastrointestinal haemorrhage,FDA Drug Safety Communication Nov 2012; real-world bleeding rates exceeded trial expectations
+Xarelto,rivaroxaban,Antithrombotic,2011,,2013-11-04,Warning Updated,Gastrointestinal haemorrhage,Postmarket bleeding signal in real-world use; warning updated Nov 2013
+Eliquis,apixaban,Antithrombotic,2012,,2014-03-14,Warning Updated,Gastrointestinal haemorrhage,Postmarket GI bleeding reports; warning strengthened Mar 2014
+Ambien,zolpidem,Sedative-Hypnotic,1992,,2019-04-30,Boxed Warning Added,Somnambulism,FDA required Boxed Warning for complex sleep behaviors (sleepwalking/sleep-driving) April 2019
+Lunesta,eszopiclone,Sedative-Hypnotic,2004,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide sedative-hypnotic Boxed Warning for complex sleep behaviors April 2019
+Sonata,zaleplon,Sedative-Hypnotic,1999,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning + contraindication for complex sleep behaviors April 2019
+Intermezzo,zolpidem sublingual,Sedative-Hypnotic,2011,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning for complex sleep behaviors April 2019
