@@ -1032,10 +1032,12 @@ ui <- page_navbar(
       ),
       if (!is.null(provenance)) tags$span(
         style = "font-size:0.72rem; color:#94a3b8; margin-left:12px;",
-        paste0("Reference cohort data pulled ",
+        paste0("Cohort study period: ",
+               provenance$faers_date_range["earliest"], " to ",
+               provenance$faers_date_range["latest"],
+               " | Last refreshed ",
                format(as.POSIXct(provenance$pipeline_run_utc, tz = "UTC"), "%B %d, %Y"),
-               " | FAERS ", provenance$faers_date_range["earliest"],
-               " to ", provenance$faers_date_range["latest"])
+               " | Monitor tab queries live data")
       )
     )
   )
