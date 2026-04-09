@@ -26,7 +26,8 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 14. [Drug cohort](#drug-cohort)
 15. [Cohort analysis findings](#cohort-analysis-findings)
 16. [Data sources](#data-sources)
-17. [API reference — R/utils.R](#api-reference--rutilsr)
+17. [References](#references)
+18. [API reference — R/utils.R](#api-reference--rutilsr)
 
 ---
 
@@ -87,7 +88,7 @@ Based on the most recent 6 quarters:
 - **CONFIRMED** — signal met in 2 or more of the last 6 quarters
 - **EMERGING** — signal met in exactly 1 of the last 6 quarters
 - **NOT DETECTED** — signal not met in any of the last 6 quarters
-- **INSUFFICIENT DATA** — fewer than 10 total reports or no quarter with 3+ reports; PRR not reliable
+- **INSUFFICIENT DATA** — fewer than 10 total reports across all queried quarters, or no single quarter with ≥ 3 reports; PRR is not reliable at this sample size
 
 ### Signal duration metrics
 
@@ -272,6 +273,26 @@ Standalone preview plots (same functions used in the Shiny app). Non-fatal if it
 2. `plot_prr_trend(drug)` — quarterly PRR line chart for a single drug, with signal-detected and label-change markers
 3. `plot_change_type()` — label change type breakdown bar chart
 
+### Data freshness
+
+The reference cohort data in `data/faers_raw.rds` and `data/combined.rds` is **point-in-time** — it reflects FAERS counts as of the pipeline run date. openFDA periodically reprocesses historical FAERS records, which can cause counts for past quarters to drift over time. Re-running `run_pipeline.R` will refresh the cohort data against the current openFDA index.
+
+The **Monitor Your Drug** tab always queries live FAERS data in real time; it is not affected by the pipeline run date.
+
+### Automatic quarterly refresh
+
+A cron job runs `scripts/refresh_cohort.sh` on the 1st of January, April, July, and October at 3:00 AM to re-pull FAERS data, recompute signals, and rebuild the Docker container. This keeps the reference cohort current with the openFDA index.
+
+```bash
+# Manual refresh
+./scripts/refresh_cohort.sh
+
+# Check last refresh log
+cat /home/edward/apps/prism/logs/refresh.log
+```
+
+The pipeline run date and FAERS date range are displayed in the dashboard footer.
+
 ---
 
 ## Deployment
@@ -310,14 +331,15 @@ The `rsconnect/` directory contains `.dcf` config files for three deployment slo
 ## Project structure
 
 ```
-signal-to-label/
+prism/
 ├── app.R                      # Shiny app (UI + server + all live-query logic)
 ├── R/
 │   └── utils.R                # Shared helpers (openFDA queries, PRR, audit logging)
 ├── scripts/
 │   ├── 01_faers_pull.R        # Pull FAERS data from openFDA API
 │   ├── 02_signal_detection.R  # Compute PRR, identify first signal quarter
-│   └── 03_visualizations.R   # Standalone preview plots (same as in-app charts)
+│   ├── 03_visualizations.R    # Standalone preview plots (same as in-app charts)
+│   └── refresh_cohort.sh      # Quarterly auto-refresh (cron target)
 ├── data/
 │   ├── label_changes.csv      # Curated: 40 drugs with label change dates and types
 │   ├── faers_raw.rds          # Pipeline output: raw counts (one row per drug/AE/quarter)
@@ -392,6 +414,20 @@ These findings underscore that FAERS disproportionality analysis has well-define
 - **FAERS:** [openFDA Drug Event API](https://open.fda.gov/apis/drug/event/) — no API key required for low-volume queries (under 1,000/day)
 - **Drug labeling:** [openFDA Drug Labeling API](https://open.fda.gov/apis/drug/label/) — queried in real time for BBW and contraindication checks
 - **Label changes:** Manually curated from FDA safety communications, drug safety labeling changes, and published literature (`data/label_changes.csv`)
+
+---
+
+## References
+
+Evans, S.J.W., Waller, P.C., & Davis, S. (2001). Use of proportional reporting ratios (PRRs) for signal generation from spontaneous adverse drug reaction reports. *Pharmacoepidemiology and Drug Safety*, 10(6), 483–486.
+
+Rothman, K.J., Lanes, S., & Sacks, S.T. (2004). The reporting odds ratio and its advantages over the proportional reporting ratio. *Pharmacoepidemiology and Drug Safety*, 13(8), 519–523.
+
+Rothman, K.J. (2008). *Modern Epidemiology* (3rd ed.). Lippincott Williams & Wilkins. (Log-normal CI approximation for ratio measures.)
+
+European Medicines Agency. (2012). *Guideline on good pharmacovigilance practices (GVP), Module IX — Signal management*. EMA/827661/2011.
+
+ICH E2E. (2004). *Pharmacovigilance planning*. International Conference on Harmonisation of Technical Requirements for Registration of Pharmaceuticals for Human Use.
 
 ---
 

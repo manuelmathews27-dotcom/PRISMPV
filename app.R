@@ -1029,6 +1029,13 @@ ui <- page_navbar(
       tags$span(
         style = "font-size:0.75rem; color:#64748b;",
         "Pharmacovigilance Real-time Intelligence Signal Monitor"
+      ),
+      if (!is.null(provenance)) tags$span(
+        style = "font-size:0.72rem; color:#94a3b8; margin-left:12px;",
+        paste0("Reference cohort data pulled ",
+               format(as.POSIXct(provenance$pipeline_run_utc, tz = "UTC"), "%B %d, %Y"),
+               " | FAERS ", provenance$faers_date_range["earliest"],
+               " to ", provenance$faers_date_range["latest"])
       )
     )
   )
