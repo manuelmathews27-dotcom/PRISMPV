@@ -7,10 +7,19 @@
 # and verifies compute_prr() recovers the textbook PRR, Rothman CI, and
 # Yates-corrected Pearson chi-squared.
 
-setwd(dirname(dirname(normalizePath(sys.frame(1)$ofile %||% "tests/test_prr_formula.R"))))
+# Resolve repo root: run from anywhere, find utils.R by walking up from CWD
+find_utils <- function() {
+  here <- normalizePath(getwd())
+  for (i in 1:5) {
+    p <- file.path(here, "R", "utils.R")
+    if (file.exists(p)) return(here)
+    here <- dirname(here)
+  }
+  stop("cannot locate R/utils.R from ", getwd())
+}
+setwd(find_utils())
 suppressWarnings(suppressPackageStartupMessages(source("R/utils.R")))
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
 EPS <- 1e-6
 FAIL <- 0L
 
