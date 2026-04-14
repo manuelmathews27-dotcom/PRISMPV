@@ -1,0 +1,22 @@
+# Prism - FULLY PUBLIC (new app on edward)
+https://prism.phillyshell.cloud {
+	bind 76.13.125.133 100.95.159.55
+
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	header X-Content-Type-Options "nosniff"
+	header X-Frame-Options "SAMEORIGIN"
+	header Referrer-Policy "strict-origin-when-cross-origin"
+
+	reverse_proxy http://100.111.71.48:8088 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+http://prism.phillyshell.cloud {
+	bind 76.13.125.133 100.95.159.55
+	redir https://{host}{uri} permanent
+}
+
