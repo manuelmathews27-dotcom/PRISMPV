@@ -147,9 +147,14 @@ compute_prr <- function(df) {
       PRR_hi = ifelse(ok, exp(log(PRR) + 1.96 * PRR_log_se), NA_real_),
 
       # Full Pearson chi-squared with Yates continuity correction (Evans criterion form)
-      chi_sq_num  = pmax(abs(count_a * count_d - count_b * count_c) - count_d / 2, 0)^2,
-      chi_sq_den  = count_b * cd_cell * count_c * bd_cell,
-      chi_sq = ifelse(ok & chi_sq_den > 0, count_d * chi_sq_num / chi_sq_den, NA_real_)
+      # Cast to numeric to avoid integer overflow on large FAERS counts.
+      chi_sq_num  = pmax(abs(as.numeric(count_a) * as.numeric(count_d) -
+                              as.numeric(count_b) * as.numeric(count_c)) -
+                          as.numeric(count_d) / 2, 0)^2,
+      chi_sq_den  = as.numeric(count_b) * as.numeric(cd_cell) *
+                    as.numeric(count_c) * as.numeric(bd_cell),
+      chi_sq = ifelse(ok & chi_sq_den > 0,
+                      as.numeric(count_d) * chi_sq_num / chi_sq_den, NA_real_)
     ) |>
     dplyr::select(-ok, -chi_sq_num, -chi_sq_den)
 }
