@@ -1,0 +1,25 @@
+# Pipeline outputs (never commit raw FAERS / embeddings / signals)
+narrative_intelligence/
+
+# Secrets
+.env
+.env.*
+
+# R session artifacts
+.Rhistory
+.RData
+.Ruserdata
+Rplots.pdf
+*.Rproj.user/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+*.swp
+*.swo
+
+# Bundled deploy packages
+rsconnect/packrat/

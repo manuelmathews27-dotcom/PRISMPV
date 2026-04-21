@@ -2,16 +2,23 @@
 # Compute Proportional Reporting Ratio (PRR) per drug-event pair per quarter,
 # then identify the quarter when each signal first met detection criteria.
 #
-# PRR formula:
-#   PRR = (A / B) / (C / D)
-#   where:
-#     A = reports with THIS drug AND THIS event
-#     B = reports with THIS drug (any event)
-#     C = reports with THIS event (any drug)
-#     D = all reports in the quarter
+# NOTE ON INPUT SHAPE: openFDA returns marginals, not 2x2 cells.
+#   count_a = drug + event                 (= cell a)
+#   count_b = drug, any event              (= a + b, row marginal)
+#   count_c = event, any drug              (= a + c, column marginal)
+#   count_d = all reports                  (= N, grand total)
+# compute_prr() in R/utils.R reconstructs the true cells before computing.
+#
+# PRR (textbook, Rothman & Greenland):
+#   PRR = (a / (a+b)) / (c / (c+d))
+#       = (count_a / count_b) / ((count_c - count_a) / (count_d - count_b))
+#
+# Chi-squared (Pearson with Yates continuity correction):
+#   chi^2 = N * (|a*d - b*c| - N/2)^2 / ((a+b)(c+d)(a+c)(b+d))
 #
 # Signal threshold (Evans criteria, widely used by regulators):
 #   PRR >= 2  AND  chi-squared >= 4  AND  A >= 3
+#   plus PRR_lo (95% CI lower bound) > 1 when CI is computable.
 
 library(dplyr)
 library(lubridate)

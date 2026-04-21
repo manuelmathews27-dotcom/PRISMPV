@@ -112,23 +112,46 @@ parse_multi_resp <- function(resp) {
   })
 }
 
-# ── Compute PRR columns from a data frame with count_a/b/c/d ────────────────
+# ── Compute PRR + CI + Yates-corrected Pearson chi-squared ──────────────────
+# Inputs are openFDA marginals, NOT the four 2x2 cells:
+#   count_a = drug X AND event Y         = a
+#   count_b = drug X, any event          = a + b   (row marginal)
+#   count_c = event Y, any drug          = a + c   (column marginal)
+#   count_d = all reports in period      = N       (grand total)
+#
+# Textbook PRR requires the comparator "other drugs". Reconstruct:
+#   c_cell  = count_c - count_a          (event in OTHER drugs)
+#   cd_cell = count_d - count_b          (OTHER drugs total)
+#
+# PRR   = (a / (a+b)) / (c / (c+d))
+# log-SE = sqrt(1/a - 1/(a+b) + 1/c - 1/(c+d))   [Rothman]
+# chi^2 = N * (|ad - bc| - N/2)^2 / ((a+b)(c+d)(a+c)(b+d))   [Pearson w/ Yates]
+#         collapses to marginals because (ad - bc) = count_a*count_d - count_b*count_c
 compute_prr <- function(df) {
   df |>
     dplyr::mutate(
-      B      = pmax(count_b, 1),
-      C      = pmax(count_c, 1),
-      D      = pmax(count_d, 1),
-      PRR    = (count_a / B) / (C / D),
-      # 95% CI via log-normal approximation (Rothman)
-      PRR_log_se = ifelse(count_a > 0,
-                          sqrt(1/count_a - 1/B + 1/C - 1/D),
+      c_cell  = count_c - count_a,                 # event in other drugs
+      cd_cell = count_d - count_b,                 # other-drug total (c + d)
+      bd_cell = count_d - count_c,                 # non-event total  (b + d)
+
+      # Degenerate-cell guard: any required marginal/cell at zero makes PRR undefined.
+      ok = count_a  > 0 & count_b  > 0 & count_c  > 0 & count_d  > 0 &
+           c_cell  > 0 & cd_cell > 0 & bd_cell > 0,
+
+      PRR = ifelse(ok, (count_a / count_b) / (c_cell / cd_cell), NA_real_),
+
+      PRR_log_se = ifelse(ok,
+                          sqrt(1/count_a - 1/count_b + 1/c_cell - 1/cd_cell),
                           NA_real_),
-      PRR_lo  = ifelse(!is.na(PRR_log_se), exp(log(PRR) - 1.96 * PRR_log_se), NA_real_),
-      PRR_hi  = ifelse(!is.na(PRR_log_se), exp(log(PRR) + 1.96 * PRR_log_se), NA_real_),
-      E      = B * C / D,
-      chi_sq = ifelse(E > 0, (count_a - E)^2 / E, NA_real_)
-    )
+      PRR_lo = ifelse(ok, exp(log(PRR) - 1.96 * PRR_log_se), NA_real_),
+      PRR_hi = ifelse(ok, exp(log(PRR) + 1.96 * PRR_log_se), NA_real_),
+
+      # Full Pearson chi-squared with Yates continuity correction (Evans criterion form)
+      chi_sq_num  = pmax(abs(count_a * count_d - count_b * count_c) - count_d / 2, 0)^2,
+      chi_sq_den  = count_b * cd_cell * count_c * bd_cell,
+      chi_sq = ifelse(ok & chi_sq_den > 0, count_d * chi_sq_num / chi_sq_den, NA_real_)
+    ) |>
+    dplyr::select(-ok, -chi_sq_num, -chi_sq_den)
 }
 
 # ── Check if signal criteria are met ─────────────────────────────────────────
