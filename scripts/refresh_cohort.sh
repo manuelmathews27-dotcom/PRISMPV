@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-PRISM_DIR="/home/edward/apps/prism"
+PRISM_DIR="/home/manny/prism"
 REPO_DIR="${PRISM_DIR}/repo"
 LOG_FILE="${PRISM_DIR}/logs/refresh.log"
 CONTAINER_NAME="prism"
