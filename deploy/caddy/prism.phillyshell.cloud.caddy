@@ -7,7 +7,7 @@ https://prism.phillyshell.cloud {
 	header X-Frame-Options "SAMEORIGIN"
 	header Referrer-Policy "strict-origin-when-cross-origin"
 
-	reverse_proxy http://100.111.71.48:8088 {
+	reverse_proxy http://100.111.71.48:3838 {
 		header_up Host {host}
 		header_up X-Real-IP {remote_host}
 		header_up X-Forwarded-For {remote_host}
