@@ -19,7 +19,7 @@ jobs:
           r-version: '4.4.0'
 
       - name: Install system dependencies
-        run: sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev libuv1-dev
 
       - name: Install R packages
         run: |
@@ -44,3 +44,20 @@ jobs:
               forceUpdate = TRUE
             )
           '
+
+      - name: Smoke test deployed app (fail if unhealthy)
+        run: |
+          url="https://mmdothim.shinyapps.io/PRISMPV/"
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /tmp/prism_body.html -w '%{http_code}' --max-time 30 "$url" || echo 000)
+            if [ "$code" = "200" ] && grep -qi '<title>PRISM</title>' /tmp/prism_body.html; then
+              echo "PASS: smoke test ok on attempt $i (HTTP 200, PRISM title present)"
+              exit 0
+            fi
+            echo "attempt $i: http_code=$code — not healthy yet, retrying in 15s"
+            sleep 15
+          done
+          echo "FAIL: deployed app never returned a healthy PRISM page"
+          echo "--- last response (first 2KB) ---"
+          head -c 2048 /tmp/prism_body.html || true
+          exit 1
