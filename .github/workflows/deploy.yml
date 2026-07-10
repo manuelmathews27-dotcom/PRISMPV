@@ -2,10 +2,11 @@ name: Deploy to shinyapps.io
 
 on:
   push:
-    branches: [master]
+    branches: [edward-auto]
     paths-ignore:
       - '**.md'
       - '.claude/**'
+      - 'deploy/**'
 
 jobs:
   deploy:
