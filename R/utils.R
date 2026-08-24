@@ -167,25 +167,33 @@ build_url <- function(drug_name = NULL, pt_term = NULL, q_start, q_end) {
 # is always valid. NA (a failure) is not cached — `cached()` skips NULL, and the
 # NA path returns NULL to it explicitly.
 fetch_total <- function(url) {
-  hit <- cache_get(paste0("count:", url))
+  ck  <- paste0("count:", url)
+  hit <- cache_get(ck)
   if (!is.null(hit)) return(hit)
+  # NOTE: no `return()` inside the tryCatch block. In R, `return()` there exits
+  # the ENCLOSING FUNCTION, not the block — which would jump straight past the
+  # cache_set below. openFDA answers 404 for a zero-result search, and that is a
+  # hot path for sparse drug/AE pairs, so it must reach the cache like any other
+  # count. if/else yielding a value keeps every branch flowing to one exit.
   val <- tryCatch({
     h <- curl::new_handle()
     curl::handle_setopt(h, timeout = 15L, connecttimeout = 10L)
     resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
-    if (resp$status_code == 404) return(0L)
-    if (resp$status_code != 200) {
+    if (resp$status_code == 404) {
+      0L
+    } else if (resp$status_code != 200) {
       message("[FAERS] HTTP ", resp$status_code, " for ", substr(redact_key(url), 1, 120))
-      return(NA_integer_)
+      NA_integer_
+    } else {
+      parsed <- fromJSON(rawToChar(resp$content))
+      parsed$meta$results$total %||% 0L
     }
-    parsed <- fromJSON(rawToChar(resp$content))
-    parsed$meta$results$total %||% 0L
   }, error = function(e) {
     message("[FAERS] Error: ", conditionMessage(e), " — URL: ",
             substr(redact_key(url), 1, 120))
     NA_integer_
   })
-  if (!is.na(val)) cache_set(paste0("count:", url), val)
+  if (!is.na(val)) cache_set(ck, val)   # failures stay uncached and get retried
   val
 }
 
