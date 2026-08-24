@@ -134,10 +134,8 @@ resolve_drug_names <- function(drug_name) {
       if (is.null(gn) || length(gn) == 0) next
       # Skip combos
       if (any(grepl(" AND |;|/|,", gn))) next
-      cleaned <- gsub("[^A-Z ]", "", gn[1])
-      w <- unlist(strsplit(cleaned, "\\s+"))
-      w <- w[nchar(w) > 2 & !w %in% PHARMA_QUALIFIERS]
-      if (length(w) == 1) return(w)
+      tok <- canonical_ingredient_token(gn[1])
+      if (!is.na(tok)) return(tok)
     }
     NA_character_          # queried OK, no single-ingredient match
   }, error = function(e) NULL)   # transient — don't cache
