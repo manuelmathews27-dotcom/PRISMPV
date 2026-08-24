@@ -13,6 +13,20 @@ library(lubridate)
 library(DT)
 library(ggrepel)
 
+# ── Startup diagnostics ──────────────────────────────────────────────────────
+# Logs whether an openFDA key is in effect. There is no way to inspect env vars
+# on a deployed shinyapps.io instance from outside, so this line in the app log
+# is the only confirmation that the key actually reached the running app.
+# Prints presence and length ONLY — never the key itself (logs are not secret).
+local({
+  k <- openfda_api_key()
+  if (nzchar(k)) {
+    message(sprintf("[PRISM] openFDA API key ACTIVE (%d chars) — raised rate limit", nchar(k)))
+  } else {
+    message("[PRISM] no openFDA API key — running at anonymous rate limits (~1k req/day)")
+  }
+})
+
 # ── Load historical reference data ────────────────────────────────────────────
 if (!file.exists("data/combined.rds") || !file.exists("data/faers_raw.rds"))
   stop("Data files missing. Run run_pipeline.R first to generate data/faers_raw.rds and data/combined.rds")
