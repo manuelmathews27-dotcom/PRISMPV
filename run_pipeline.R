@@ -11,10 +11,13 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   if (!is.null(this_file)) setwd(dirname(this_file))
 }
 
-# Gate 0: run PRR formula regression test before any data work.
-# Fails loudly if anyone reverts the cell-reconstruction fix or the Yates chi-sq.
-test_result <- system2("Rscript", "tests/test_prr_formula.R", stdout = "", stderr = "")
-if (test_result != 0) stop("Pipeline halted: tests/test_prr_formula.R failed")
+# Gate 0: run regression tests before any data work.
+# Fails loudly if anyone reverts the cell-reconstruction fix or the Yates chi-sq,
+# or the biologic-suffix handling in canonical_ingredient_token().
+for (t in c("tests/test_prr_formula.R", "tests/test_resolve_token.R")) {
+  if (system2("Rscript", t, stdout = "", stderr = "") != 0)
+    stop("Pipeline halted: ", t, " failed")
+}
 
 tryCatch(source("scripts/01_faers_pull.R"),
          error = function(e) stop("01_faers_pull.R failed: ", conditionMessage(e)))
