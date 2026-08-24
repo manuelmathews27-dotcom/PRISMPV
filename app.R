@@ -642,7 +642,11 @@ ui <- page_navbar(
        unclickable, with its scrollbar unreachable. Lift the sidebar above the
        main panel and float the dropdown above both. */
     .bslib-sidebar-layout > .sidebar { z-index: 1030 !important; }
-    .selectize-control, .selectize-input.focus { z-index: 1040 !important; }
+    /* Deliberately NO z-index on .selectize-control: selectize already gives it
+       position:relative, and adding a z-index turns each control into its own
+       STACKING CONTEXT, which traps its dropdown so it cannot paint above the
+       NEXT control below it. That is what made the Reference Cohort filters
+       overlap. The dropdown's own z-index below is what does the work. */
     .selectize-dropdown { z-index: 3000 !important; }
     /* Guarantee the list keeps its own internal scroll (selectize defaults to
        200px; state it explicitly so the overflow:visible overrides above can
