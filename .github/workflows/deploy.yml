@@ -37,6 +37,17 @@ jobs:
         run: |
           Rscript -e 'install.packages(c("rsconnect", "curl", "jsonlite", "dplyr", "lubridate", "ggplot2", "ggrepel", "shiny", "bslib", "DT"), repos = "https://cloud.r-project.org")'
 
+      - name: Run R regression tests (gate the deploy)
+        run: |
+          # These previously ran ONLY inside run_pipeline.R, i.e. during the
+          # quarterly cohort refresh — so a broken formula or resolver could sit
+          # undetected for months and ship on every deploy in between. Running
+          # them here means no deploy can reach shinyapps.io with a red test.
+          # Both are pure and offline: no openFDA calls, no data files needed.
+          set -e
+          Rscript tests/test_prr_formula.R
+          Rscript tests/test_resolve_token.R
+
       - name: Inject openFDA API key into the bundle
         env:
           OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
