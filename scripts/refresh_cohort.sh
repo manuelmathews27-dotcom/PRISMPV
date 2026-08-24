@@ -51,20 +51,29 @@ BACKUP_DIR=""
 mkdir -p "$(dirname "$LOG_FILE")"
 
 MODE="run"
+QUIET=0
 case "${1:-}" in
-    --quiet) exec >> "$LOG_FILE" 2>&1 ;;   # stdout -> log; log() must NOT tee as well
+    --quiet) QUIET=1; exec >> "$LOG_FILE" 2>&1 ;;  # stdout IS the log from here on
     --check) MODE="check" ;;
     "")      ;;
     *)       echo "unknown argument: $1" >&2; exit 2 ;;
 esac
 
-# Write to the log file, and additionally to the terminal only when stdout is a
-# TTY. (The old version used `tee -a` unconditionally, so in --quiet mode — where
-# stdout is already redirected into the log — every line was written twice.)
+# In --quiet mode stdout IS the log file, so echo once and stop. Otherwise write
+# to both the terminal and the log.
+#
+# The original used `tee -a` unconditionally, which double-wrote every line in
+# --quiet mode. A first fix here gated the terminal copy on `[[ -t 1 ]]`, but that
+# was worse: piping the script (`./refresh_cohort.sh | tail`) or running it from
+# any non-TTY context printed NOTHING at all, so a failed preflight looked like a
+# silent no-op. Keying off the mode instead of the TTY fixes both.
 log() {
     local line="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-    echo "$line" >> "$LOG_FILE"
-    [[ -t 1 ]] && echo "$line" || true
+    if [[ "$QUIET" == "1" ]]; then
+        echo "$line"
+    else
+        echo "$line" | tee -a "$LOG_FILE"
+    fi
 }
 
 die() { log "ERROR: $1"; exit 1; }
