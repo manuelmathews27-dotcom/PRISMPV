@@ -8,6 +8,18 @@ on:
       - '.claude/**'
       - 'deploy/**'
 
+# Only one deploy at a time. The auto-sync watcher commits every minute but a
+# deploy takes ~10, so runs used to overlap constantly — and shinyapps.io rejects
+# a second concurrent deploy of the same app, so the LATER run always went red.
+# That produced the long-standing alternating success/failure pattern in the run
+# history (e.g. 2026-08-24 bfb27ae ok / cf401b8 red / b4f8586 ok / 5ea4f6b red),
+# which had nothing to do with app health and made red runs easy to ignore.
+# cancel-in-progress is correct here because this pipeline is latest-wins: a
+# superseded commit has no value once a newer one is queued.
+concurrency:
+  group: deploy-shinyapps-prismpv
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
