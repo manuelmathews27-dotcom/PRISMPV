@@ -102,7 +102,16 @@ resolve_drug_names <- function(drug_name) {
   original <- toupper(trimws(drug_name))
   # Cached: the same drug is resolved on every query, and this is 1 of the ~50
   # calls a single query makes. TTL'd because label data changes.
-  cached(paste0("resolve:", original), ttl_sec = LABEL_CACHE_TTL, compute = function() {
+  #
+  # The closure must distinguish two outcomes that both used to just fall back to
+  # `original`, because now they get cached for a day:
+  #   NULL          = transient failure (HTTP error / exception). NOT cached, so
+  #                   an openFDA blip can't pin a drug as unresolved for 24h.
+  #   NA_character_ = queried fine, genuinely no single-ingredient match (e.g. a
+  #                   combination product). A stable fact, so it IS cached.
+  # Both surface as `original` to the caller, preserving the old return contract.
+  resolved <- cached(paste0("resolve:", original), ttl_sec = LABEL_CACHE_TTL,
+                     compute = function() {
   tryCatch({
     dn <- URLencode(original, reserved = TRUE)
     url <- paste0(
@@ -111,10 +120,10 @@ resolve_drug_names <- function(drug_name) {
     h  <- curl::new_handle()
     curl::handle_setopt(h, timeout = 10L, connecttimeout = 5L)
     resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
-    if (resp$status_code != 200) return(original)
+    if (resp$status_code != 200) return(NULL)
     body <- jsonlite::fromJSON(rawToChar(resp$content), simplifyVector = FALSE)
     results <- body$results
-    if (!is.list(results) || length(results) == 0) return(original)
+    if (!is.list(results) || length(results) == 0) return(NA_character_)
 
     # Extract the canonical active ingredient from the first single-ingredient result.
     # This is the standardized generic name (e.g. ASPIRIN, ATORVASTATIN, SEMAGLUTIDE).
@@ -130,9 +139,10 @@ resolve_drug_names <- function(drug_name) {
       w <- w[nchar(w) > 2 & !w %in% PHARMA_QUALIFIERS]
       if (length(w) == 1) return(w)
     }
-    original
-  }, error = function(e) original)
+    NA_character_          # queried OK, no single-ingredient match
+  }, error = function(e) NULL)   # transient — don't cache
   })
+  if (is.null(resolved) || all(is.na(resolved))) original else resolved
 }
 
 # ── openFDA query URL builder ────────────────────────────────────────────────
