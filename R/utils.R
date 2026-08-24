@@ -5,6 +5,78 @@ library(curl)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+# ── openFDA API key ──────────────────────────────────────────────────────────
+# Read from the OPENFDA_API_KEY env var. NEVER hardcode a key here — this repo
+# is public. Unset is fine: every call below still works, just at the anonymous
+# rate limit (~1,000 req/day per IP vs ~120,000/day with a key).
+#
+# Set it via a .env file (already gitignored) or on the container:
+#   docker run -e OPENFDA_API_KEY=... ...
+# Get a free key at https://open.fda.gov/apis/authentication/
+openfda_api_key <- function() trimws(Sys.getenv("OPENFDA_API_KEY", ""))
+
+# Append the key to a request URL at fetch time. Kept separate from the URL
+# BUILDERS on purpose, so the key never becomes part of a cache key or a log line.
+openfda_authed_url <- function(url) {
+  key <- openfda_api_key()
+  if (!nzchar(key)) return(url)
+  paste0(url, if (grepl("?", url, fixed = TRUE)) "&" else "?", "api_key=", key)
+}
+
+# Strip the key before a URL is ever printed. fetch_total() logs a URL prefix on
+# error, and this app runs in public — a leaked key would be in the container log.
+redact_key <- function(url) sub("([?&]api_key=)[^&]*", "\\1REDACTED", url)
+
+# ── Response cache ───────────────────────────────────────────────────────────
+# Why this is safe: pull_live_signal() only ever queries quarters older than the
+# ~6-month FAERS reporting lag (it stops at current_quarter - 9 months), so every
+# FAERS count it fetches is for a CLOSED quarter and can never change. Those are
+# cached with no expiry. Label lookups DO change as FDA updates labeling, so they
+# take a TTL instead.
+#
+# Deliberately in-memory only. The container runs a single R process
+# (`R -e shiny::runApp(...)`), so one cache is shared by every session and every
+# user until restart — which is where most of the saving comes from, since the
+# drug-independent counts (c and d below) are identical across all queries.
+# A disk cache was considered and rejected: repo/data/ is tracked by git and
+# watched by the every-minute auto-sync, so cache files would generate commits
+# and trigger deploys.
+.prism_cache     <- new.env(parent = emptyenv())
+CACHE_MAX_ENTRIES <- 5000L   # bound memory on a public app
+
+cache_get <- function(key, ttl_sec = Inf) {
+  if (!exists(key, envir = .prism_cache, inherits = FALSE)) return(NULL)
+  entry <- get(key, envir = .prism_cache, inherits = FALSE)
+  if (is.finite(ttl_sec) &&
+      as.numeric(difftime(Sys.time(), entry$at, units = "secs")) > ttl_sec) {
+    rm(list = key, envir = .prism_cache)
+    return(NULL)
+  }
+  entry$value
+}
+
+cache_set <- function(key, value) {
+  # Cheap bound: once full, drop the oldest half rather than evicting per-write.
+  if (length(ls(.prism_cache)) >= CACHE_MAX_ENTRIES) {
+    keys <- ls(.prism_cache)
+    ages <- vapply(keys, function(k) as.numeric(get(k, envir = .prism_cache)$at), numeric(1))
+    rm(list = keys[order(ages)][seq_len(length(keys) %/% 2)], envir = .prism_cache)
+  }
+  assign(key, list(value = value, at = Sys.time()), envir = .prism_cache)
+  invisible(value)
+}
+
+# NULL is never cached — a failed lookup must be retried, not remembered.
+cached <- function(key, ttl_sec = Inf, compute) {
+  hit <- cache_get(key, ttl_sec)
+  if (!is.null(hit)) return(hit)
+  val <- compute()
+  if (!is.null(val)) cache_set(key, val)
+  val
+}
+
+LABEL_CACHE_TTL <- 24 * 3600   # FDA labeling changes; re-check daily
+
 # Signal detection thresholds (Evans criteria)
 SIGNAL_MIN_REPORTS <- 3L
 SIGNAL_MIN_PRR     <- 2
@@ -28,6 +100,9 @@ PHARMA_QUALIFIERS <- c(
 
 resolve_drug_names <- function(drug_name) {
   original <- toupper(trimws(drug_name))
+  # Cached: the same drug is resolved on every query, and this is 1 of the ~50
+  # calls a single query makes. TTL'd because label data changes.
+  cached(paste0("resolve:", original), ttl_sec = LABEL_CACHE_TTL, compute = function() {
   tryCatch({
     dn <- URLencode(original, reserved = TRUE)
     url <- paste0(
@@ -35,7 +110,7 @@ resolve_drug_names <- function(drug_name) {
       dn, "+openfda.generic_name:", dn, ")&limit=5")
     h  <- curl::new_handle()
     curl::handle_setopt(h, timeout = 10L, connecttimeout = 5L)
-    resp <- curl::curl_fetch_memory(url, handle = h)
+    resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
     if (resp$status_code != 200) return(original)
     body <- jsonlite::fromJSON(rawToChar(resp$content), simplifyVector = FALSE)
     results <- body$results
@@ -57,6 +132,7 @@ resolve_drug_names <- function(drug_name) {
     }
     original
   }, error = function(e) original)
+  })
 }
 
 # ── openFDA query URL builder ────────────────────────────────────────────────
