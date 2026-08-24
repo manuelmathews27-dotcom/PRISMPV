@@ -37,14 +37,36 @@ jobs:
         run: |
           Rscript -e 'install.packages(c("rsconnect", "curl", "jsonlite", "dplyr", "lubridate", "ggplot2", "ggrepel", "shiny", "bslib", "DT"), repos = "https://cloud.r-project.org")'
 
+      - name: Inject openFDA API key into the bundle
+        env:
+          OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
+        run: |
+          # shinyapps.io supports NO secure environment variables. rsconnect's
+          # deployApp(envVars=) is Posit Connect only and ERRORS on shinyapps —
+          # that is exactly what turned run 20e8ede red the moment the secret
+          # first existed. See rsconnect docs: "Secure environment variables are
+          # currently only supported by Posit Connect".
+          #
+          # Supported alternative: Shiny auto-sources every file in an app's R/
+          # directory before app.R, so a generated file there can set the variable
+          # in-process. Generated here in CI only, on a throwaway runner — never on
+          # edward, and gitignored so it can never be committed to this PUBLIC repo.
+          #
+          # TRADEOFF, stated plainly: this puts the key in plaintext inside the
+          # bundle stored on Posit's servers under the mmdothim account. Acceptable
+          # for an openFDA key (rate-limit token only: no data access, no billing,
+          # free to regenerate). Do NOT reuse this pattern for a real credential.
+          if [ -n "${OPENFDA_API_KEY}" ]; then
+            printf 'Sys.setenv(OPENFDA_API_KEY = "%s")\n' "${OPENFDA_API_KEY}" > R/zzz_env.R
+            echo "openFDA API key present — injected into bundle as R/zzz_env.R"
+          else
+            echo "no openFDA API key set — deploying with anonymous rate limits"
+          fi
+
       - name: Deploy to shinyapps.io
         env:
           SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
           SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
-          # Optional. Add repo secret OPENFDA_API_KEY to raise the deployed app's
-          # openFDA rate limit (~1k/day anonymous -> ~120k/day). Absent = anonymous,
-          # which is exactly the behaviour before this was added.
-          OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
         run: |
           Rscript -e '
             rsconnect::setAccountInfo(
@@ -52,23 +74,13 @@ jobs:
               token  = Sys.getenv("SHINYAPPS_TOKEN"),
               secret = Sys.getenv("SHINYAPPS_SECRET")
             )
-            args <- list(
+            rsconnect::deployApp(
               appDir      = ".",
               appName     = "PRISMPV",
               account     = "mmdothim",
               server      = "shinyapps.io",
               forceUpdate = TRUE
             )
-            # Push the key to the server as an env var (its VALUE is never written
-            # into the bundle — this repo is public). Only added when the secret is
-            # actually set, so the deploy is unchanged until then.
-            if (nzchar(Sys.getenv("OPENFDA_API_KEY", ""))) {
-              args$envVars <- "OPENFDA_API_KEY"
-              cat("openFDA API key present — deploying with envVars\n")
-            } else {
-              cat("no openFDA API key set — deploying with anonymous rate limits\n")
-            }
-            do.call(rsconnect::deployApp, args)
           '
 
       - name: Smoke test deployed app (fail if unhealthy)

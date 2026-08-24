@@ -27,3 +27,6 @@ rsconnect/packrat/
 # bslib/sass build cache — regenerated at runtime, must not be tracked
 # (was committing binary blobs and triggering spurious deploys)
 app_cache/
+
+# CI-generated secret shim (see .github/workflows/deploy.yml) — never commit
+R/zzz_env.R
