@@ -98,6 +98,37 @@ PHARMA_QUALIFIERS <- c(
   # Connectors & short words
   "AND", "FOR", "IN", "WITH", "OF", "MG", "ML", "USP")
 
+# ── Generic name -> canonical single-ingredient token ────────────────────────
+# Pure string logic, split out from resolve_drug_names so it is unit-testable
+# without hitting openFDA (see tests/test_resolve_token.R). Returns NA when the
+# name is not a clean single ingredient, which tells the caller to fall back to
+# whatever the user typed.
+#
+# BUG FIXED 2026-08-24 — biologics resolved to a token matching ZERO FAERS rows.
+# FDA requires a meaningless 4-letter suffix on biologic nonproprietary names
+# ("tafasitamab-cxix"). The old line `gsub("[^A-Z ]", "", ...)` DELETED the
+# hyphen, welding it into TAFASITAMABCXIX — one word, >2 chars, not a qualifier,
+# so it passed every check and was returned as canonical. Measured against FAERS:
+#   TAFASITAMABCXIX 0 reports   vs TAFASITAMAB 1267   (Monjuvi)
+#   RETIFANLIMABDLWR 0          vs RETIFANLIMAB 87    (Zynyz)
+#   AXATILIMABCSFR 0            vs AXATILIMAB 128     (Niktimvo)
+# The app then showed "no signal" with no error — a lookup failure that reads as
+# a clean negative. This affected every biologic licensed since 2017.
+#
+# Two changes: strip the trailing 4-letter suffix, and replace remaining
+# non-letters with a SPACE rather than deleting them, so a hyphenated
+# combination ("SACUBITRIL-VALSARTAN") splits into two words and correctly
+# falls through instead of welding into one bogus token.
+canonical_ingredient_token <- function(generic_name) {
+  g <- toupper(trimws(generic_name))
+  if (length(g) != 1 || is.na(g) || !nzchar(g)) return(NA_character_)
+  g <- sub("-[A-Z]{4}$", "", g)          # drop FDA biologic suffix
+  cleaned <- gsub("[^A-Z ]", " ", g)     # SPACE, not "" — keeps tokens separate
+  w <- unlist(strsplit(trimws(cleaned), "\\s+"))
+  w <- w[nchar(w) > 2 & !w %in% PHARMA_QUALIFIERS]
+  if (length(w) == 1) w else NA_character_
+}
+
 resolve_drug_names <- function(drug_name) {
   original <- toupper(trimws(drug_name))
   # Cached: the same drug is resolved on every query, and this is 1 of the ~50
