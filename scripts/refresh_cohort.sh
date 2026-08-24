@@ -42,7 +42,7 @@ LOG_FILE="${PRISM_DIR}/logs/refresh.log"
 CONTAINER_NAME="prism"
 IMAGE="prism-local:latest"
 MOUNT_TARGET="/srv/shiny-server/prism"
-SYNC_LOCK="/tmp/prism-auto-sync.lock"   # MUST match scripts/auto-sync.sh
+SYNC_LOCK="/tmp/prism-auto-sync.lock"   # MUST match /home/manny/prism/scripts/auto-sync.sh
 HEALTH_URL="http://localhost:3838/"
 BACKUP_DIR=""
 
