@@ -635,6 +635,21 @@ ui <- page_navbar(
       height: auto !important; max-height: none !important;
       position: sticky !important; top: 60px;
     }
+    /* The sticky sidebar above creates a STACKING CONTEXT (sticky elements do,
+       regardless of z-index). That trapped the selectize dropdown for the PT
+       list inside it, while the main panel -- a later sibling -- painted on top.
+       The ADR list rendered but sat underneath the content area: visible, but
+       unclickable, with its scrollbar unreachable. Lift the sidebar above the
+       main panel and float the dropdown above both. */
+    .bslib-sidebar-layout > .sidebar { z-index: 1030 !important; }
+    .selectize-control, .selectize-input.focus { z-index: 1040 !important; }
+    .selectize-dropdown { z-index: 3000 !important; }
+    /* Guarantee the list keeps its own internal scroll (selectize defaults to
+       200px; state it explicitly so the overflow:visible overrides above can
+       never flatten it into an unscrollable full-height list). */
+    .selectize-dropdown-content {
+      max-height: 280px !important; overflow-y: auto !important;
+    }
     /* Fix DT filter widgets overflowing */
     .dataTables_wrapper thead th { overflow: visible !important; }
     .dataTables_filter input, thead .form-control { box-sizing: border-box !important; }
