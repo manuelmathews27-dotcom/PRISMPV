@@ -153,22 +153,30 @@ build_url <- function(drug_name = NULL, pt_term = NULL, q_start, q_end) {
 }
 
 # ── Fetch total count for one openFDA query (synchronous, with logging) ──────
+# Cached on the un-keyed URL. Counts for closed quarters are immutable, so a hit
+# is always valid. NA (a failure) is not cached — `cached()` skips NULL, and the
+# NA path returns NULL to it explicitly.
 fetch_total <- function(url) {
-  tryCatch({
+  hit <- cache_get(paste0("count:", url))
+  if (!is.null(hit)) return(hit)
+  val <- tryCatch({
     h <- curl::new_handle()
     curl::handle_setopt(h, timeout = 15L, connecttimeout = 10L)
-    resp <- curl::curl_fetch_memory(url, handle = h)
+    resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
     if (resp$status_code == 404) return(0L)
     if (resp$status_code != 200) {
-      message("[FAERS] HTTP ", resp$status_code, " for ", substr(url, 1, 120))
+      message("[FAERS] HTTP ", resp$status_code, " for ", substr(redact_key(url), 1, 120))
       return(NA_integer_)
     }
     parsed <- fromJSON(rawToChar(resp$content))
     parsed$meta$results$total %||% 0L
   }, error = function(e) {
-    message("[FAERS] Error: ", conditionMessage(e), " — URL: ", substr(url, 1, 120))
+    message("[FAERS] Error: ", conditionMessage(e), " — URL: ",
+            substr(redact_key(url), 1, 120))
     NA_integer_
   })
+  if (!is.na(val)) cache_set(paste0("count:", url), val)
+  val
 }
 
 # ── Parse a curl multi response ──────────────────────────────────────────────

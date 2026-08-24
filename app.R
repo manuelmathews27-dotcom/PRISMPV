@@ -306,16 +306,21 @@ fetch_label_results <- function(drug_name) {
     "https://api.fda.gov/drug/label.json?search=(openfda.brand_name:",
     dn, "+openfda.generic_name:", dn, ")&limit=5"
   )
+  # TTL cache: label text changes when FDA updates it, so don't cache forever.
+  # Called repeatedly per query (BBW check + on-label AE check), so even a
+  # short-lived cache removes duplicate calls within a single user request.
+  cached(paste0("label:", toupper(drug_name)), ttl_sec = LABEL_CACHE_TTL, compute = function() {
   tryCatch({
     h <- curl::new_handle()
     curl::handle_setopt(h, timeout = 10L)
-    resp <- curl::curl_fetch_memory(url, handle = h)
+    resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
     if (resp$status_code != 200) return(NULL)
     body <- jsonlite::fromJSON(rawToChar(resp$content), simplifyVector = FALSE)
     results <- body$results
     if (!is.list(results) || length(results) == 0) return(NULL)
     results
   }, error = function(e) NULL)
+  })
 }
 
 # Safely extract first non-empty string from a label field (may be list or character).
@@ -406,37 +411,66 @@ pull_live_signal <- function(drug_name, pt_term, n_quarters = 12, progress_cb = 
     )
   }
 
-  # Fire all requests in parallel using curl's async multi pool
-  pool <- curl::new_pool(total_con = 12, host_con = 6)
-  resp_env <- new.env(parent = emptyenv())
+  # Fire all requests in parallel using curl's async multi pool, but only for the
+  # URLs we don't already have. This is the hot path: 4 calls per quarter x 12
+  # quarters = ~48 requests per query. Two of the four (c = event across all
+  # drugs, d = all reports) don't depend on the drug at all, so they are shared
+  # by every user's every query — after the first query of a session those are
+  # always hits. Counts are for closed quarters only, so hits never go stale.
+  pool       <- curl::new_pool(total_con = 12, host_con = 6)
+  counts_env <- new.env(parent = emptyenv())   # tag -> integer count
+  n_hit <- 0L; n_miss <- 0L
 
   for (i in seq_along(urls)) {
     for (key in names(urls[[i]])) {
+      tag <- paste0(i, "_", key)
+      url <- urls[[i]][[key]]
+      hit <- cache_get(paste0("count:", url))
+      if (!is.null(hit)) {
+        counts_env[[tag]] <- hit
+        n_hit <- n_hit + 1L
+        next
+      }
+      n_miss <- n_miss + 1L
       local({
-        tag <- paste0(i, "_", key)
+        tag_ <- tag; url_ <- url
         h <- curl::new_handle()
         curl::handle_setopt(h, timeout = 15L, connecttimeout = 10L)
         curl::curl_fetch_multi(
-          urls[[i]][[key]],
+          openfda_authed_url(url_),
           handle = h,
-          done = function(resp) { resp_env[[tag]] <- resp },
-          fail = function(msg)  { resp_env[[tag]] <- NULL },
+          done = function(resp) {
+            val <- parse_multi_resp(resp)
+            counts_env[[tag_]] <- val
+            # Never cache a failure — NA must be retried on the next query.
+            if (!is.na(val)) cache_set(paste0("count:", url_), val)
+          },
+          fail = function(msg) { counts_env[[tag_]] <- NA_integer_ },
           pool = pool
         )
       })
     }
   }
-  curl::multi_run(pool = pool)
+
+  if (!is.null(progress_cb)) {
+    progress_cb(value = 0.35,
+                detail = sprintf("fetching %d of %d quarters-worth (%d cached)",
+                                 n_miss, n_hit + n_miss, n_hit))
+  }
+
+  if (n_miss > 0) curl::multi_run(pool = pool)
 
   if (!is.null(progress_cb)) progress_cb(value = 0.9, detail = "90% — parsing results")
 
   results <- vector("list", n_total)
   for (i in seq_along(quarters)) {
-    get_resp <- function(tag) if (exists(tag, envir = resp_env)) resp_env[[tag]] else NULL
-    ca <- parse_multi_resp(get_resp(paste0(i, "_a")))
-    cb <- pmax(parse_multi_resp(get_resp(paste0(i, "_b"))), 1)
-    cc <- pmax(parse_multi_resp(get_resp(paste0(i, "_c"))), 1)
-    cd <- pmax(parse_multi_resp(get_resp(paste0(i, "_d"))), 1)
+    get_count <- function(tag) {
+      if (exists(tag, envir = counts_env, inherits = FALSE)) counts_env[[tag]] else NA_integer_
+    }
+    ca <- get_count(paste0(i, "_a"))
+    cb <- pmax(get_count(paste0(i, "_b")), 1)
+    cc <- pmax(get_count(paste0(i, "_c")), 1)
+    cd <- pmax(get_count(paste0(i, "_d")), 1)
     results[[i]] <- tibble(quarter = quarters[i],
                            count_a = ca, count_b = cb,
                            count_c = cc, count_d = cd)
