@@ -302,6 +302,10 @@ find_cohort_match <- function(drug_upper, ae_lower) {
 
 # Synonym map: MedDRA PT terms → additional words that may appear in FDA label text
 ae_synonyms <- list(
+  # FDA labels write "peripheral neuropathy"; the MedDRA PT inverts it. Without
+  # this the label-coverage check leans on the word-split fallback alone.
+  "neuropathy peripheral"      = c("peripheral neuropathy", "polyneuropathy",
+                                   "nerve damage", "paraesthesia"),
   "somnambulism"               = c("sleep-walking", "sleepwalking", "sleep walking", "complex sleep behav"),
   "tendon rupture"             = c("tendinitis", "tendonitis", "tendon disorder"),
   "tendonitis"                 = c("tendinitis", "tendon rupture", "tendon disorder"),
@@ -396,7 +400,42 @@ expand_ae_terms <- function(ae_lower) {
 # Returns a list of label result objects, or NULL on failure/empty.
 # Uses simplifyVector = FALSE to avoid jsonlite data-frame coercion issues with
 # heterogeneous label schemas (the root cause of silent failures for many drugs).
+# Brand -> generic, built from the cohort we already ship. This is the ONLY
+# reliable route for DISCONTINUED brands: openFDA has no current label for them,
+# so the label endpoint 404s and every automated fallback fails too (verified
+# 2026-08-25 -- drug/ndc returns no generic_name, and deriving it from FAERS
+# returns concomitant meds like prednisone, not the ingredient).
+cohort_generic_map <- setNames(
+  tolower(trimws(combined$generic_name)),
+  toupper(trimws(combined$drug_name))
+)
+
+# Pick an alternative name to retry a label lookup with, or NULL if there is none.
+label_fallback_name <- function(drug_name) {
+  up <- toupper(trimws(drug_name))
+  gen <- unname(cohort_generic_map[up])
+  if (!is.na(gen) && nzchar(gen) && toupper(gen) != up) return(gen)
+  canon <- resolve_drug_names(drug_name)          # works when a label exists
+  if (length(canon) == 1 && toupper(canon) != up) return(canon)
+  NULL
+}
+
 fetch_label_results <- function(drug_name) {
+  res <- fetch_label_results_one(drug_name)
+  if (!is.null(res)) return(res)
+  # BUG FIXED 2026-08-25 -- both check_boxed_warning() and check_label_covers_ae()
+  # are handed the RAW user input. LEVAQUIN returns HTTP 404 (brand discontinued,
+  # no current label), so has_bbw came back FALSE and the app called the
+  # fluoroquinolone peripheral-neuropathy boxed warning an EMERGING signal --
+  # a decades-old BBW presented as new, the worst direction for a safety tool.
+  # LEVOFLOXACIN returns it immediately. Same false negative hit COUMADIN
+  # (warfarin) and AVANDIA (rosiglitazone).
+  alt <- label_fallback_name(drug_name)
+  if (is.null(alt)) return(NULL)
+  fetch_label_results_one(alt)
+}
+
+fetch_label_results_one <- function(drug_name) {
   dn <- URLencode(drug_name, reserved = TRUE)
   url <- paste0(
     "https://api.fda.gov/drug/label.json?search=(openfda.brand_name:",
