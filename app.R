@@ -145,44 +145,67 @@ benchmark_drugs <- combined |> filter(!is.na(lag_months), lag_months > 0)
 # Drug-to-class lookup for matching queried drugs to reference cohort classes
 # Includes cohort drugs + common related drugs users might query
 drug_class_map <- c(
-  # Antidiabetic (cohort: Avandia, Actos, Invokana, Januvia)
-  "AVANDIA" = "Antidiabetic", "ACTOS" = "Antidiabetic",
-  "INVOKANA" = "Antidiabetic", "JANUVIA" = "Antidiabetic",
-  "OZEMPIC" = "Antidiabetic", "JARDIANCE" = "Antidiabetic",
-  "FARXIGA" = "Antidiabetic", "VICTOZA" = "Antidiabetic", "TRULICITY" = "Antidiabetic",
-  "MOUNJARO" = "Antidiabetic", "WEGOVY" = "Antidiabetic", "BYETTA" = "Antidiabetic",
-  # Statin (cohort: Zocor, Lipitor, Crestor, Pravachol)
-  "ZOCOR" = "Statin", "LIPITOR" = "Statin", "CRESTOR" = "Statin", "PRAVACHOL" = "Statin",
-  "LESCOL" = "Statin", "LIVALO" = "Statin", "ALTOPREV" = "Statin",
+  # Kept in sync with CLASS_REMAP above -- a live query only gets a class-specific
+  # benchmark if the name it maps to also exists in the reclassified cohort.
+  # PPAR-gamma / SGLT2 / DPP-4 / GLP-1 (cohort: Avandia, Actos | Invokana | Januvia | none)
+  "AVANDIA" = "PPAR-gamma Agonist (TZD)", "ACTOS" = "PPAR-gamma Agonist (TZD)",
+  "INVOKANA" = "SGLT2 Inhibitor", "JARDIANCE" = "SGLT2 Inhibitor",
+  "FARXIGA" = "SGLT2 Inhibitor",
+  "JANUVIA" = "DPP-4 Inhibitor", "TRADJENTA" = "DPP-4 Inhibitor",
+  # GLP-1 RA -- no cohort members yet, so these fall back to the all-drug
+  # benchmark. Add a GLP-1 cohort at the next refresh.
+  "OZEMPIC" = "GLP-1 Receptor Agonist", "WEGOVY" = "GLP-1 Receptor Agonist",
+  "VICTOZA" = "GLP-1 Receptor Agonist", "TRULICITY" = "GLP-1 Receptor Agonist",
+  "MOUNJARO" = "GLP-1 Receptor Agonist", "ZEPBOUND" = "GLP-1 Receptor Agonist",
+  "BYETTA" = "GLP-1 Receptor Agonist", "SAXENDA" = "GLP-1 Receptor Agonist",
+  # HMG-CoA Reductase Inhibitor (cohort: Zocor, Lipitor, Crestor, Pravachol)
+  "ZOCOR" = "HMG-CoA Reductase Inhibitor", "LIPITOR" = "HMG-CoA Reductase Inhibitor",
+  "CRESTOR" = "HMG-CoA Reductase Inhibitor", "PRAVACHOL" = "HMG-CoA Reductase Inhibitor",
+  "LESCOL" = "HMG-CoA Reductase Inhibitor", "LIVALO" = "HMG-CoA Reductase Inhibitor",
+  "ALTOPREV" = "HMG-CoA Reductase Inhibitor",
   # Fluoroquinolone (cohort: Cipro, Levaquin, Avelox, Floxin)
   "CIPRO" = "Fluoroquinolone", "LEVAQUIN" = "Fluoroquinolone",
   "AVELOX" = "Fluoroquinolone", "FLOXIN" = "Fluoroquinolone",
-  # Antipsychotic (cohort: Abilify, Seroquel, Zyprexa, Risperdal)
-  "ABILIFY" = "Antipsychotic", "SEROQUEL" = "Antipsychotic",
-  "ZYPREXA" = "Antipsychotic", "RISPERDAL" = "Antipsychotic",
-  "CLOZARIL" = "Antipsychotic", "GEODON" = "Antipsychotic", "LATUDA" = "Antipsychotic",
-  # NSAID (cohort: Celebrex, Vioxx, Voltaren, Mobic)
-  "CELEBREX" = "NSAID", "VIOXX" = "NSAID", "VOLTAREN" = "NSAID", "MOBIC" = "NSAID",
-  "ADVIL" = "NSAID", "ALEVE" = "NSAID", "NAPROSYN" = "NSAID",
-  # PPI (cohort: Nexium, Prilosec, Prevacid, Protonix)
-  "NEXIUM" = "PPI", "PRILOSEC" = "PPI", "PREVACID" = "PPI", "PROTONIX" = "PPI",
-  "DEXILANT" = "PPI", "ACIPHEX" = "PPI",
-  # TNF Inhibitor (cohort: Humira, Enbrel, Remicade, Cimzia)
-  "HUMIRA" = "TNF Inhibitor", "ENBREL" = "TNF Inhibitor",
-  "REMICADE" = "TNF Inhibitor", "CIMZIA" = "TNF Inhibitor",
-  "STELARA" = "TNF Inhibitor", "DUPIXENT" = "TNF Inhibitor",
+  # Atypical Antipsychotic (cohort: Abilify, Seroquel, Zyprexa, Risperdal)
+  "ABILIFY" = "Atypical Antipsychotic", "SEROQUEL" = "Atypical Antipsychotic",
+  "ZYPREXA" = "Atypical Antipsychotic", "RISPERDAL" = "Atypical Antipsychotic",
+  "CLOZARIL" = "Atypical Antipsychotic", "GEODON" = "Atypical Antipsychotic",
+  "LATUDA" = "Atypical Antipsychotic",
+  # NSAID, split by COX selectivity (cohort: Celebrex, Vioxx, Mobic | Voltaren)
+  "CELEBREX" = "COX-2 Selective NSAID", "VIOXX" = "COX-2 Selective NSAID",
+  "MOBIC" = "COX-2 Selective NSAID",
+  "VOLTAREN" = "Nonselective NSAID", "ADVIL" = "Nonselective NSAID",
+  "ALEVE" = "Nonselective NSAID", "NAPROSYN" = "Nonselective NSAID",
+  # Proton Pump Inhibitor (cohort: Nexium, Prilosec, Prevacid, Protonix)
+  "NEXIUM" = "Proton Pump Inhibitor", "PRILOSEC" = "Proton Pump Inhibitor",
+  "PREVACID" = "Proton Pump Inhibitor", "PROTONIX" = "Proton Pump Inhibitor",
+  "DEXILANT" = "Proton Pump Inhibitor", "ACIPHEX" = "Proton Pump Inhibitor",
+  # TNF-alpha Inhibitor (cohort: Humira, Enbrel, Remicade, Cimzia)
+  # STELARA and DUPIXENT were previously listed here and are NOT TNF inhibitors:
+  # ustekinumab is anti-IL-12/23 and dupilumab is anti-IL-4Ralpha. Corrected --
+  # they were being benchmarked against an unrelated mechanism.
+  "HUMIRA" = "TNF-alpha Inhibitor", "ENBREL" = "TNF-alpha Inhibitor",
+  "REMICADE" = "TNF-alpha Inhibitor", "CIMZIA" = "TNF-alpha Inhibitor",
+  "SIMPONI" = "TNF-alpha Inhibitor",
+  "STELARA" = "IL-12/23 Inhibitor", "SKYRIZI" = "IL-23 Inhibitor",
+  "DUPIXENT" = "IL-4R-alpha Inhibitor",
   # Bisphosphonate (cohort: Fosamax, Actonel, Boniva, Reclast)
   "FOSAMAX" = "Bisphosphonate", "ACTONEL" = "Bisphosphonate",
   "BONIVA" = "Bisphosphonate", "RECLAST" = "Bisphosphonate",
-  # Antithrombotic (cohort: Plavix, Pradaxa, Xarelto, Eliquis)
-  "PLAVIX" = "Antithrombotic", "PRADAXA" = "Antithrombotic",
-  "XARELTO" = "Antithrombotic", "ELIQUIS" = "Antithrombotic",
-  "BRILINTA" = "Antithrombotic", "EFFIENT" = "Antithrombotic", "SAVAYSA" = "Antithrombotic",
-  # Sedative-Hypnotic (cohort: Ambien, Lunesta, Sonata, Intermezzo)
-  "AMBIEN" = "Sedative-Hypnotic", "LUNESTA" = "Sedative-Hypnotic",
-  "SONATA" = "Sedative-Hypnotic", "INTERMEZZO" = "Sedative-Hypnotic",
-  "BELSOMRA" = "Sedative-Hypnotic", "SILENOR" = "Sedative-Hypnotic",
-  "ROZEREM" = "Sedative-Hypnotic"
+  # Anticoagulant / antiplatelet, split by mechanism
+  # (cohort: Xarelto, Eliquis | Pradaxa | Plavix)
+  "XARELTO" = "Factor Xa Inhibitor", "ELIQUIS" = "Factor Xa Inhibitor",
+  "SAVAYSA" = "Factor Xa Inhibitor",
+  "PRADAXA" = "Direct Thrombin Inhibitor",
+  "PLAVIX" = "P2Y12 Inhibitor", "BRILINTA" = "P2Y12 Inhibitor",
+  "EFFIENT" = "P2Y12 Inhibitor",
+  # Nonbenzodiazepine Z-drug (cohort: Ambien, Lunesta, Sonata, Intermezzo)
+  "AMBIEN" = "Nonbenzodiazepine Z-drug", "LUNESTA" = "Nonbenzodiazepine Z-drug",
+  "SONATA" = "Nonbenzodiazepine Z-drug", "INTERMEZZO" = "Nonbenzodiazepine Z-drug",
+  # Not Z-drugs: suvorexant is an orexin antagonist, doxepin a TCA,
+  # ramelteon a melatonin agonist. Separated so they are not benchmarked as Z-drugs.
+  "BELSOMRA" = "Orexin Receptor Antagonist", "SILENOR" = "Sedative Antidepressant",
+  "ROZEREM" = "Melatonin Receptor Agonist"
 )
 
 drug_choices <- sort(unique(signals$drug))
