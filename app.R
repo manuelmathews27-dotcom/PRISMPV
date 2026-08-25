@@ -231,7 +231,11 @@ pt_terms <- sort(c(
   "acute kidney injury", "renal failure", "nephrotic syndrome",
   "tubulointerstitial nephritis", "renal tubular necrosis",
   # ── Neurological ──
-  "seizure", "status epilepticus", "peripheral neuropathy",
+  "seizure", "status epilepticus",
+  # MedDRA inverts this one: the PT is "neuropathy peripheral". The natural
+  # phrasing "peripheral neuropathy" matches only 18 FAERS reports vs 93,293
+  # for the correct form -- it was masked until queries became phrase-matched.
+  "neuropathy peripheral",
   "Guillain-Barre syndrome", "progressive multifocal leukoencephalopathy",
   "encephalopathy", "cerebral haemorrhage", "intracranial haemorrhage",
   "demyelination", "encephalitis", "tardive dyskinesia",
