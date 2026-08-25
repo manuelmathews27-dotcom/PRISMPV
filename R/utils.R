@@ -175,17 +175,32 @@ resolve_drug_names <- function(drug_name) {
 }
 
 # ── openFDA query URL builder ────────────────────────────────────────────────
+# Multi-word values MUST be wrapped in %22 (a URL-encoded double quote) or Lucene
+# treats them as separate tokens: `reactionmeddrapt:TENDON PAIN` parses as
+# `reactionmeddrapt:TENDON` OR a free-text match on `PAIN` across the whole record.
+# Measured inflation from the unquoted form (2026-08-25):
+#   tendon pain           3,561,634 vs     7,475 exact  (477x)
+#   hepatic failure         929,971 vs    43,799        ( 21x)
+#   acute kidney injury     901,197 vs   150,318        (  6x)
+#   herpes zoster           225,468 vs    60,592        (3.7x)
+# Single-word terms are identical either way, which is why this went unnoticed --
+# but ~70 of the 110 curated PT terms are multi-word. The inflation hits count_a
+# and count_c together so it partly cancels in the PRR ratio, but not cleanly (the
+# factor differs per drug), and chi-squared uses the raw cells, so it is inflated
+# outright. Drug names are quoted for the same reason ("certolizumab pegol").
+quote_term <- function(x) paste0("%22", gsub(" ", "+", x), "%22")
+
 build_url <- function(drug_name = NULL, pt_term = NULL, q_start, q_end) {
   parts <- c()
   if (!is.null(drug_name)) {
-    dn <- gsub(" ", "+", toupper(drug_name))
+    dn <- quote_term(toupper(drug_name))
     parts <- c(parts, paste0(
       "(patient.drug.medicinalproduct:", dn,
       "+patient.drug.openfda.brand_name:", dn,
       "+patient.drug.openfda.generic_name:", dn, ")"))
   }
   if (!is.null(pt_term))
-    parts <- c(parts, paste0("patient.reaction.reactionmeddrapt:", gsub(" ", "+", pt_term)))
+    parts <- c(parts, paste0("patient.reaction.reactionmeddrapt:", quote_term(pt_term)))
   parts <- c(parts, paste0("receivedate:[", q_start, "+TO+", q_end, "]"))
   paste0("https://api.fda.gov/drug/event.json?search=",
          paste(parts, collapse = "+AND+"), "&limit=1")
