@@ -31,6 +31,61 @@ local({
 if (!file.exists("data/combined.rds") || !file.exists("data/faers_raw.rds"))
   stop("Data files missing. Run run_pipeline.R first to generate data/faers_raw.rds and data/combined.rds")
 combined  <- readRDS("data/combined.rds")
+
+# -- Therapeutic class reclassification (runtime remap) -----------------------
+# The classes baked into combined.rds are therapeutic AREAS, not mechanistic
+# classes. "Antidiabetic" lumped a TZD, an SGLT2 and a DPP-4 inhibitor;
+# "Antithrombotic" mixed two Factor Xa inhibitors with a direct thrombin
+# inhibitor and a P2Y12 antiplatelet. Averaging a signal-to-label lag across
+# unrelated mechanisms makes the class-specific timeline estimate meaningless.
+#
+# Applied at load time because the app reads the .rds, and regenerating it needs
+# the FAERS pipeline (docker). FOLD THIS INTO data/label_changes.csv AT THE NEXT
+# COHORT REFRESH, then delete this block.
+#
+# Splitting drops some classes below the timeline model's 3-drug minimum; those
+# fall back to the all-drug estimate, which is the correct behaviour -- a
+# prediction from a fabricated class is worse than no class-specific prediction.
+CLASS_REMAP <- setNames(
+  c("HMG-CoA Reductase Inhibitor","HMG-CoA Reductase Inhibitor",
+    "HMG-CoA Reductase Inhibitor","HMG-CoA Reductase Inhibitor",
+    "Proton Pump Inhibitor","Proton Pump Inhibitor",
+    "Proton Pump Inhibitor","Proton Pump Inhibitor",
+    "TNF-alpha Inhibitor","TNF-alpha Inhibitor",
+    "TNF-alpha Inhibitor","TNF-alpha Inhibitor",
+    "Fluoroquinolone","Fluoroquinolone","Fluoroquinolone","Fluoroquinolone",
+    "Bisphosphonate","Bisphosphonate","Bisphosphonate","Bisphosphonate",
+    "Atypical Antipsychotic","Atypical Antipsychotic",
+    "Atypical Antipsychotic","Atypical Antipsychotic",
+    "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
+    "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
+    "COX-2 Selective NSAID","COX-2 Selective NSAID","COX-2 Selective NSAID",
+    "Nonselective NSAID",
+    "PPAR-gamma Agonist (TZD)","PPAR-gamma Agonist (TZD)",
+    "SGLT2 Inhibitor","DPP-4 Inhibitor",
+    "Factor Xa Inhibitor","Factor Xa Inhibitor",
+    "Direct Thrombin Inhibitor","P2Y12 Inhibitor"),
+  c("atorvastatin","rosuvastatin","simvastatin","pravastatin",
+    "omeprazole","esomeprazole","lansoprazole","pantoprazole",
+    "adalimumab","etanercept","infliximab","certolizumab pegol",
+    "ciprofloxacin","levofloxacin","moxifloxacin","ofloxacin",
+    "alendronate","risedronate","ibandronate","zoledronic acid",
+    "aripiprazole","risperidone","quetiapine","olanzapine",
+    "zolpidem","eszopiclone","zaleplon","zolpidem sublingual",
+    "celecoxib","rofecoxib","meloxicam",
+    "diclofenac",
+    "pioglitazone","rosiglitazone",
+    "canagliflozin","sitagliptin",
+    "apixaban","rivaroxaban",
+    "dabigatran","clopidogrel")
+)
+local({
+  g <- tolower(trimws(combined$generic_name))
+  hit <- g %in% names(CLASS_REMAP)
+  if (any(!hit)) message("[PRISM] class remap: no mapping for ",
+                         paste(unique(combined$generic_name[!hit]), collapse = ", "))
+  combined$therapeutic_class[hit] <<- unname(CLASS_REMAP[g[hit]])
+})
 faers_raw <- readRDS("data/faers_raw.rds")
 
 # Load pipeline provenance (graceful fallback if not yet generated)
@@ -61,8 +116,8 @@ detection_notes <- list(
 
 get_detection_type <- function(tc, ae) {
   if (tc == "Bisphosphonate") "Bisphosphonate"
-  else if (tc == "Antipsychotic" && grepl("mortality|death", ae, ignore.case = TRUE)) "Antipsychotic"
-  else if (tc == "PPI") "PPI"
+  else if (tc == "Atypical Antipsychotic" && grepl("mortality|death", ae, ignore.case = TRUE)) "Antipsychotic"
+  else if (tc == "Proton Pump Inhibitor") "PPI"
   else NULL
 }
 
