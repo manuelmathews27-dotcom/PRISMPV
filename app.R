@@ -224,6 +224,10 @@ pt_terms <- sort(c(
   "pulmonary embolism", "deep vein thrombosis", "thrombosis",
   "stroke", "cerebrovascular accident", "haemorrhagic stroke",
   "hypertensive crisis", "shock", "circulatory collapse", "vasculitis",
+  # The boxed warning on every DOAC (Xarelto, Eliquis, Savaysa) and on Plavix.
+  # MedDRA spells it haematoma; the FDA labels spell it "spinal/epidural
+  # hematoma", so the synonym map below bridges the two.
+  "spinal cord haematoma", "spinal epidural haematoma",
   # ── Hepatic ──
   "hepatic failure", "drug-induced liver injury", "hepatitis",
   "hepatotoxicity", "hepatic necrosis", "jaundice", "cholestasis",
@@ -302,6 +306,18 @@ find_cohort_match <- function(drug_upper, ae_lower) {
 
 # Synonym map: MedDRA PT terms → additional words that may appear in FDA label text
 ae_synonyms <- list(
+  # British PT spelling vs American label spelling.
+  "spinal cord haematoma"      = c("spinal/epidural hematoma", "spinal hematoma",
+                                   "epidural hematoma", "spinal haematoma",
+                                   "epidural haematoma", "paralysis"),
+  "spinal epidural haematoma"  = c("spinal/epidural hematoma", "epidural hematoma",
+                                   "spinal hematoma", "epidural haematoma",
+                                   "spinal haematoma", "paralysis"),
+  # The GLP-1 boxed warning never says "cancer" -- it says thyroid C-cell
+  # tumors / medullary thyroid carcinoma (which is not itself a MedDRA PT).
+  "thyroid cancer"             = c("thyroid c-cell", "c-cell tumor",
+                                   "medullary thyroid carcinoma", "thyroid carcinoma",
+                                   "thyroid tumor", "thyroid tumour"),
   # FDA labels write "peripheral neuropathy"; the MedDRA PT inverts it. Without
   # this the label-coverage check leans on the word-split fallback alone.
   "neuropathy peripheral"      = c("peripheral neuropathy", "polyneuropathy",
