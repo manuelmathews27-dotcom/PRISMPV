@@ -169,15 +169,17 @@ strips pharmaceutical qualifiers (salt forms, dosage-form words, route words) us
 the `PHARMA_QUALIFIERS` constant. Falls back to the original input on any API error
 or ambiguous result.
 
-**Biologic suffixes.** FDA requires a meaningless 4-letter suffix on biologic
-nonproprietary names (`tafasitamab-cxix`). `canonical_ingredient_token()` strips it
-and replaces any remaining non-letters with a space rather than deleting them, so a
-hyphenated combination (`SACUBITRIL-VALSARTAN`) splits into two words and correctly
-falls through instead of welding into one bogus token.
+### Biologic suffixes
 
-This matters because the earlier behaviour deleted the hyphen, producing
-`TAFASITAMABCXIX` — a name matching **zero** FAERS records, which the app reported
-as a clean "no signal" rather than an error:
+FDA requires a 4-letter suffix on biologic nonproprietary names, such as
+`tafasitamab-cxix`. `canonical_ingredient_token()` strips the suffix and replaces
+any remaining non-letters with a space rather than deleting them, so a hyphenated
+combination such as `SACUBITRIL-VALSARTAN` splits into two words and falls through
+instead of collapsing into a single invalid token.
+
+Earlier behaviour deleted the hyphen and produced `TAFASITAMABCXIX`, which matches
+no FAERS records. The app reported this as "no signal" rather than as a failed
+lookup:
 
 | Canonical produced | FAERS reports | Correct form | Reports |
 |---|---|---|---|
@@ -185,12 +187,16 @@ as a clean "no signal" rather than an error:
 | `RETIFANLIMABDLWR` | 0 | `RETIFANLIMAB` | 87 |
 | `AXATILIMABCSFR` | 0 | `AXATILIMAB` | 128 |
 
-**Discontinued brands.** Brands with no current FDA label (`LEVAQUIN`, `COUMADIN`)
-return HTTP 404 from the labeling API, so a BBW check against the raw name found
-nothing and reported a decades-old boxed warning as an emerging signal.
-`fetch_label_results()` now retries with the generic — from the cohort's own
-brand→generic map first, then `resolve_drug_names()`. Fully **withdrawn** drugs
-(Vioxx, Avandia) remain unrecoverable: openFDA holds no label for them under any name.
+### Discontinued brands
+
+Brands with no current FDA label, such as `LEVAQUIN` and `COUMADIN`, return HTTP 404
+from the labeling API. A boxed-warning check against the raw name therefore found
+nothing and classified an existing warning as an emerging signal.
+`fetch_label_results()` retries with the generic name, taken from the cohort's
+brand-to-generic map and falling back to `resolve_drug_names()`.
+
+Withdrawn drugs such as Vioxx and Avandia cannot be recovered this way, because
+openFDA holds no label for them under any name.
 
 `build_url()` then searches FAERS across three fields with OR logic:
 - `patient.drug.medicinalproduct` (free-text as reported)
@@ -200,10 +206,12 @@ brand→generic map first, then `resolve_drug_names()`. Fully **withdrawn** drug
 This catches FAERS reports regardless of whether the reporter used the brand or
 generic name.
 
-**Phrase quoting.** Multi-word values are wrapped in `%22`, or Lucene splits them:
-`reactionmeddrapt:TENDON PAIN` parses as `reactionmeddrapt:TENDON` **OR** a
-free-text match on `PAIN`. Single-word terms are unaffected, which is why the bug
-went unnoticed — but roughly 70 of the 112 curated PT terms are multi-word:
+### Phrase quoting
+
+Multi-word values are wrapped in `%22`. Without the quotes Lucene splits them:
+`reactionmeddrapt:TENDON PAIN` parses as `reactionmeddrapt:TENDON` OR a free-text
+match on `PAIN`. Single-word terms are unaffected, but roughly 70 of the 112 curated
+PT terms contain more than one word:
 
 | Term | Unquoted | Exact phrase |
 |---|---|---|
@@ -212,9 +220,9 @@ went unnoticed — but roughly 70 of the 112 curated PT terms are multi-word:
 | acute kidney injury | 901,197 | 150,318 |
 | herpes zoster | 225,468 | 60,592 |
 
-Note phrase matching is *substring*, not exact-field: `cardiac failure` also matches
-`cardiac failure congestive`. That intentionally groups a PT family, but means
-counts are broader than a strict PT match.
+Phrase matching is substring-based rather than exact-field, so `cardiac failure`
+also matches `cardiac failure congestive`. This groups a PT family together, at the
+cost of counts being broader than a strict PT match.
 
 ---
 
@@ -269,12 +277,12 @@ Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric
 ### API key
 
 PRISM reads an optional key from the `OPENFDA_API_KEY` environment variable.
-Without one it runs at the anonymous limit; with one the daily ceiling rises from
-roughly 1,000 to 120,000 requests.
+Without one it runs at the anonymous limit of roughly 1,000 requests per day per IP;
+with one that ceiling is about 120,000.
 
-This matters more than it sounds: a single live query issues **~50 requests**
-(4 counts × 12 quarters, plus label and name-resolution lookups). Anonymously that
-exhausts the daily cap after about 20 queries **across all users of the public app**.
+A single live query issues roughly 50 requests (4 counts × 12 quarters, plus label
+and name-resolution lookups), so the anonymous cap is reached after about 20 queries
+across all users of the public app.
 
 ```bash
 cp .env.example .env      # .env is gitignored — never commit a key
@@ -287,8 +295,9 @@ Get a free key instantly at <https://open.fda.gov/apis/authentication/>.
 For the deployed app, add a repo secret named `OPENFDA_API_KEY`; the workflow
 injects it at build time. shinyapps.io supports no secure environment variables
 (`rsconnect`'s `envVars=` is Posit Connect only and errors on shinyapps), so the
-key is written into the bundle as a generated `R/zzz_env.R`. That is an accepted
-tradeoff for a rate-limit token — **do not reuse the pattern for a real credential.**
+key is written into the bundle as a generated `R/zzz_env.R`. This is acceptable for
+a rate-limit token, which carries no data access and can be regenerated at any time.
+It is not a suitable pattern for a real credential.
 
 The key is appended at fetch time, never in the URL builders, so it can never enter
 a cache key; `redact_key()` strips it from any logged URL.
