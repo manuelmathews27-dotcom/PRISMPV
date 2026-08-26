@@ -78,12 +78,12 @@ SE    = sqrt(1/a − 1/B + 1/c_cell − 1/cd_cell)
 chi²  = D × (|a×D − B×C| − D/2)² / (B × cd_cell × C × bd_cell)
 ```
 
-The chi-squared is a **full Pearson statistic with Yates continuity correction**,
-not the `(a−E)²/E` shortcut. Any quarter where a required marginal or reconstructed
-cell is ≤ 0 yields `NA` rather than a fabricated value. The 95% CI uses the
-log-normal approximation for ratio measures (Rothman, 2008).
+The chi-squared is a full Pearson statistic with Yates continuity correction, not
+the `(a−E)²/E` shortcut. Any quarter in which a required marginal or reconstructed
+cell is zero or negative yields `NA` rather than an estimated value. The 95% CI uses
+the log-normal approximation for ratio measures (Rothman, 2008).
 
-`tests/test_prr_formula.R` pins this against known cell configurations and gates
+`tests/test_prr_formula.R` verifies this against known cell configurations and gates
 both the pipeline and every deploy.
 
 ### Signal criteria (Evans + Rothman)
@@ -354,8 +354,8 @@ shiny::runApp()
 
 ## Tests
 
-Two offline regression suites. Both gate `run_pipeline.R` **and** every deploy, so
-neither the cohort refresh nor a shipped build can proceed with a red test.
+Two offline regression suites. Both gate `run_pipeline.R` and every deploy, so
+neither a cohort refresh nor a shipped build can proceed with a failing test.
 
 ```bash
 Rscript tests/test_prr_formula.R      # PRR, Rothman CI, Yates chi-squared
@@ -368,9 +368,9 @@ Neither hits the network.
 marginals, and asserts the textbook values come back — guarding the cell
 reconstruction and the Yates correction.
 
-`test_resolve_token.R` guards `canonical_ingredient_token()`, including the FDA
-biologic suffix case that previously produced a canonical name matching **zero**
-FAERS records (see [Drug name resolution](#drug-name-resolution)).
+`test_resolve_token.R` covers `canonical_ingredient_token()`, including the FDA
+biologic suffix case that previously produced a canonical name matching no FAERS
+records (see [Drug name resolution](#drug-name-resolution)).
 
 ---
 
@@ -448,23 +448,24 @@ cat /home/manny/prism/logs/refresh.log
 
 The script requires docker, so it must run as a user in the `docker` group.
 
-**What it does, and does not do.** It runs the pipeline in `prism-local:latest` via
-`run_pipeline.R`, so the regression tests gate the refresh. It then does a plain
-`docker restart` — **no image rebuild**, because `repo/` is bind-mounted into the
-container, so new data under `repo/data/` is visible immediately.
+The script runs the pipeline in `prism-local:latest` via `run_pipeline.R`, so the
+regression tests gate the refresh. It then performs a plain `docker restart` with no
+image rebuild: `repo/` is bind-mounted into the container, so new data under
+`repo/data/` is visible immediately.
 
 Safety behaviour:
 
-- **Preflight** verifies docker is reachable, the image exists, the container is
-  running, and `docker inspect` confirms the `repo/` bind-mount is present. Without
-  the mount a restart would silently serve stale data, so it aborts instead.
-- **Backup and rollback** — `data/` is snapshotted before the pull and restored on
-  any failure. A bad pull would otherwise be auto-committed and auto-deployed.
-- **Holds the auto-sync flock** for the whole run, so the every-minute watcher
-  cannot commit a half-written `.rds` mid-pipeline. The data lands as one commit.
-  *(A refresh in progress therefore looks like a stalled watcher — this is expected.)*
-- **Smoke check** after restart: polls for 200 + `<title>PRISM</title>` rather than
-  sleeping blindly, since a cold container takes 45-60s to load its R packages.
+- Preflight verifies that docker is reachable, the image exists, the container is
+  running, and that `docker inspect` reports the `repo/` bind-mount. Without the
+  mount a restart would serve stale data, so the script aborts instead.
+- `data/` is snapshotted before the pull and restored on any failure, since a bad
+  pull would otherwise be auto-committed and auto-deployed.
+- The script holds the auto-sync flock for the duration of the run, so the watcher
+  cannot commit a partially written `.rds`. The refreshed data lands as one commit.
+  A refresh in progress therefore looks like a stalled watcher; this is expected.
+- After the restart it polls for HTTP 200 and `<title>PRISM</title>` rather than
+  sleeping for a fixed interval, since a cold container takes 45-60 seconds to load
+  its R packages.
 
 The pipeline run date and FAERS date range are displayed in the dashboard footer.
 
@@ -486,13 +487,14 @@ push to edward-auto
 
 Paths excluded from triggering a deploy: `**.md`, `.claude/**`, `deploy/**`.
 
-**Concurrency.** The workflow declares `concurrency: deploy-shinyapps-prismpv`
-with `cancel-in-progress: true`. Without it, overlapping runs collided on the
-shinyapps app lock and the later run always failed — producing a long-standing
-alternating success/failure pattern that had nothing to do with app health.
+The workflow declares `concurrency: deploy-shinyapps-prismpv` with
+`cancel-in-progress: true`. Without it, overlapping runs collide on the shinyapps
+app lock and the later run fails, which previously produced an alternating
+success/failure pattern unrelated to the health of the app.
 
-**Both gates matter.** The tests catch a broken formula or resolver before it
-ships; the smoke test means a green check cannot mean a dead app.
+The two gates cover different failures: the tests catch a broken formula or
+resolver before it ships, and the smoke test prevents a green run on a deployed app
+that does not load.
 
 ### Manual deploy (rarely needed)
 
@@ -592,15 +594,15 @@ The `test_*.R` and `inspect.R` scripts are development/debugging utilities and a
 | Direct Thrombin Inhibitor | Pradaxa | GI haemorrhage |
 | P2Y12 Inhibitor | Plavix | Drug interaction |
 
-The cohort was previously grouped into 10 therapeutic areas. Two of those grouped
-unrelated mechanisms — *Antidiabetic* covered a TZD, an SGLT2 and a DPP-4 inhibitor;
-*Antithrombotic* mixed two Factor Xa inhibitors with a direct thrombin inhibitor and
-a P2Y12 antiplatelet — which made the class-specific signal-to-label estimate an
-average over drugs with nothing pharmacologically in common.
+The cohort was previously grouped into 10 therapeutic areas. Two of those groupings
+combined unrelated mechanisms: *Antidiabetic* covered a TZD, an SGLT2 inhibitor and a
+DPP-4 inhibitor, and *Antithrombotic* combined two Factor Xa inhibitors with a direct
+thrombin inhibitor and a P2Y12 antiplatelet. The class-specific signal-to-label
+estimate was therefore averaged across drugs with no shared pharmacology.
 
-**Consequence:** seven classes now fall below the timeline model's 3-drug minimum
-and fall back to the all-drug benchmark. That is deliberate — a prediction derived
-from a fabricated class is worse than no class-specific prediction.
+As a result, seven classes fall below the timeline model's three-drug minimum and
+use the all-drug benchmark instead. This is intended: a class-specific estimate
+drawn from an artificial grouping is less useful than no class-specific estimate.
 
 The drug-class lookup (`drug_class_map` in `app.R`) extends beyond the 40 cohort
 drugs to cover commonly queried relatives, and is kept in sync with the cohort
@@ -712,8 +714,8 @@ Parses a single response object from `curl::curl_fetch_multi` into a report coun
 Computes PRR, 95% CI, and Yates-corrected chi-squared from a data frame with
 `count_a`, `count_b`, `count_c`, `count_d` columns. Reconstructs the 2×2 cells from
 the openFDA marginals first. Rather than flooring the marginals, it applies a
-**degenerate-cell guard**: if any required marginal or derived cell is ≤ 0, PRR,
-CI and chi-squared are all `NA` for that row.
+degenerate-cell guard: if any required marginal or derived cell is zero or negative,
+PRR, CI and chi-squared are all `NA` for that row.
 
 **Parameters:**
 - `df` — data frame with columns `count_a`, `count_b`, `count_c`, `count_d`
