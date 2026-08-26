@@ -19,15 +19,17 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 7. [Drug name resolution](#drug-name-resolution)
 8. [AE synonym mapping](#ae-synonym-mapping)
 9. [Adverse event term selection](#adverse-event-term-selection)
-10. [Setup](#setup)
-11. [Data pipeline](#data-pipeline)
-12. [Deployment](#deployment)
-13. [Project structure](#project-structure)
-14. [Drug cohort](#drug-cohort)
-15. [Cohort analysis findings](#cohort-analysis-findings)
-16. [Data sources](#data-sources)
-17. [References](#references)
-18. [API reference — R/utils.R](#api-reference--rutilsr)
+10. [openFDA API key and caching](#openfda-api-key-and-caching)
+11. [Setup](#setup)
+12. [Tests](#tests)
+13. [Data pipeline](#data-pipeline)
+14. [Deployment](#deployment)
+15. [Project structure](#project-structure)
+16. [Drug cohort](#drug-cohort)
+17. [Cohort analysis findings](#cohort-analysis-findings)
+18. [Data sources](#data-sources)
+19. [References](#references)
+20. [API reference — R/utils.R](#api-reference--rutilsr)
 
 ---
 
@@ -162,14 +164,57 @@ This is contextual, not predictive. FAERS alone cannot predict when FDA will act
 - `HUMIRA` → `ADALIMUMAB`
 - `OZEMPIC` → `SEMAGLUTIDE`
 
-The function skips combination products (names containing `AND`, `;`, `/`, `,`) and strips pharmaceutical qualifiers (salt forms, dosage-form words, route words) from the resolved generic name using the `PHARMA_QUALIFIERS` constant. Falls back to the original input name on any API error or ambiguous result.
+The function skips combination products (names containing `AND`, `;`, `/`, `,`) and
+strips pharmaceutical qualifiers (salt forms, dosage-form words, route words) using
+the `PHARMA_QUALIFIERS` constant. Falls back to the original input on any API error
+or ambiguous result.
+
+**Biologic suffixes.** FDA requires a meaningless 4-letter suffix on biologic
+nonproprietary names (`tafasitamab-cxix`). `canonical_ingredient_token()` strips it
+and replaces any remaining non-letters with a space rather than deleting them, so a
+hyphenated combination (`SACUBITRIL-VALSARTAN`) splits into two words and correctly
+falls through instead of welding into one bogus token.
+
+This matters because the earlier behaviour deleted the hyphen, producing
+`TAFASITAMABCXIX` — a name matching **zero** FAERS records, which the app reported
+as a clean "no signal" rather than an error:
+
+| Canonical produced | FAERS reports | Correct form | Reports |
+|---|---|---|---|
+| `TAFASITAMABCXIX` | 0 | `TAFASITAMAB` | 1,267 |
+| `RETIFANLIMABDLWR` | 0 | `RETIFANLIMAB` | 87 |
+| `AXATILIMABCSFR` | 0 | `AXATILIMAB` | 128 |
+
+**Discontinued brands.** Brands with no current FDA label (`LEVAQUIN`, `COUMADIN`)
+return HTTP 404 from the labeling API, so a BBW check against the raw name found
+nothing and reported a decades-old boxed warning as an emerging signal.
+`fetch_label_results()` now retries with the generic — from the cohort's own
+brand→generic map first, then `resolve_drug_names()`. Fully **withdrawn** drugs
+(Vioxx, Avandia) remain unrecoverable: openFDA holds no label for them under any name.
 
 `build_url()` then searches FAERS across three fields with OR logic:
 - `patient.drug.medicinalproduct` (free-text as reported)
 - `patient.drug.openfda.brand_name` (standardized brand name)
 - `patient.drug.openfda.generic_name` (standardized generic name)
 
-This catches FAERS reports regardless of whether the reporter used the brand or generic name.
+This catches FAERS reports regardless of whether the reporter used the brand or
+generic name.
+
+**Phrase quoting.** Multi-word values are wrapped in `%22`, or Lucene splits them:
+`reactionmeddrapt:TENDON PAIN` parses as `reactionmeddrapt:TENDON` **OR** a
+free-text match on `PAIN`. Single-word terms are unaffected, which is why the bug
+went unnoticed — but roughly 70 of the 112 curated PT terms are multi-word:
+
+| Term | Unquoted | Exact phrase |
+|---|---|---|
+| tendon pain | 3,561,634 | 7,475 |
+| hepatic failure | 929,971 | 43,799 |
+| acute kidney injury | 901,197 | 150,318 |
+| herpes zoster | 225,468 | 60,592 |
+
+Note phrase matching is *substring*, not exact-field: `cardiac failure` also matches
+`cardiac failure congestive`. That intentionally groups a PT family, but means
+counts are broader than a strict PT match.
 
 ---
 
@@ -210,6 +255,54 @@ Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric
 
 ---
 
+## openFDA API key and caching
+
+### API key
+
+PRISM reads an optional key from the `OPENFDA_API_KEY` environment variable.
+Without one it runs at the anonymous limit; with one the daily ceiling rises from
+roughly 1,000 to 120,000 requests.
+
+This matters more than it sounds: a single live query issues **~50 requests**
+(4 counts × 12 quarters, plus label and name-resolution lookups). Anonymously that
+exhausts the daily cap after about 20 queries **across all users of the public app**.
+
+```bash
+cp .env.example .env      # .env is gitignored — never commit a key
+# then supply it to the container:
+docker run --env-file /home/manny/prism/.env ...
+```
+
+Get a free key instantly at <https://open.fda.gov/apis/authentication/>.
+
+For the deployed app, add a repo secret named `OPENFDA_API_KEY`; the workflow
+injects it at build time. shinyapps.io supports no secure environment variables
+(`rsconnect`'s `envVars=` is Posit Connect only and errors on shinyapps), so the
+key is written into the bundle as a generated `R/zzz_env.R`. That is an accepted
+tradeoff for a rate-limit token — **do not reuse the pattern for a real credential.**
+
+The key is appended at fetch time, never in the URL builders, so it can never enter
+a cache key; `redact_key()` strips it from any logged URL.
+
+### Response cache
+
+An in-memory cache sits in front of every openFDA call:
+
+| Data | Expiry | Why |
+|------|--------|-----|
+| FAERS quarter counts | none | Only closed quarters are ever queried (the window stops 9 months back), so counts cannot change |
+| Label lookups, name resolution | 24 h | FDA labeling changes over time |
+
+Two of the four counts per quarter — *event across all drugs* and *all reports* —
+are drug-independent, so they are shared by every user's every query. The container
+runs a single R process, so one cache serves all sessions until restart. Failed
+lookups are never cached, so a transient outage is retried rather than remembered.
+
+The cache is deliberately memory-only: `repo/data/` is tracked by git and watched
+by the auto-sync, so on-disk cache files would generate commits and trigger deploys.
+
+---
+
 ## Setup
 
 ### Prerequisites
@@ -241,6 +334,28 @@ shiny::runApp()
 
 ---
 
+## Tests
+
+Two offline regression suites. Both gate `run_pipeline.R` **and** every deploy, so
+neither the cohort refresh nor a shipped build can proceed with a red test.
+
+```bash
+Rscript tests/test_prr_formula.R      # PRR, Rothman CI, Yates chi-squared
+Rscript tests/test_resolve_token.R    # generic-name -> canonical ingredient
+```
+
+Neither hits the network.
+
+`test_prr_formula.R` builds known 2×2 configurations, feeds the equivalent
+marginals, and asserts the textbook values come back — guarding the cell
+reconstruction and the Yates correction.
+
+`test_resolve_token.R` guards `canonical_ingredient_token()`, including the FDA
+biologic suffix case that previously produced a canonical name matching **zero**
+FAERS records (see [Drug name resolution](#drug-name-resolution)).
+
+---
+
 ## Data pipeline
 
 `run_pipeline.R` executes three scripts in sequence, halting on errors in the first two and treating the third as non-fatal:
@@ -265,7 +380,7 @@ Outputs:
 - `data/faers_raw.rds` — raw counts (one row per drug / AE / quarter)
 - `data/provenance.rds` — pipeline run metadata (timestamp, R version, platform, date range, drugs queried, record count)
 
-**Runtime:** approximately 45–60 minutes for 40 drugs. No API key is required for low-volume queries (under 1,000/day).
+**Runtime:** approximately 45–60 minutes for 40 drugs. Set `OPENFDA_API_KEY` to avoid the anonymous daily cap — see [openFDA API key and caching](#openfda-api-key-and-caching).
 
 ### 02_signal_detection.R
 
@@ -493,7 +608,7 @@ These findings underscore that FAERS disproportionality analysis has well-define
 
 ## Data sources
 
-- **FAERS:** [openFDA Drug Event API](https://open.fda.gov/apis/drug/event/) — no API key required for low-volume queries (under 1,000/day)
+- **FAERS:** [openFDA Drug Event API](https://open.fda.gov/apis/drug/event/) — optional API key via `OPENFDA_API_KEY`
 - **Drug labeling:** [openFDA Drug Labeling API](https://open.fda.gov/apis/drug/label/) — queried in real time for BBW and contraindication checks
 - **Label changes:** Manually curated from FDA safety communications, drug safety labeling changes, and published literature (`data/label_changes.csv`)
 
