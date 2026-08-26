@@ -61,14 +61,28 @@ PRISM queries four counts from the openFDA API per drug-AE-quarter combination:
 | **C** | All reports with target AE (any drug) |
 | **D** | All reports in the quarter |
 
+openFDA returns **marginals, not 2×2 cells**, so `compute_prr()` reconstructs the
+true cells before computing anything:
+
 ```
-PRR  = (a / B) / (C / D)
-chi² = (a − E)² / E,  where E = B × C / D
+c_cell  = C − a          # event in other drugs
+cd_cell = D − B          # other-drug total
+bd_cell = D − C          # non-event total
+
+PRR   = (a / B) / (c_cell / cd_cell)
+SE    = sqrt(1/a − 1/B + 1/c_cell − 1/cd_cell)
 95% CI = exp(ln(PRR) ± 1.96 × SE)
-SE   = sqrt(1/a − 1/B + 1/C − 1/D)
+
+chi²  = D × (|a×D − B×C| − D/2)² / (B × cd_cell × C × bd_cell)
 ```
 
-B, C, and D are obtained from separate openFDA API queries (marginal totals, not inner cells of a 2×2 table). The 95% CI uses the log-normal approximation for ratio measures (Rothman, 2008).
+The chi-squared is a **full Pearson statistic with Yates continuity correction**,
+not the `(a−E)²/E` shortcut. Any quarter where a required marginal or reconstructed
+cell is ≤ 0 yields `NA` rather than a fabricated value. The 95% CI uses the
+log-normal approximation for ratio measures (Rothman, 2008).
+
+`tests/test_prr_formula.R` pins this against known cell configurations and gates
+both the pipeline and every deploy.
 
 ### Signal criteria (Evans + Rothman)
 
@@ -281,15 +295,42 @@ The **Monitor Your Drug** tab always queries live FAERS data in real time; it is
 
 ### Automatic quarterly refresh
 
-A cron job runs `scripts/refresh_cohort.sh` on the 1st of January, April, July, and October at 3:00 AM to re-pull FAERS data, recompute signals, and rebuild the Docker container. This keeps the reference cohort current with the openFDA index.
+A cron job runs `scripts/refresh_cohort.sh` on the 1st of January, April, July and
+October at 3:00 AM to re-pull FAERS data, recompute signals and reload the app.
 
 ```bash
-# Manual refresh
+# Preflight only — verifies every assumption, changes nothing
+./scripts/refresh_cohort.sh --check
+
+# Full refresh (~45-60 min)
 ./scripts/refresh_cohort.sh
 
+# Cron mode (log file only)
+./scripts/refresh_cohort.sh --quiet
+
 # Check last refresh log
-cat /home/edward/apps/prism/logs/refresh.log
+cat /home/manny/prism/logs/refresh.log
 ```
+
+The script requires docker, so it must run as a user in the `docker` group.
+
+**What it does, and does not do.** It runs the pipeline in `prism-local:latest` via
+`run_pipeline.R`, so the regression tests gate the refresh. It then does a plain
+`docker restart` — **no image rebuild**, because `repo/` is bind-mounted into the
+container, so new data under `repo/data/` is visible immediately.
+
+Safety behaviour:
+
+- **Preflight** verifies docker is reachable, the image exists, the container is
+  running, and `docker inspect` confirms the `repo/` bind-mount is present. Without
+  the mount a restart would silently serve stale data, so it aborts instead.
+- **Backup and rollback** — `data/` is snapshotted before the pull and restored on
+  any failure. A bad pull would otherwise be auto-committed and auto-deployed.
+- **Holds the auto-sync flock** for the whole run, so the every-minute watcher
+  cannot commit a half-written `.rds` mid-pipeline. The data lands as one commit.
+  *(A refresh in progress therefore looks like a stalled watcher — this is expected.)*
+- **Smoke check** after restart: polls for 200 + `<title>PRISM</title>` rather than
+  sleeping blindly, since a cold container takes 45-60s to load its R packages.
 
 The pipeline run date and FAERS date range are displayed in the dashboard footer.
 
@@ -297,16 +338,32 @@ The pipeline run date and FAERS date range are displayed in the dashboard footer
 
 ## Deployment
 
-The app is deployed to shinyapps.io as **PRISMPV** under account `mmdothim`.
+Deployment is **automatic**. `.github/workflows/deploy.yml` triggers on every push
+to `edward-auto` and deploys to shinyapps.io as **PRISMPV** under account
+`mmdothim`. There is no manual ship gate — `master` is not a deploy trigger.
 
-### Deploy with rsconnect
+```
+push to edward-auto
+  ├── Run R regression tests        (gate — deploy stops here on failure)
+  ├── Inject openFDA API key        (only when the repo secret is set)
+  ├── Deploy to shinyapps.io        (rsconnect)
+  └── Smoke test deployed app       (gate — must return 200 + <title>PRISM</title>)
+```
+
+Paths excluded from triggering a deploy: `**.md`, `.claude/**`, `deploy/**`.
+
+**Concurrency.** The workflow declares `concurrency: deploy-shinyapps-prismpv`
+with `cancel-in-progress: true`. Without it, overlapping runs collided on the
+shinyapps app lock and the later run always failed — producing a long-standing
+alternating success/failure pattern that had nothing to do with app health.
+
+**Both gates matter.** The tests catch a broken formula or resolver before it
+ships; the smoke test means a green check cannot mean a dead app.
+
+### Manual deploy (rarely needed)
 
 ```r
 library(rsconnect)
-
-# Authenticate first (one-time):
-# rsconnect::setAccountInfo(name="mmdothim", token="...", secret="...")
-
 rsconnect::deployApp(
   appDir  = ".",
   appName = "PRISMPV",
@@ -315,9 +372,12 @@ rsconnect::deployApp(
 )
 ```
 
-**Important:** Always use `appName = "PRISMPV"`. The old `signal-to-label` deployment is archived and should not be redeployed.
+**Important:** Always use `appName = "PRISMPV"`. The old `signal-to-label`
+deployment is archived and should not be redeployed.
 
-The `rsconnect/` directory contains `.dcf` config files for three deployment slots (`PRISMPV`, `prismrx`, `signal-to-label`). Only `PRISMPV` is the active production deployment.
+The `rsconnect/` directory contains `.dcf` config files for three deployment slots
+(`PRISMPV`, `prismrx`, `signal-to-label`). Only `PRISMPV` is the active production
+deployment.
 
 ### Pre-deployment checklist
 
@@ -373,20 +433,42 @@ The `test_*.R` and `inspect.R` scripts are development/debugging utilities and a
 
 10 therapeutic classes, 4 drugs each (40 total):
 
+40 drugs, classified by **mechanism** rather than therapeutic area:
+
 | Class | Drugs | Adverse event tracked |
 |-------|-------|----------------------|
-| Antidiabetic | Avandia, Actos, Invokana, Januvia | MI; bladder cancer; amputation; pancreatitis |
-| Statin | Zocor, Lipitor, Crestor, Pravachol | Rhabdomyolysis; diabetes mellitus |
-| Fluoroquinolone | Cipro, Levaquin, Avelox, Floxin | Tendon rupture |
-| Antipsychotic | Abilify, Seroquel, Zyprexa, Risperdal | Pathological gambling; mortality |
-| NSAID | Celebrex, Vioxx, Voltaren, Mobic | Myocardial infarction |
-| PPI | Nexium, Prilosec, Prevacid, Protonix | Clostridium difficile colitis |
-| TNF Inhibitor | Humira, Enbrel, Remicade, Cimzia | Tuberculosis; lymphoma |
+| HMG-CoA Reductase Inhibitor | Zocor, Lipitor, Crestor, Pravachol | Rhabdomyolysis; diabetes mellitus |
+| Fluoroquinolone | Cipro, Levaquin, Avelox, Floxin | Tendon rupture; peripheral neuropathy |
+| Atypical Antipsychotic | Abilify, Seroquel, Zyprexa, Risperdal | Pathological gambling; mortality |
+| Proton Pump Inhibitor | Nexium, Prilosec, Prevacid, Protonix | Clostridium difficile colitis |
+| TNF-alpha Inhibitor | Humira, Enbrel, Remicade, Cimzia | Tuberculosis; lymphoma |
 | Bisphosphonate | Fosamax, Actonel, Boniva, Reclast | Osteonecrosis of jaw |
-| Antithrombotic | Plavix, Pradaxa, Xarelto, Eliquis | Drug interaction; GI haemorrhage |
-| Sedative-Hypnotic | Ambien, Lunesta, Sonata, Intermezzo | Somnambulism |
+| Nonbenzodiazepine Z-drug | Ambien, Lunesta, Sonata, Intermezzo | Somnambulism |
+| COX-2 Selective NSAID | Celebrex, Vioxx, Mobic | Myocardial infarction |
+| Nonselective NSAID | Voltaren | Myocardial infarction |
+| PPAR-gamma Agonist (TZD) | Avandia, Actos | MI; bladder cancer |
+| SGLT2 Inhibitor | Invokana | Amputation |
+| DPP-4 Inhibitor | Januvia | Pancreatitis |
+| Factor Xa Inhibitor | Xarelto, Eliquis | GI haemorrhage |
+| Direct Thrombin Inhibitor | Pradaxa | GI haemorrhage |
+| P2Y12 Inhibitor | Plavix | Drug interaction |
 
-The drug-class lookup (`drug_class_map` in `app.R`) extends beyond the 40 cohort drugs to cover commonly queried related drugs (e.g., Ozempic, Jardiance, Wegovy for Antidiabetic; Brilinta, Effient for Antithrombotic). When a user queries one of these extended drugs, PRISM matches it to the appropriate class and shows class-level cohort benchmarks.
+The cohort was previously grouped into 10 therapeutic areas. Two of those grouped
+unrelated mechanisms — *Antidiabetic* covered a TZD, an SGLT2 and a DPP-4 inhibitor;
+*Antithrombotic* mixed two Factor Xa inhibitors with a direct thrombin inhibitor and
+a P2Y12 antiplatelet — which made the class-specific signal-to-label estimate an
+average over drugs with nothing pharmacologically in common.
+
+**Consequence:** seven classes now fall below the timeline model's 3-drug minimum
+and fall back to the all-drug benchmark. That is deliberate — a prediction derived
+from a fabricated class is worse than no class-specific prediction.
+
+The drug-class lookup (`drug_class_map` in `app.R`) extends beyond the 40 cohort
+drugs to cover commonly queried relatives, and is kept in sync with the cohort
+classes. It also carries classes with no cohort members yet — **GLP-1 Receptor
+Agonist** (Ozempic, Wegovy, Trulicity, Mounjaro, Zepbound), **IL-12/23**,
+**IL-23** and **IL-4R-alpha inhibitors**, **orexin receptor antagonists** — which
+resolve for display but fall back to the all-drug benchmark.
 
 ---
 
@@ -488,7 +570,11 @@ Parses a single response object from `curl::curl_fetch_multi` into a report coun
 
 ### `compute_prr(df)`
 
-Computes PRR, 95% CI, and chi-squared from a data frame with `count_a`, `count_b`, `count_c`, `count_d` columns. Applies a floor of 1 to B, C, D to avoid division by zero.
+Computes PRR, 95% CI, and Yates-corrected chi-squared from a data frame with
+`count_a`, `count_b`, `count_c`, `count_d` columns. Reconstructs the 2×2 cells from
+the openFDA marginals first. Rather than flooring the marginals, it applies a
+**degenerate-cell guard**: if any required marginal or derived cell is ≤ 0, PRR,
+CI and chi-squared are all `NA` for that row.
 
 **Parameters:**
 - `df` — data frame with columns `count_a`, `count_b`, `count_c`, `count_d`
@@ -497,12 +583,14 @@ Computes PRR, 95% CI, and chi-squared from a data frame with `count_a`, `count_b
 
 | Column | Description |
 |--------|-------------|
+| `c_cell` | Reconstructed cell: event in other drugs (`C − a`) |
+| `cd_cell` | Reconstructed other-drug total (`D − B`) |
+| `bd_cell` | Reconstructed non-event total (`D − C`) |
 | `PRR` | Proportional Reporting Ratio |
 | `PRR_log_se` | Log-scale standard error of PRR |
 | `PRR_lo` | 95% CI lower bound (log-normal approximation) |
 | `PRR_hi` | 95% CI upper bound |
-| `E` | Expected count under independence |
-| `chi_sq` | Pearson chi-squared statistic |
+| `chi_sq` | Pearson chi-squared with Yates continuity correction |
 
 ### `check_signal(count_a, PRR, chi_sq, PRR_lo)`
 
