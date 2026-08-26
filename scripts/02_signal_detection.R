@@ -34,6 +34,11 @@ signals <- faers_raw |>
   compute_prr() |>
   mutate(
     A = count_a,
+    # Preserve the long-standing signals table schema. compute_prr() consumes
+    # these openFDA marginals but no longer creates their B/C/D aliases itself.
+    B = count_b,
+    C = count_c,
+    D = count_d,
     signal_met = check_signal(count_a, PRR, chi_sq, PRR_lo)
   ) |>
   select(drug, pt, quarter, A, B, C, D, PRR, PRR_lo, PRR_hi, chi_sq, signal_met)

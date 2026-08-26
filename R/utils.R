@@ -219,24 +219,44 @@ fetch_total <- function(url) {
   # cache_set below. openFDA answers 404 for a zero-result search, and that is a
   # hot path for sparse drug/AE pairs, so it must reach the cache like any other
   # count. if/else yielding a value keeps every branch flowing to one exit.
-  val <- tryCatch({
-    h <- curl::new_handle()
-    curl::handle_setopt(h, timeout = 15L, connecttimeout = 10L)
-    resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
-    if (resp$status_code == 404) {
-      0L
-    } else if (resp$status_code != 200) {
-      message("[FAERS] HTTP ", resp$status_code, " for ", substr(redact_key(url), 1, 120))
-      NA_integer_
-    } else {
-      parsed <- fromJSON(rawToChar(resp$content))
-      parsed$meta$results$total %||% 0L
-    }
-  }, error = function(e) {
-    message("[FAERS] Error: ", conditionMessage(e), " — URL: ",
-            substr(redact_key(url), 1, 120))
-    NA_integer_
-  })
+  # openFDA occasionally returns transient 429/5xx responses even for valid,
+  # keyed requests. A single such response must not silently become an NA in a
+  # quarterly cohort refresh, so retry transient transport/server failures with
+  # a short bounded backoff. Non-transient HTTP failures remain NA and are
+  # rejected by the cohort completeness gate in scripts/01_faers_pull.R.
+  max_attempts <- 4L
+  val <- NA_integer_
+  for (attempt in seq_len(max_attempts)) {
+    result <- tryCatch({
+      h <- curl::new_handle()
+      curl::handle_setopt(h, timeout = 15L, connecttimeout = 10L)
+      resp <- curl::curl_fetch_memory(openfda_authed_url(url), handle = h)
+      if (resp$status_code == 404) {
+        list(value = 0L, retryable = FALSE)
+      } else if (resp$status_code != 200) {
+        retryable <- resp$status_code == 429 || resp$status_code >= 500
+        message("[FAERS] HTTP ", resp$status_code, " for ",
+                substr(redact_key(url), 1, 120), " (attempt ", attempt,
+                "/", max_attempts, ")")
+        list(value = NA_integer_, retryable = retryable)
+      } else {
+        parsed <- fromJSON(rawToChar(resp$content))
+        list(value = parsed$meta$results$total %||% 0L, retryable = FALSE)
+      }
+    }, error = function(e) {
+      message("[FAERS] Error: ", conditionMessage(e), " — URL: ",
+              substr(redact_key(url), 1, 120), " (attempt ", attempt,
+              "/", max_attempts, ")")
+      list(value = NA_integer_, retryable = TRUE)
+    })
+
+    val <- result$value
+    if (!is.na(val) || !result$retryable || attempt == max_attempts) break
+
+    delay <- 2^(attempt - 1L)
+    message("[FAERS] Transient failure; retrying in ", delay, "s...")
+    Sys.sleep(delay)
+  }
   if (!is.na(val)) cache_set(ck, val)   # failures stay uncached and get retried
   val
 }

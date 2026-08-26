@@ -116,6 +116,18 @@ faers_raw <- lapply(cohort, function(x) {
 
 faers_raw <- bind_rows(faers_raw)
 
+# Never publish a partially fetched cohort. fetch_total() returns NA only after
+# a non-transient failure or after exhausting its transient retries; without
+# this gate, the pipeline would still save and auto-deploy incomplete counts.
+count_cols <- c("count_a", "count_b", "count_c", "count_d")
+missing_counts <- vapply(faers_raw[count_cols], function(x) sum(is.na(x)), integer(1))
+if (any(missing_counts > 0L)) {
+  stop(
+    "FAERS pull incomplete; refusing to save data with missing counts: ",
+    paste(names(missing_counts), missing_counts, sep = "=", collapse = ", ")
+  )
+}
+
 saveRDS(faers_raw, "data/faers_raw.rds")
 
 # Save pipeline provenance metadata
