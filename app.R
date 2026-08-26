@@ -39,9 +39,13 @@ combined  <- readRDS("data/combined.rds")
 # inhibitor and a P2Y12 antiplatelet. Averaging a signal-to-label lag across
 # unrelated mechanisms makes the class-specific timeline estimate meaningless.
 #
-# Applied at load time because the app reads the .rds, and regenerating it needs
-# the FAERS pipeline (docker). FOLD THIS INTO data/label_changes.csv AT THE NEXT
-# COHORT REFRESH, then delete this block.
+# STATUS 2026-08-26: the mechanistic classes are now written into
+# data/label_changes.csv, so a freshly built combined.rds already carries them and
+# this remap is a NO-OP. It is kept deliberately as a safety net, because the .rds
+# in the repo may still predate that CSV edit (the 2026-08-26 refresh rebuilt it
+# from the OLD classes). Once a pipeline run happens after this commit, the
+# reconciliation message below will confirm zero rows were remapped and this whole
+# block can be deleted.
 #
 # Splitting drops some classes below the timeline model's 3-drug minimum; those
 # fall back to the all-drug estimate, which is the correct behaviour -- a
@@ -80,10 +84,21 @@ CLASS_REMAP <- setNames(
     "dabigatran","clopidogrel")
 )
 local({
-  g <- tolower(trimws(combined$generic_name))
+  g   <- tolower(trimws(combined$generic_name))
   hit <- g %in% names(CLASS_REMAP)
   if (any(!hit)) message("[PRISM] class remap: no mapping for ",
                          paste(unique(combined$generic_name[!hit]), collapse = ", "))
+  # Report whether the .rds still disagrees with the CSV, so this block's job is
+  # visible in the log rather than silent. n_stale == 0 means the data is already
+  # correct and the remap can be removed.
+  n_stale <- sum(hit & combined$therapeutic_class != unname(CLASS_REMAP[g]), na.rm = TRUE)
+  if (n_stale > 0) {
+    message("[PRISM] class remap: corrected ", n_stale,
+            " row(s) whose .rds classes predate data/label_changes.csv")
+  } else {
+    message("[PRISM] class remap: no-op (combined.rds already matches the CSV) ",
+            "-- safe to delete CLASS_REMAP")
+  }
   combined$therapeutic_class[hit] <<- unname(CLASS_REMAP[g[hit]])
 })
 faers_raw <- readRDS("data/faers_raw.rds")
