@@ -35,7 +35,7 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 
 ## What it does
 
-PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 10 therapeutic classes in the curated 40-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
+PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 15 mechanistic classes in the curated 40-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
 
 ---
 
@@ -132,7 +132,7 @@ After the query completes, results are displayed as:
 - Raw Quarterly Data table (collapsible)
 - Regulatory Timeline Intelligence card (when applicable — see below)
 
-Historical timeline comparison (cohort benchmark value boxes and dot plot) is only shown for drugs that map to one of the 10 reference cohort therapeutic classes. For non-cohort drugs, PRISM shows signal status, BBW detection, and text-based regulatory context only. The rationale: the N=40 hand-picked drugs with known label changes is not a generalizable baseline for arbitrary drug comparisons.
+Historical timeline comparison (cohort benchmark value boxes and dot plot) is only shown for drugs that map to a reference cohort class that has at least 3 drugs with lag data. For non-cohort drugs, PRISM shows signal status, BBW detection, and text-based regulatory context only. The rationale: the N=40 hand-picked drugs with known label changes is not a generalizable baseline for arbitrary drug comparisons.
 
 ---
 
@@ -148,7 +148,7 @@ If a BBW is found and the queried adverse event (or its synonyms / medical-root 
 
 When a signal is CONFIRMED or EMERGING and the FDA has not yet taken action (no label change recorded in the cohort for the queried drug), PRISM shows a **Regulatory Timeline Intelligence** card. This card uses historical signal-to-label lag data from the reference cohort to contextualize where the current signal stands:
 
-- **Class-specific** benchmarks are used when the queried drug maps to one of the 10 cohort therapeutic classes and at least 3 reference drugs have lag data. Falls back to all-class data otherwise.
+- **Class-specific** benchmarks are used when the queried drug maps to a cohort class with at least 3 reference drugs carrying lag data. Falls back to all-class data otherwise.
 - Reports the **median lag**, **IQR (Q25–Q75)**, and **percentile** of the current signal duration relative to historical lags.
 - Classifies the signal position as one of: **EARLY**, **APPROACHING**, **EXPECTED WINDOW**, or **OVERDUE**.
 
@@ -234,6 +234,15 @@ FDA label text often uses different terminology than MedDRA Preferred Terms. Two
 | gastrointestinal haemorrhage | gi bleeding, gastrointestinal bleeding, hemorrhage |
 | clostridium difficile colitis | c. difficile, CDAD |
 | acute kidney injury | renal failure, renal impairment, nephrotoxicity |
+| neuropathy peripheral | peripheral neuropathy, polyneuropathy, nerve damage |
+| spinal cord haematoma | spinal/epidural hematoma, epidural hematoma, paralysis |
+| thyroid cancer | thyroid c-cell, c-cell tumor, medullary thyroid carcinoma |
+
+The last three exist because MedDRA and FDA labels disagree on wording. MedDRA
+inverts *neuropathy peripheral* and uses British spelling (*haematoma*), while
+labels write *peripheral neuropathy* and *spinal/epidural hematoma*. The GLP-1
+boxed warning never uses the word "cancer" at all — it says *thyroid C-cell
+tumors* / *medullary thyroid carcinoma*, and the latter is not itself a MedDRA PT.
 
 **Medical root map (`medical_root_map`)** — high-recall cross-language matching:
 
@@ -245,7 +254,7 @@ Both maps are applied by `expand_ae_terms()`, which also extracts meaningful ind
 
 ## Adverse event term selection
 
-The Monitor tab provides a curated dropdown of MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
+The Monitor tab provides a curated dropdown of 112 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
 
 Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric, Respiratory, Gastrointestinal, Musculoskeletal, Skin, Endocrine/Metabolic, Haematological, Immune/Allergic, Infectious, Oncology, Ocular, General.
 
@@ -362,6 +371,7 @@ FAERS records (see [Drug name resolution](#drug-name-resolution)).
 
 ```
 run_pipeline.R
+  ├── tests/                       → regression gate (halts on failure)
   ├── scripts/01_faers_pull.R      → data/faers_raw.rds, data/provenance.rds
   ├── scripts/02_signal_detection.R → data/combined.rds
   └── scripts/03_visualizations.R   (preview plots, non-fatal if it fails)
@@ -524,6 +534,13 @@ prism/
 │   ├── combined.csv           # CSV export of combined.rds
 │   ├── combined_export.csv    # CSV export (alternative format)
 │   └── faers_raw_export.csv   # CSV export of faers_raw.rds
+├── tests/
+│   ├── test_prr_formula.R     # Regression: PRR, Rothman CI, Yates chi-squared
+│   └── test_resolve_token.R   # Regression: canonical ingredient token
+├── .github/workflows/
+│   └── deploy.yml             # CI: tests -> key injection -> deploy -> smoke test
+├── deploy/caddy/              # Live Caddy block, pulled from the VPS by auto-sync
+├── .env.example               # Template for OPENFDA_API_KEY (.env is gitignored)
 ├── run_pipeline.R             # Runs the three pipeline scripts in order
 ├── install_packages.R         # One-time dependency installer
 ├── inspect.R                  # Ad-hoc data inspection script (not used in production)
@@ -545,8 +562,6 @@ The `test_*.R` and `inspect.R` scripts are development/debugging utilities and a
 ---
 
 ## Drug cohort
-
-10 therapeutic classes, 4 drugs each (40 total):
 
 40 drugs, classified by **mechanism** rather than therapeutic area:
 
