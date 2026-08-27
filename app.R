@@ -64,11 +64,11 @@ CLASS_REMAP <- setNames(
     "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
     "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
     "COX-2 Selective NSAID","COX-2 Selective NSAID","COX-2 Selective NSAID",
-    "Nonselective NSAID",
     "PPAR-gamma Agonist (TZD)","PPAR-gamma Agonist (TZD)",
-    "SGLT2 Inhibitor","DPP-4 Inhibitor",
     "Factor Xa Inhibitor","Factor Xa Inhibitor",
-    "Direct Thrombin Inhibitor","P2Y12 Inhibitor"),
+    "JAK Inhibitor","JAK Inhibitor","JAK Inhibitor",
+    "CAR-T Cell Therapy","CAR-T Cell Therapy",
+    "CAR-T Cell Therapy","CAR-T Cell Therapy"),
   c("atorvastatin","rosuvastatin","simvastatin","pravastatin",
     "omeprazole","esomeprazole","lansoprazole","pantoprazole",
     "adalimumab","etanercept","infliximab","certolizumab pegol",
@@ -77,11 +77,11 @@ CLASS_REMAP <- setNames(
     "aripiprazole","risperidone","quetiapine","olanzapine",
     "zolpidem","eszopiclone","zaleplon","zolpidem sublingual",
     "celecoxib","rofecoxib","meloxicam",
-    "diclofenac",
     "pioglitazone","rosiglitazone",
-    "canagliflozin","sitagliptin",
     "apixaban","rivaroxaban",
-    "dabigatran","clopidogrel")
+    "tofacitinib","baricitinib","upadacitinib",
+    "axicabtagene ciloleucel","tisagenlecleucel",
+    "lisocabtagene maraleucel","idecabtagene vicleucel")
 )
 local({
   g   <- tolower(trimws(combined$generic_name))

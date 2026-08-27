@@ -53,37 +53,34 @@ pull_quarterly_counts <- function(drug_name, pt_term, start_year, end_year) {
 # pt  : MedDRA Preferred Term (lowercase, as stored in openFDA)
 
 cohort <- list(
-  # ── Antidiabetic (4) ──
+  # ── PPAR-gamma Agonist / TZD (2) ──
   list(drug = "AVANDIA",       pt = "myocardial infarction",         start = 2004, end = 2010),
   list(drug = "ACTOS",         pt = "bladder cancer",                 start = 2004, end = 2013),
-  list(drug = "INVOKANA",      pt = "amputation",                     start = 2014, end = 2018),
-  list(drug = "JANUVIA",       pt = "pancreatitis",                   start = 2006, end = 2011),
-  # ── Statin (4) ──
+  # ── HMG-CoA Reductase Inhibitor (4) ──
   list(drug = "ZOCOR",         pt = "rhabdomyolysis",                 start = 2004, end = 2013),
   list(drug = "LIPITOR",       pt = "diabetes mellitus",              start = 2004, end = 2014),
   list(drug = "CRESTOR",       pt = "diabetes mellitus",              start = 2004, end = 2014),
   list(drug = "PRAVACHOL",     pt = "diabetes mellitus",              start = 2004, end = 2014),
-  # ── Fluoroquinolone (2 of 4 — expand to full 40 later) ──
+  # ── Fluoroquinolone (4) ──
   list(drug = "CIPRO",         pt = "tendon rupture",                 start = 2004, end = 2010),
   list(drug = "LEVAQUIN",      pt = "tendon rupture",                 start = 2004, end = 2010),
   list(drug = "AVELOX",        pt = "tendon rupture",                 start = 2004, end = 2010),
   list(drug = "FLOXIN",        pt = "tendon rupture",                 start = 2004, end = 2010),
-  # ── Antipsychotic (4) ──
+  # ── Atypical Antipsychotic (4) ──
   list(drug = "ABILIFY",       pt = "pathological gambling",          start = 2012, end = 2018),
   list(drug = "SEROQUEL",      pt = "death",                          start = 2004, end = 2007),
   list(drug = "ZYPREXA",       pt = "death",                          start = 2004, end = 2007),
   list(drug = "RISPERDAL",     pt = "death",                          start = 2004, end = 2007),
-  # ── NSAID (4) ──
+  # ── COX-2 Selective NSAID (3) ──
   list(drug = "CELEBREX",      pt = "myocardial infarction",          start = 2000, end = 2007),
   list(drug = "VIOXX",         pt = "myocardial infarction",          start = 2000, end = 2005),
-  list(drug = "VOLTAREN",      pt = "myocardial infarction",          start = 2000, end = 2007),
   list(drug = "MOBIC",         pt = "myocardial infarction",          start = 2000, end = 2007),
-  # ── PPI (4) ──
+  # ── Proton Pump Inhibitor (4) ──
   list(drug = "NEXIUM",        pt = "clostridium difficile colitis",  start = 2004, end = 2014),
   list(drug = "PRILOSEC",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
   list(drug = "PREVACID",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
   list(drug = "PROTONIX",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
-  # ── TNF Inhibitor (4) ──
+  # ── TNF-alpha Inhibitor (4) ──
   list(drug = "HUMIRA",        pt = "tuberculosis",                   start = 2004, end = 2011),
   list(drug = "ENBREL",        pt = "tuberculosis",                   start = 2004, end = 2011),
   list(drug = "REMICADE",      pt = "lymphoma",                       start = 2004, end = 2008),
@@ -93,11 +90,20 @@ cohort <- list(
   list(drug = "ACTONEL",       pt = "osteonecrosis of jaw",           start = 2004, end = 2008),
   list(drug = "BONIVA",        pt = "osteonecrosis of jaw",           start = 2004, end = 2009),
   list(drug = "RECLAST",       pt = "osteonecrosis of jaw",           start = 2007, end = 2011),
-  # ── Antithrombotic (4) ──
-  list(drug = "PLAVIX",        pt = "drug interaction",               start = 2004, end = 2012),
-  list(drug = "PRADAXA",       pt = "gastrointestinal haemorrhage",   start = 2010, end = 2014),
+  # ── Factor Xa Inhibitor (2) ──
   list(drug = "XARELTO",       pt = "gastrointestinal haemorrhage",   start = 2011, end = 2015),
   list(drug = "ELIQUIS",       pt = "gastrointestinal haemorrhage",   start = 2013, end = 2016),
+  # ── JAK Inhibitor (3) ── FDA required boxed-warning revision 2021-09-01 after
+  # the ORAL Surveillance RCT. Trial-driven, not FAERS-driven: a useful contrast case.
+  list(drug = "XELJANZ",       pt = "myocardial infarction",         start = 2013, end = 2022),
+  list(drug = "OLUMIANT",      pt = "myocardial infarction",         start = 2018, end = 2022),
+  list(drug = "RINVOQ",        pt = "myocardial infarction",         start = 2019, end = 2022),
+  # ── CAR-T Cell Therapy (4) ── class-wide boxed warning for secondary T-cell
+  # malignancy required 2024-04-19. Low report volumes are expected here.
+  list(drug = "YESCARTA",      pt = "t-cell lymphoma",               start = 2018, end = 2025),
+  list(drug = "KYMRIAH",       pt = "t-cell lymphoma",               start = 2018, end = 2025),
+  list(drug = "BREYANZI",      pt = "t-cell lymphoma",               start = 2021, end = 2025),
+  list(drug = "ABECMA",        pt = "t-cell lymphoma",               start = 2021, end = 2025),
   # ── Sedative-Hypnotic (4) ──
   list(drug = "AMBIEN",        pt = "somnambulism",                   start = 2010, end = 2020),
   list(drug = "LUNESTA",       pt = "somnambulism",                   start = 2010, end = 2020),
