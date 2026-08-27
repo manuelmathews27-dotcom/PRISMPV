@@ -214,6 +214,14 @@ drug_class_map <- c(
   "PRADAXA" = "Direct Thrombin Inhibitor",
   "PLAVIX" = "P2Y12 Inhibitor", "BRILINTA" = "P2Y12 Inhibitor",
   "EFFIENT" = "P2Y12 Inhibitor",
+  # JAK Inhibitor (cohort: Xeljanz, Olumiant, Rinvoq)
+  "XELJANZ" = "JAK Inhibitor", "OLUMIANT" = "JAK Inhibitor",
+  "RINVOQ" = "JAK Inhibitor", "CIBINQO" = "JAK Inhibitor",
+  "JAKAFI" = "JAK Inhibitor", "OPZELURA" = "JAK Inhibitor",
+  # CAR-T Cell Therapy (cohort: Yescarta, Kymriah, Breyanzi, Abecma)
+  "YESCARTA" = "CAR-T Cell Therapy", "KYMRIAH" = "CAR-T Cell Therapy",
+  "BREYANZI" = "CAR-T Cell Therapy", "ABECMA" = "CAR-T Cell Therapy",
+  "CARVYKTI" = "CAR-T Cell Therapy", "TECARTUS" = "CAR-T Cell Therapy",
   # Nonbenzodiazepine Z-drug (cohort: Ambien, Lunesta, Sonata, Intermezzo)
   "AMBIEN" = "Nonbenzodiazepine Z-drug", "LUNESTA" = "Nonbenzodiazepine Z-drug",
   "SONATA" = "Nonbenzodiazepine Z-drug", "INTERMEZZO" = "Nonbenzodiazepine Z-drug",
