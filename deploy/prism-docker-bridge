@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Narrow Docker capability for PRISM's unprivileged refresh coordinator.
+# Installed root-owned and executable through three argument-exact sudoers rules.
+
+set -Eeuo pipefail
+
+readonly -a DOCKER=(/usr/bin/docker --host unix:///var/run/docker.sock)
+readonly CONTAINER_NAME="prism"
+readonly IMAGE="prism-local:latest"
+readonly REPO_DIR="/home/manny/prism/repo"
+readonly ENV_FILE="/home/manny/prism/.env"
+readonly MOUNT_TARGET="/srv/shiny-server/prism"
+
+fail() {
+    echo "ERROR: $1" >&2
+    exit 1
+}
+
+[[ "$(id -un)" == "edward" ]] \
+    || fail "PRISM Docker bridge must execute as edward."
+[[ $# == 1 ]] \
+    || fail "exactly one bridge verb is required."
+
+check_prerequisites() {
+    "${DOCKER[@]}" info >/dev/null 2>&1 \
+        || fail "Docker daemon is unavailable to the bridge."
+    "${DOCKER[@]}" image inspect "$IMAGE" >/dev/null 2>&1 \
+        || fail "required image is missing: $IMAGE"
+    "${DOCKER[@]}" ps --format '{{.Names}}' | /usr/bin/grep -qx "$CONTAINER_NAME" \
+        || fail "container '$CONTAINER_NAME' is not running."
+    [[ -d "$REPO_DIR" ]] \
+        || fail "repo directory is missing: $REPO_DIR"
+    [[ -r "$ENV_FILE" ]] \
+        || fail "environment file is missing or unreadable: $ENV_FILE"
+    /usr/bin/grep -Eq '^OPENFDA_API_KEY=.+$' "$ENV_FILE" \
+        || fail "OPENFDA_API_KEY is absent or empty in $ENV_FILE"
+
+    local mounted
+    mounted="$("${DOCKER[@]}" inspect -f \
+        '{{range .Mounts}}{{if eq .Destination "/srv/shiny-server/prism"}}{{.Source}}{{end}}{{end}}' \
+        "$CONTAINER_NAME" 2>/dev/null || true)"
+    [[ "$mounted" == "$REPO_DIR" ]] \
+        || fail "live mount mismatch at $MOUNT_TARGET (got '${mounted:-none}')."
+}
+
+case "$1" in
+    check)
+        check_prerequisites
+        echo "ok: Docker bridge reached the daemon"
+        echo "ok: image $IMAGE is present"
+        echo "ok: container $CONTAINER_NAME is running with the expected repo mount"
+        ;;
+    run-pipeline)
+        check_prerequisites
+        readonly MANNY_UID="$(/usr/bin/id -u manny)"
+        readonly MANNY_GID="$(/usr/bin/id -g manny)"
+
+        # Pipeline code and output belong to manny. Even though Docker itself is
+        # reached through edward, the container has no host-root identity, no
+        # Linux capabilities, no writable root filesystem, and only the fixed
+        # PRISM repo bind mount. /tmp is the sole additional writable filesystem.
+        # edward's Docker currently rejects every container exec when
+        # no-new-privileges is requested, so that flag cannot be enabled here;
+        # the non-root UID + cap drop + read-only rootfs carry the boundary.
+        exec "${DOCKER[@]}" run --rm \
+            --user "${MANNY_UID}:${MANNY_GID}" \
+            --cap-drop ALL \
+            --read-only \
+            --tmpfs /tmp:rw,nosuid,nodev,mode=1777 \
+            --env-file "$ENV_FILE" \
+            --env HOME=/tmp \
+            --env TMPDIR=/tmp \
+            --mount "type=bind,src=${REPO_DIR},dst=${MOUNT_TARGET}" \
+            --workdir "$MOUNT_TARGET" \
+            "$IMAGE" \
+            /usr/local/bin/Rscript -e 'source("run_pipeline.R")'
+        ;;
+    restart)
+        check_prerequisites
+        exec "${DOCKER[@]}" restart "$CONTAINER_NAME"
+        ;;
+    *)
+        fail "unapproved bridge verb: $1"
+        ;;
+esac

@@ -1,0 +1,3 @@
+# Manny may reach only PRISM's fixed, root-owned Docker bridge verbs.
+# The bridge independently rejects extra or unknown arguments.
+manny ALL=(edward) NOPASSWD: /usr/local/libexec/prism-docker-bridge check, /usr/local/libexec/prism-docker-bridge run-pipeline, /usr/local/libexec/prism-docker-bridge restart

@@ -2,10 +2,15 @@
 # refresh_cohort.sh — Re-pull the FAERS reference cohort and reload PRISM.
 # Intended to run quarterly via cron (FAERS updates quarterly with ~6 month lag).
 #
-# Usage:
-#   ./scripts/refresh_cohort.sh            # run interactively
-#   ./scripts/refresh_cohort.sh --quiet    # cron mode (log file only, no stdout)
-#   ./scripts/refresh_cohort.sh --check    # preflight ONLY — verifies assumptions, changes nothing
+# Installed as the root-owned /usr/local/bin/prism-refresh coordinator. It must
+# run as manny so all log, backup, and repo writes remain inside manny's existing
+# filesystem authority. The only elevated operations cross a separate root-owned
+# Docker bridge with three fixed verbs: check, run-pipeline, and restart.
+#
+# Usage (as manny; no leading sudo):
+#   prism-refresh            # run interactively
+#   prism-refresh --quiet    # cron mode (log file only, no stdout)
+#   prism-refresh --check    # preflight ONLY — verifies assumptions, changes nothing
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # REWRITTEN 2026-08-24. The previous version was broken and dangerous:
@@ -39,12 +44,17 @@ set -Eeuo pipefail   # -E so the ERR trap is inherited by functions
 PRISM_DIR="/home/manny/prism"
 REPO_DIR="${PRISM_DIR}/repo"
 LOG_FILE="${PRISM_DIR}/logs/refresh.log"
-CONTAINER_NAME="prism"
-IMAGE="prism-local:latest"
-MOUNT_TARGET="/srv/shiny-server/prism"
+DOCKER_BRIDGE="/usr/local/libexec/prism-docker-bridge"
 SYNC_LOCK="/tmp/prism-auto-sync.lock"   # MUST match /home/manny/prism/scripts/auto-sync.sh
 HEALTH_URL="http://localhost:3838/"
 BACKUP_DIR=""
+
+# Do not let a privileged caller accidentally create edward/root-owned artifacts
+# in manny's project. The bridge below is the sole privilege boundary.
+if [[ "$(id -un)" != "manny" ]]; then
+    echo "ERROR: prism-refresh must run as manny (without sudo)." >&2
+    exit 1
+fi
 
 # mkdir BEFORE any redirect into the log file — `exec >> "$LOG_FILE"` fails if the
 # directory does not exist yet.
@@ -52,6 +62,10 @@ mkdir -p "$(dirname "$LOG_FILE")"
 
 MODE="run"
 QUIET=0
+if (( $# > 1 )); then
+    echo "usage: prism-refresh [--check|--quiet]" >&2
+    exit 2
+fi
 case "${1:-}" in
     --quiet) QUIET=1; exec >> "$LOG_FILE" 2>&1 ;;  # stdout IS the log from here on
     --check) MODE="check" ;;
@@ -78,40 +92,31 @@ log() {
 
 die() { log "ERROR: $1"; exit 1; }
 
+# The sudoers rule names each permitted verb explicitly, and the bridge validates
+# the verb again. No Docker command, image, mount, container, or argument is
+# supplied by this coordinator or its caller.
+docker_bridge() {
+    /usr/bin/sudo -n -u edward -- "$DOCKER_BRIDGE" "$1"
+}
+
 # ── Preflight ────────────────────────────────────────────────────────────────
 # Every assumption this script depends on, checked before anything is touched.
 preflight() {
     log "Preflight checks..."
 
-    command -v docker >/dev/null 2>&1 \
-        || die "docker not available to $(whoami). Run this as edward — manny is deliberately not in the docker group."
-    docker info >/dev/null 2>&1 \
-        || die "cannot reach the docker daemon as $(whoami)."
-
     [[ -d "$REPO_DIR" ]]                 || die "repo dir missing: $REPO_DIR"
     [[ -f "$REPO_DIR/run_pipeline.R" ]]  || die "run_pipeline.R missing in $REPO_DIR"
+    [[ -x "$DOCKER_BRIDGE" ]]             || die "approved Docker bridge missing: $DOCKER_BRIDGE"
 
-    docker image inspect "$IMAGE" >/dev/null 2>&1 \
-        || die "image $IMAGE not found. Build it: cd $PRISM_DIR && docker build -t $IMAGE -f Dockerfile ."
+    local bridge_output
+    if ! bridge_output="$(docker_bridge check 2>&1)"; then
+        die "approved Docker preflight failed: ${bridge_output}"
+    fi
 
-    docker ps --format '{{.Names}}' | grep -qx "$CONTAINER_NAME" \
-        || die "container '$CONTAINER_NAME' is not running. Start it before refreshing."
-
-    # The restart-only reload is correct ONLY if repo/ is really bind-mounted.
-    # If the container was recreated without the mount, data would be baked in
-    # and a restart would silently serve stale numbers — so fail loudly instead.
-    local mounted
-    mounted="$(docker inspect -f \
-        '{{range .Mounts}}{{if eq .Destination "'"$MOUNT_TARGET"'"}}{{.Source}}{{end}}{{end}}' \
-        "$CONTAINER_NAME" 2>/dev/null || true)"
-    [[ -n "$mounted" ]] \
-        || die "container '$CONTAINER_NAME' has no bind-mount at $MOUNT_TARGET. A restart would NOT pick up new data. Recreate it with: -v $REPO_DIR:$MOUNT_TARGET"
-    [[ "$mounted" == "$REPO_DIR" ]] \
-        || die "bind-mount at $MOUNT_TARGET points at '$mounted', expected '$REPO_DIR'."
-
-    log "  ok: docker reachable as $(whoami)"
-    log "  ok: image $IMAGE present"
-    log "  ok: container $CONTAINER_NAME running, repo/ bind-mounted at $MOUNT_TARGET"
+    while IFS= read -r line; do
+        [[ -n "$line" ]] && log "  ${line}"
+    done <<< "$bridge_output"
+    log "  ok: host-side work remains unprivileged as manny"
 }
 
 # ── Health check ─────────────────────────────────────────────────────────────
@@ -139,11 +144,11 @@ restore_backup() {
     log "Restoring previous data/ from ${BACKUP_DIR}..."
     rm -rf "${REPO_DIR}/data"
     cp -a "$BACKUP_DIR" "${REPO_DIR}/data"
-    docker restart "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker_bridge restart >/dev/null 2>&1 || true
     if wait_healthy 24; then
         log "Rollback complete — previous cohort data is live again."
     else
-        log "WARNING: rolled back data but the app is not answering. Investigate: docker logs $CONTAINER_NAME"
+        log "WARNING: rolled back data but the app is not answering. Ask edward to inspect the prism container logs."
     fi
 }
 
@@ -188,11 +193,7 @@ log "Backed up current data/ to ${BACKUP_DIR}"
 # under source(); -w already puts us in the right directory either way.
 log "Running pipeline (test gate + FAERS pull + signal detection + visuals)."
 log "  FAERS pull alone takes ~45-60 min — this is expected to be slow."
-docker run --rm \
-    -v "${REPO_DIR}:${MOUNT_TARGET}" \
-    -w "${MOUNT_TARGET}" \
-    "$IMAGE" \
-    Rscript -e 'source("run_pipeline.R")' 2>&1 \
+docker_bridge run-pipeline 2>&1 \
     | while IFS= read -r line; do log "  $line"; done
 
 # pipefail already propagates a non-zero Rscript exit through the log pipe above.
@@ -207,8 +208,8 @@ log "Pipeline produced fresh faers_raw.rds and combined.rds."
 
 # No rebuild: repo/ is bind-mounted, so the container already sees the new data.
 # Restart only so app.R's top-level data load re-runs in a fresh R process.
-log "Restarting ${CONTAINER_NAME} to reload data (no rebuild needed)..."
-docker restart "$CONTAINER_NAME" >/dev/null
+log "Restarting prism to reload data (no rebuild needed)..."
+docker_bridge restart >/dev/null
 
 if ! wait_healthy 24; then
     die "app did not return 200 + PRISM title within ~2 min after restart."
