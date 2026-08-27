@@ -45,7 +45,9 @@ PRISM_DIR="/home/manny/prism"
 REPO_DIR="${PRISM_DIR}/repo"
 LOG_FILE="${PRISM_DIR}/logs/refresh.log"
 DOCKER_BRIDGE="/usr/local/libexec/prism-docker-bridge"
-SYNC_LOCK="/tmp/prism-auto-sync.lock"   # MUST match /home/manny/prism/scripts/auto-sync.sh
+# Root-managed by /etc/tmpfiles.d/prism-auto-sync.conf. Both edward's watcher
+# and manny's manual refresh receive rw access through a narrow POSIX ACL.
+SYNC_LOCK="/run/lock/prism-auto-sync.lock"   # MUST match /home/manny/prism/scripts/auto-sync.sh
 HEALTH_URL="http://localhost:3838/"
 BACKUP_DIR=""
 
