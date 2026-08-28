@@ -7,7 +7,7 @@
 #   count_b = drug, any event              (= a + b, row marginal)
 #   count_c = event, any drug              (= a + c, column marginal)
 #   count_d = all reports                  (= N, grand total)
-# compute_prr() in R/utils.R reconstructs the true cells before computing.
+# compute_prr() in R/00_utils.R reconstructs the true cells before computing.
 #
 # PRR (textbook, Rothman & Greenland):
 #   PRR = (a / (a+b)) / (c / (c+d))
@@ -23,7 +23,7 @@
 library(dplyr)
 library(lubridate)
 
-source("R/utils.R")
+source("R/00_utils.R")
 
 # ── Load raw counts ───────────────────────────────────────────────────────────
 faers_raw <- readRDS("data/faers_raw.rds")

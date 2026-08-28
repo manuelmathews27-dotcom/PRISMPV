@@ -1,4 +1,4 @@
-# Regression test for canonical_ingredient_token() in R/utils.R.
+# Regression test for canonical_ingredient_token() in R/00_utils.R.
 # Run: Rscript tests/test_resolve_token.R   (from repo root)
 # Exits non-zero on any failure so it can gate run_pipeline.R.
 #
@@ -10,14 +10,14 @@
 find_utils <- function() {
   here <- normalizePath(getwd())
   for (i in 1:5) {
-    p <- file.path(here, "R", "utils.R")
+    p <- file.path(here, "R", "00_utils.R")
     if (file.exists(p)) return(here)
     here <- dirname(here)
   }
-  stop("cannot locate R/utils.R from ", getwd())
+  stop("cannot locate R/00_utils.R from ", getwd())
 }
 setwd(find_utils())
-suppressWarnings(suppressPackageStartupMessages(source("R/utils.R")))
+suppressWarnings(suppressPackageStartupMessages(source("R/00_utils.R")))
 
 FAIL <- 0L
 

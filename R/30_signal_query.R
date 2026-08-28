@@ -4,7 +4,10 @@
 # Sourced automatically by Shiny before app.R (all files in R/ are).
 
 # ── Shared helpers ───────────────────────────────────────────────────────────
-source("R/utils.R")
+# NOTE: no source("R/utils.R") here. Shiny sources every file in R/ automatically,
+# in alphabetical order, before app.R — the 00_/10_/... prefixes make that order
+# explicit rather than incidental. utils is 00_ because 10_cohort_data.R calls
+# compute_prr() at load time.
 
 # Match a drug/AE pair against the reference cohort (checks brand + generic name)
 find_cohort_match <- function(drug_upper, ae_lower) {

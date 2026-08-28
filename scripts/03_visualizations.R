@@ -6,7 +6,7 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 
-source("R/utils.R")
+source("R/00_utils.R")
 
 combined <- readRDS("data/combined.rds")
 faers_raw <- readRDS("data/faers_raw.rds")

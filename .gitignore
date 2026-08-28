@@ -30,3 +30,6 @@ app_cache/
 
 # CI-generated secret shim (see .github/workflows/deploy.yml) — never commit
 R/zzz_env.R
+
+# Ad-hoc exploration scripts and plot dumps — not part of the app or pipeline
+Rplots.pdf

@@ -28,7 +28,7 @@ local({
 })
 
 # Everything else lives in R/, which Shiny sources automatically before this file:
-#   R/utils.R          openFDA client, PRR maths, caching, name resolution
+#   R/00_utils.R       openFDA client, PRR maths, caching, name resolution
 #   R/cohort_data.R    reference cohort load + class remap + lookups
 #   R/pt_terms.R       curated MedDRA Preferred Terms
 #   R/signal_query.R   live query path, BBW + label coverage, signal status
