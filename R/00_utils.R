@@ -1,7 +1,20 @@
 # R/00_utils.R — Shared helpers for PRISM pipeline and Shiny app
 
+# Shiny sources every file in R/ BEFORE app.R, so the packages these modules use
+# must be attached here, in the first-loaded file — not in app.R. Getting this
+# wrong is silent at parse time and fatal at startup: R/50_ui.R builds the `ui`
+# object at source time by calling page_navbar()/nav_panel(), which do not exist
+# yet if bslib and shiny are only attached later in app.R. That produced an
+# HTTP 500 on the deployed app (caught by the smoke-test gate, 2026-08-28).
+library(shiny)
+library(bslib)
 library(jsonlite)
 library(curl)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(ggrepel)
+library(DT)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 

@@ -5,13 +5,9 @@
 #   3. Drug Table         — searchable cohort data
 #   4. Methodology        — signal detection math and limitations
 
-library(shiny)
-library(bslib)
-library(ggplot2)
-library(dplyr)
-library(lubridate)
-library(DT)
-library(ggrepel)
+# Packages are attached in R/00_utils.R, which Shiny sources before this file.
+# They cannot live here: R/50_ui.R builds `ui` at source time and would run
+# before these calls.
 
 # ── Startup diagnostics ──────────────────────────────────────────────────────
 # Logs whether an openFDA key is in effect. There is no way to inspect env vars
