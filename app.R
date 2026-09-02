@@ -721,6 +721,16 @@ server <- function(input, output, session) {
     updateSelectInput(session, "drug_select", choices = choices, selected = selected)
   })
 
+  # Cohort lag overview — the Reference Cohort's primary chart. Respects the
+  # sidebar class/signal filters via bench_filtered(), so filtering narrows the
+  # chart rather than only the drug dropdown.
+  output$cohort_lag <- renderPlot({
+    d <- bench_filtered()
+    # Facet only when more than one class is in view; a single-class facet strip
+    # is pure noise.
+    plot_cohort_lag(d, facet_by_class = length(unique(d$therapeutic_class)) > 1)
+  })
+
   output$prr_trend <- renderPlot({
     req(input$drug_select)
 

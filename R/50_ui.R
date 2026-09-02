@@ -224,13 +224,40 @@ ui <- page_navbar(
         hr(),
         uiOutput("drug_info_box")
       ),
+      # PRIMARY VIEW: one row per drug, anchored at zero, so lags are directly
+      # comparable. This replaced a per-drug quarterly PRR line, which was the
+      # wrong encoding for a cross-drug question and unreadably spiky on sparse
+      # counts. Height scales with the number of drugs so facets never squash.
       card(
-        card_header("Historical Signal-to-Label Timeline"),
-        plotOutput("prr_trend", height = "450px")
+        card_header("Signal-to-label lag across the cohort"),
+        plotOutput("cohort_lag", height = "720px")
+      ),
+      # DRILL-DOWN: the quarterly trend still exists, for the one drug selected
+      # in the sidebar. Collapsed by default so it does not greet the reader.
+      card(
+        card_header(
+          tags$button(
+            class = "btn btn-sm btn-outline-secondary",
+            `data-bs-toggle` = "collapse",
+            `data-bs-target` = "#trend-collapse",
+            "Show quarterly PRR trend for the selected drug"
+          )
+        ),
+        div(id = "trend-collapse", class = "collapse",
+            card_body(plotOutput("prr_trend", height = "450px")))
       ),
       card(
         card_header("How to read this chart"),
         card_body(
+          tags$p(tags$strong("Lag chart"), " \u2014 each row is one drug. The bar runs from ",
+                 "zero (the FDA label change) to the month the FAERS signal was first ",
+                 "detected. Bars to the ", tags$strong("right"), " mean the signal came ",
+                 "first; bars to the ", tags$strong("left"),
+                 " mean FDA acted before FAERS showed anything \u2014 usually because the ",
+                 "risk was found in trials or published case series, not spontaneous reports. ",
+                 "The dashed orange line is the cohort median."),
+          tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 for the drug ",
+                 "selected in the sidebar:"),
           tags$ul(
             tags$li(
               span(style="display:inline-block;width:12px;height:12px;background:#90b8e0;border-radius:2px;margin-right:5px;"),
