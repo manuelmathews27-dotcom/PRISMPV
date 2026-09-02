@@ -761,10 +761,33 @@ server <- function(input, output, session) {
     pt_label     <- drug_meta$adverse_event[1]
     generic_name <- drug_meta$generic_name[1]
 
+    # A drug can have NO finite PRR in any quarter — compute_prr() returns NA
+    # whenever a marginal or reconstructed cell is degenerate, which is the norm
+    # for a rare PT on a low-volume product (CAR-T + "t-cell lymphoma" is the
+    # obvious case in this cohort). The filter above then leaves zero rows, and
+    # every downstream statistic degrades to -Inf/NaN:
+    #   count_max -> -Inf (the old `== 0` guard did not catch it)
+    #   range()   -> c(Inf, -Inf), so flip_at is NaN
+    #   if (label_date > NaN) -> NA -> "missing value where TRUE/FALSE needed"
+    # That is a hard error in the panel, not just an ugly plot. Return an
+    # explicit empty state instead.
+    if (nrow(drug_signals) == 0) {
+      return(
+        ggplot() +
+          annotate("text", x = 0, y = 0, size = 4.6, colour = "grey35",
+                   label = paste0(
+                     "No quarter for ", input$drug_select,
+                     " has enough reports to compute a PRR.\n",
+                     "This is expected for rare events on low-volume products —\n",
+                     "absence of a signal is not evidence of absence of risk.")) +
+          theme_void()
+      )
+    }
+
     prr_max   <- max(drug_signals$PRR,     na.rm = TRUE)
     count_max <- max(drug_signals$count_a, na.rm = TRUE)
     if (!is.finite(prr_max) || prr_max == 0) prr_max <- 2.5
-    if (count_max == 0) count_max <- 1
+    if (!is.finite(count_max) || count_max == 0) count_max <- 1
 
     sf       <- count_max / max(prr_max, 2.5)
     thresh_y <- 2 * sf
