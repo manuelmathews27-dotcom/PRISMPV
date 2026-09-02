@@ -82,7 +82,12 @@ faers_raw <- readRDS("data/faers_raw.rds")
 # Load pipeline provenance (graceful fallback if not yet generated)
 provenance <- if (file.exists("data/provenance.rds")) readRDS("data/provenance.rds") else NULL
 
-signals <- compute_prr(faers_raw)
+# compute_prr() returns the statistics but not the pass/fail verdict, so apply
+# the Evans + Rothman criteria here — once, at the source. The Reference Cohort
+# drill-down colours points by this, and deriving it per-consumer would risk the
+# two drifting apart.
+signals <- compute_prr(faers_raw) |>
+  dplyr::mutate(signal_met = check_signal(count_a, PRR, chi_sq, PRR_lo))
 
 # Pre-compute detection limitation notes for flagged classes
 detection_notes <- list(

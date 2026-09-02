@@ -762,121 +762,116 @@ server <- function(input, output, session) {
     plot_cohort_lag(d, facet_by_class = length(unique(d$therapeutic_class)) > 1)
   }, height = function() cohort_lag_height())
 
+  # Per-drug drill-down for the Reference Cohort.
+  #
+  # This replaced a dual-axis chart that drew quarterly report counts as bars and
+  # PRR as a line on a secondary axis, tied together by an arbitrary scaling
+  # factor (sf <- count_max / prr_max). The apparent relationship between the two
+  # series was an artefact of that constant, and five encodings (period-coloured
+  # bars, the line, a threshold rule, and two labelled vertical rules) competed in
+  # one panel.
+  #
+  # One y-axis now. PRR is the only quantity on it; report count becomes point
+  # SIZE, which is honest — a bigger dot is a better-supported estimate. The y
+  # axis is log10 because PRR spans two orders of magnitude across the cohort
+  # (Ambien/somnambulism reaches ~58 against a typical 2-5), and a linear axis
+  # flattens every ordinary drug to the baseline.
   output$prr_trend <- renderPlot({
     req(input$drug_select)
 
     drug_signals <- signals |>
-      filter(drug == input$drug_select, !is.na(PRR), is.finite(PRR))
+      filter(drug == input$drug_select, !is.na(PRR), is.finite(PRR), PRR > 0)
 
     drug_meta    <- combined |> filter(toupper(drug_name) == input$drug_select)
     label_date   <- drug_meta$label_change_date[1]
     signal_date  <- drug_meta$signal_start_date[1]
     pt_label     <- drug_meta$adverse_event[1]
-    generic_name <- drug_meta$generic_name[1]
 
     # A drug can have NO finite PRR in any quarter — compute_prr() returns NA
     # whenever a marginal or reconstructed cell is degenerate, which is the norm
     # for a rare PT on a low-volume product (CAR-T + "t-cell lymphoma" is the
-    # obvious case in this cohort). The filter above then leaves zero rows, and
-    # every downstream statistic degrades to -Inf/NaN:
-    #   count_max -> -Inf (the old `== 0` guard did not catch it)
-    #   range()   -> c(Inf, -Inf), so flip_at is NaN
-    #   if (label_date > NaN) -> NA -> "missing value where TRUE/FALSE needed"
-    # That is a hard error in the panel, not just an ugly plot. Return an
-    # explicit empty state instead.
+    # obvious case here). Without this, count_max becomes -Inf and range() on an
+    # empty vector makes flip_at NaN, so `if (label_date > flip_at)` throws
+    # "missing value where TRUE/FALSE needed" — a hard error in the panel.
     if (nrow(drug_signals) == 0) {
       return(
         ggplot() +
-          annotate("text", x = 0, y = 0, size = 4.6, colour = "grey35",
+          annotate("text", x = 0, y = 0, size = 5, colour = "grey35",
                    label = paste0(
                      "No quarter for ", input$drug_select,
                      " has enough reports to compute a PRR.\n",
-                     "This is expected for rare events on low-volume products —\n",
+                     "Expected for a rare event on a low-volume product —\n",
                      "absence of a signal is not evidence of absence of risk.")) +
           theme_void()
       )
     }
 
-    prr_max   <- max(drug_signals$PRR,     na.rm = TRUE)
-    count_max <- max(drug_signals$count_a, na.rm = TRUE)
-    if (!is.finite(prr_max) || prr_max == 0) prr_max <- 2.5
-    if (!is.finite(count_max) || count_max == 0) count_max <- 1
-
-    sf       <- count_max / max(prr_max, 2.5)
-    thresh_y <- 2 * sf
-
     drug_signals <- drug_signals |>
-      mutate(period = case_when(
-        !is.na(label_date)  & quarter >= label_date  ~ "Post-label update",
-        !is.na(signal_date) & quarter >= signal_date ~ "Post-signal / pre-label",
-        TRUE                                          ~ "Pre-signal"
-      ))
+      mutate(met = ifelse(signal_met, "Met signal criteria", "Below criteria"))
 
-    p <- ggplot(drug_signals, aes(x = quarter)) +
-      geom_col(aes(y = count_a, fill = period), width = 70, alpha = 0.80) +
+    date_range <- range(drug_signals$quarter)
+    # Annotation boxes are drawn to the RIGHT of their line by default, so a line
+    # near the end of the window pushes the box off the panel. 15 of the 42
+    # cohort drugs hit this (Ambien at 87%, Yescarta at 81%, the PPIs, statins,
+    # Z-drugs, Vioxx, Xeljanz). Flip to the left past 70% of the window.
+    flip_at  <- date_range[1] + (date_range[2] - date_range[1]) * 0.70
+    prr_top  <- max(drug_signals$PRR, na.rm = TRUE)
+
+    p <- ggplot(drug_signals, aes(x = quarter, y = PRR)) +
+      geom_hline(yintercept = 2, linetype = "dashed",
+                 colour = "#e05c00", linewidth = 0.8) +
+      geom_line(colour = "grey55", linewidth = 0.6) +
+      geom_point(aes(size = count_a, fill = met),
+                 shape = 21, colour = "white", stroke = 0.7, alpha = 0.95) +
       scale_fill_manual(
-        values = c("Pre-signal"              = "#90b8e0",
-                   "Post-signal / pre-label" = "#e8501a",
-                   "Post-label update"       = "#2ca02c"),
-        name = NULL
-      ) +
-      geom_line(aes(y = PRR * sf), color = "#e05c00", linewidth = 0.9) +
-      geom_point(aes(y = PRR * sf), color = "#e05c00", size = 1.8) +
-      geom_hline(yintercept = thresh_y, linetype = "dashed",
-                 color = "darkorange", linewidth = 0.8) +
-      scale_y_continuous(
-        name     = "Quarterly report count",
-        sec.axis = sec_axis(~ . / sf, name = "PRR")
-      ) +
-      labs(x = NULL) +
-      # Breathing room so an annotation flipped to the inside edge is not jammed
-      # against the panel border.
+        values = c("Met signal criteria" = "#1e1b4b", "Below criteria" = "#b9c2d0"),
+        name = NULL) +
+      scale_size_area(max_size = 11, name = "Reports in quarter") +
+      scale_y_log10() +
       scale_x_date(expand = expansion(mult = c(0.06, 0.06))) +
+      labs(
+        title    = paste0(input$drug_select, " — ", pt_label),
+        subtitle = "Quarterly PRR (log scale). Dot size is the report count; the dashed line is the PRR = 2 signal threshold.",
+        x = NULL, y = "PRR"
+      ) +
+      guides(fill = guide_legend(order = 1, override.aes = list(size = 5)),
+             size = guide_legend(order = 2)) +
       theme_minimal(base_size = 14) +
       theme(
-        axis.title.y.left  = element_text(color = "#2e75b6"),
-        axis.title.y.right = element_text(color = "#e05c00"),
         legend.position    = "bottom",
-        legend.title       = element_blank(),
-        panel.grid.minor   = element_blank()
+        panel.border       = element_rect(colour = "grey55", fill = NA, linewidth = 0.7),
+        panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.4),
+        axis.ticks         = element_line(colour = "grey55", linewidth = 0.4),
+        axis.ticks.length  = grid::unit(3, "pt"),
+        axis.text          = element_text(size = 12),
+        plot.title         = element_text(face = "bold", size = 16),
+        plot.subtitle      = element_text(size = 11.5, colour = "grey35"),
+        plot.margin        = margin(12, 16, 12, 12)
       )
-
-    date_range    <- range(drug_signals$quarter)
-    # Annotation boxes are drawn to the RIGHT of their line by default. When the
-    # line sits near the end of the window the box runs off the panel and the
-    # text is clipped. 15 of the 42 cohort drugs hit this (any label change past
-    # ~78% of the pull window): Ambien, Xeljanz, Yescarta, the PPIs, the statins,
-    # Vioxx and the Z-drugs. Flip the box to the left of the line past 70%.
-    flip_at   <- date_range[1] + (date_range[2] - date_range[1]) * 0.70
 
     if (!is.na(label_date)) {
       p <- p +
         geom_vline(xintercept = as.numeric(label_date),
-                   linetype = "solid", color = "firebrick", linewidth = 1.2) +
+                   linetype = "solid", colour = "firebrick", linewidth = 1.1) +
         annotate("label",
-          x = label_date, y = count_max * 0.92,
+          x = label_date, y = prr_top, vjust = 1,
           label = paste0("Label change\n", format(label_date, "%b %Y")),
-          hjust = if (label_date > flip_at) 1.05 else -0.05, vjust = 1,
-          color = "firebrick", fill = "white", label.size = NA,
-          size = 3.5, fontface = "bold"
-        )
+          hjust = if (label_date > flip_at) 1.05 else -0.05,
+          colour = "firebrick", fill = "white", label.size = NA,
+          size = 4, fontface = "bold")
     }
 
     if (!is.na(signal_date)) {
-      # Same flip rule as the label box above. Kept at the shared threshold so a
-      # signal and a label change close together do not end up stacked.
-      sig_hjust <- if (signal_date > flip_at) 1.05 else -0.05
-      sig_y     <- if (thresh_y > count_max * 0.45) count_max * 0.25 else count_max * 0.60
       p <- p +
         geom_vline(xintercept = as.numeric(signal_date),
-                   linetype = "dotted", color = "darkgreen", linewidth = 1.2) +
+                   linetype = "dotted", colour = "darkgreen", linewidth = 1.1) +
         annotate("label",
-          x = signal_date, y = sig_y,
+          x = signal_date, y = min(drug_signals$PRR, na.rm = TRUE), vjust = 0,
           label = paste0("Signal confirmed\n", format(signal_date, "%b %Y")),
-          hjust = sig_hjust, vjust = 0.5,
-          color = "darkgreen", fill = "white", label.size = NA,
-          size = 3.5, fontface = "bold"
-        )
+          hjust = if (signal_date > flip_at) 1.05 else -0.05,
+          colour = "darkgreen", fill = "white", label.size = NA,
+          size = 4, fontface = "bold")
     }
 
     p

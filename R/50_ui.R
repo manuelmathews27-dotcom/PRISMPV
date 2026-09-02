@@ -256,33 +256,28 @@ ui <- page_navbar(
                  "detected. Bars to the ", tags$strong("right"), " mean the signal came ",
                  "first; bars to the ", tags$strong("left"),
                  " mean FDA acted before FAERS showed anything \u2014 usually because the ",
-                 "risk was found in trials or published case series, not spontaneous reports. ",
-                 "The dashed orange line is the cohort median."),
-          tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 for the drug ",
-                 "selected in the sidebar:"),
+                 "risk was found in trials or published case series, not spontaneous ",
+                 "reports. The dashed orange line is the cohort median."),
+          tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 the evidence ",
+                 "behind a single row, for the drug selected in the sidebar:"),
           tags$ul(
-            tags$li(
-              span(style="display:inline-block;width:12px;height:12px;background:#90b8e0;border-radius:2px;margin-right:5px;"),
-              span(style="display:inline-block;width:12px;height:12px;background:#e8501a;border-radius:2px;margin-right:5px;"),
-              span(style="display:inline-block;width:12px;height:12px;background:#2ca02c;border-radius:2px;margin-right:5px;"),
-              strong("Bar colour"), ": blue = pre-signal, orange = signal active / awaiting label update, green = post-label change."
-            ),
-            tags$li(
-              span(style="color:#e05c00;font-weight:600;", "Orange line"),
-              ": PRR (right axis). Values above the dashed line indicate disproportionate reporting."
-            ),
-            tags$li(
-              span(style="color:darkgreen;font-weight:600;", "Green dotted line"),
-              ": quarter when signal was first confirmed."
-            ),
-            tags$li(
-              span(style="color:firebrick;font-weight:600;", "Red line"),
-              ": date of FDA label update."
-            ),
-            tags$li(
-              strong("Signal criteria"),
-              ": PRR \u2265 2, 95% CI lower bound > 1, n \u2265 3, \u03c7\u00b2 \u2265 4 (Evans + Rothman CI)."
-            )
+            tags$li(tags$strong("Dot size"),
+                    ": reports for that drug/event in the quarter. Bigger dots are ",
+                    "better-supported estimates; a high PRR on a tiny dot is fragile."),
+            tags$li(span(style="color:#1e1b4b;font-weight:600;", "Dark dots"),
+                    ": quarters meeting all signal criteria. ",
+                    span(style="color:#8b93a3;font-weight:600;", "Pale dots"),
+                    ": below criteria."),
+            tags$li(span(style="color:#e05c00;font-weight:600;", "Dashed line"),
+                    ": the PRR = 2 threshold. The axis is log-scaled because PRR ",
+                    "spans two orders of magnitude across the cohort."),
+            tags$li(span(style="color:darkgreen;font-weight:600;", "Green dotted line"),
+                    ": quarter the signal was first confirmed."),
+            tags$li(span(style="color:firebrick;font-weight:600;", "Red line"),
+                    ": date of the FDA label update."),
+            tags$li(tags$strong("Signal criteria"),
+                    ": PRR \u2265 2, 95% CI lower bound > 1, n \u2265 3, ",
+                    "\u03c7\u00b2 \u2265 4 (Evans + Rothman CI).")
           )
         )
       )
