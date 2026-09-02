@@ -793,6 +793,9 @@ server <- function(input, output, session) {
         sec.axis = sec_axis(~ . / sf, name = "PRR")
       ) +
       labs(x = NULL) +
+      # Breathing room so an annotation flipped to the inside edge is not jammed
+      # against the panel border.
+      scale_x_date(expand = expansion(mult = c(0.06, 0.06))) +
       theme_minimal(base_size = 14) +
       theme(
         axis.title.y.left  = element_text(color = "#2e75b6"),
@@ -803,7 +806,12 @@ server <- function(input, output, session) {
       )
 
     date_range    <- range(drug_signals$quarter)
-    date_midpoint <- date_range[1] + (date_range[2] - date_range[1]) / 2
+    # Annotation boxes are drawn to the RIGHT of their line by default. When the
+    # line sits near the end of the window the box runs off the panel and the
+    # text is clipped. 15 of the 42 cohort drugs hit this (any label change past
+    # ~78% of the pull window): Ambien, Xeljanz, Yescarta, the PPIs, the statins,
+    # Vioxx and the Z-drugs. Flip the box to the left of the line past 70%.
+    flip_at   <- date_range[1] + (date_range[2] - date_range[1]) * 0.70
 
     if (!is.na(label_date)) {
       p <- p +
@@ -812,14 +820,16 @@ server <- function(input, output, session) {
         annotate("label",
           x = label_date, y = count_max * 0.92,
           label = paste0("Label change\n", format(label_date, "%b %Y")),
-          hjust = -0.05, vjust = 1,
+          hjust = if (label_date > flip_at) 1.05 else -0.05, vjust = 1,
           color = "firebrick", fill = "white", label.size = NA,
           size = 3.5, fontface = "bold"
         )
     }
 
     if (!is.na(signal_date)) {
-      sig_hjust <- if (signal_date < date_midpoint) -0.05 else 1.05
+      # Same flip rule as the label box above. Kept at the shared threshold so a
+      # signal and a label change close together do not end up stacked.
+      sig_hjust <- if (signal_date > flip_at) 1.05 else -0.05
       sig_y     <- if (thresh_y > count_max * 0.45) count_max * 0.25 else count_max * 0.60
       p <- p +
         geom_vline(xintercept = as.numeric(signal_date),
