@@ -80,7 +80,7 @@ plot_cohort_lag <- function(data = combined, facet_by_class = TRUE) {
   # it stays aligned with each row regardless of facet height.
   x_max <- max(d$lag_months, na.rm = TRUE)
   x_min <- min(0, min(d$lag_months, na.rm = TRUE))
-  pad   <- (x_max - x_min) * 0.62
+  pad   <- (x_max - x_min) * 0.78   # right gutter for the date column
 
   p <- ggplot(d, aes(x = lag_months, y = drug_name, colour = preceded)) +
     geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.6) +
@@ -90,10 +90,11 @@ plot_cohort_lag <- function(data = combined, facet_by_class = TRUE) {
                  linewidth = 0.9, alpha = 0.75) +
     geom_point(size = 3.1) +
     geom_text(aes(label = sprintf("%.1f", lag_months)),
-              hjust = ifelse(d$preceded, -0.35, 1.35),
-              size = 3.1, colour = "grey25", show.legend = FALSE) +
-    geom_text(aes(x = x_max + pad * 0.12, label = date_label),
-              hjust = 0, size = 2.9, colour = "grey45", show.legend = FALSE) +
+              hjust = ifelse(d$preceded, -0.4, 1.4),
+              size = 4.0, fontface = "bold", colour = "grey20",
+              show.legend = FALSE) +
+    geom_text(aes(x = x_max + pad * 0.22, label = date_label),
+              hjust = 0, size = 3.9, colour = "grey40", show.legend = FALSE) +
     scale_colour_manual(
       values = c(`TRUE` = "#1e1b4b", `FALSE` = "#c1272d"),
       labels = c(`TRUE` = "Signal preceded label change",
@@ -111,14 +112,24 @@ plot_cohort_lag <- function(data = combined, facet_by_class = TRUE) {
         med, nrow(d)),
       x = "Lag (months)", y = NULL
     ) +
-    theme_minimal(base_size = 12) +
+    theme_minimal(base_size = 14) +
     theme(
       legend.position   = "top",
       legend.justification = "left",
       panel.grid.major.y = element_blank(),
       panel.grid.minor   = element_blank(),
       plot.title.position = "plot",
-      axis.text.y = element_text(size = 9)
+      axis.text.y = element_text(size = 12, colour = "grey15"),
+      # Crisp panel edge, vertical guides only. Horizontal gridlines on a
+      # lollipop chart just double the segments already drawn.
+      panel.border     = element_rect(colour = "grey55", fill = NA, linewidth = 0.7),
+      panel.grid.major.x = element_line(colour = "grey88", linewidth = 0.4),
+      axis.ticks       = element_line(colour = "grey55", linewidth = 0.4),
+      axis.ticks.length = grid::unit(3, "pt"),
+      plot.title       = element_text(face = "bold", size = 16),
+      plot.subtitle    = element_text(size = 12, colour = "grey35"),
+      legend.text      = element_text(size = 12),
+      plot.margin      = margin(12, 16, 12, 12)
     )
 
   if (facet_by_class) {
@@ -126,9 +137,10 @@ plot_cohort_lag <- function(data = combined, facet_by_class = TRUE) {
                         switch = "y") +
       theme(
         strip.placement  = "outside",
-        strip.text.y.left = element_text(angle = 0, hjust = 1, size = 8.5,
-                                         colour = "grey30"),
-        panel.spacing.y  = grid::unit(0.35, "lines")  # grid:: — not re-exported by ggplot2 in all versions
+        strip.text.y.left = element_text(angle = 0, hjust = 1, size = 11,
+                                         face = "bold", colour = "grey25"),
+        strip.background.y = element_blank(),
+        panel.spacing.y  = grid::unit(0.6, "lines")  # grid:: — not re-exported by ggplot2 in all versions
       )
   }
   p

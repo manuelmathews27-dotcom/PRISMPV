@@ -230,7 +230,9 @@ ui <- page_navbar(
       # counts. Height scales with the number of drugs so facets never squash.
       card(
         card_header("Signal-to-label lag across the cohort"),
-        plotOutput("cohort_lag", height = "720px")
+        # height is set server-side (see cohort_lag_height) so it tracks the
+        # number of drugs in view; "auto" lets that value through.
+        plotOutput("cohort_lag", height = "auto")
       ),
       # DRILL-DOWN: the quarterly trend still exists, for the one drug selected
       # in the sidebar. Collapsed by default so it does not greet the reader.

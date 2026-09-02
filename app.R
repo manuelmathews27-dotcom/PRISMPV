@@ -742,12 +742,25 @@ server <- function(input, output, session) {
   # Cohort lag overview — the Reference Cohort's primary chart. Honours the
   # sidebar filters, so narrowing the class narrows the chart, not just the
   # drug dropdown.
+  # Height scales with the number of rows. A fixed height silently crushes the
+  # drug labels once the cohort grows — at 42 drugs in 720px each row got ~17px,
+  # which is less than the line height of the 12pt axis text, so names collided
+  # with their own segments. Sizing per row keeps the spacing constant instead.
+  cohort_lag_height <- reactive({
+    d  <- cohort_filtered()
+    n  <- sum(!is.na(d$lag_months))
+    nc <- length(unique(d$therapeutic_class))
+    if (n == 0) return(260)
+    # 30px per drug row + ~26px per facet strip and its spacing + chrome
+    as.integer(min(2600, max(420, 30 * n + 26 * nc + 150)))
+  })
+
   output$cohort_lag <- renderPlot({
     d <- cohort_filtered()
     # Facet only when more than one class is in view; a single-class facet strip
     # is pure noise.
     plot_cohort_lag(d, facet_by_class = length(unique(d$therapeutic_class)) > 1)
-  })
+  }, height = function() cohort_lag_height())
 
   output$prr_trend <- renderPlot({
     req(input$drug_select)
