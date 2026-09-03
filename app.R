@@ -838,7 +838,17 @@ server <- function(input, output, session) {
              size = guide_legend(order = 2)) +
       theme_minimal(base_size = 14) +
       theme(
-        legend.position    = "bottom",
+        # Top-right, ABOVE the panel rather than floating inside it. An in-panel
+        # legend at (0.98, 0.98) would collide with the "Label change" box: for a
+        # late label change the box flips to the left of its line and lands in
+        # the upper right of the plotting area (Ambien at 87% of its window,
+        # Yescarta at 81%). Sitting outside the panel keeps it clear of both
+        # annotation boxes at any date.
+        legend.position      = "top",
+        legend.justification = "right",
+        legend.box           = "horizontal",
+        legend.box.spacing   = grid::unit(4, "pt"),
+        legend.margin        = margin(0, 0, 2, 0),
         panel.border       = element_rect(colour = "grey55", fill = NA, linewidth = 0.7),
         panel.grid.minor   = element_blank(),
         panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.4),
