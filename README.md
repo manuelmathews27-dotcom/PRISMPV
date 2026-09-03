@@ -29,13 +29,13 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 17. [Cohort analysis findings](#cohort-analysis-findings)
 18. [Data sources](#data-sources)
 19. [References](#references)
-20. [API reference — R/utils.R](#api-reference--rutilsr)
+20. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
 
 ---
 
 ## What it does
 
-PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 15 mechanistic classes in the curated 40-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
+PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 12 mechanistic classes in the curated 42-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
 
 ---
 
@@ -44,7 +44,7 @@ PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identif
 | Tab | Description |
 |-----|-------------|
 | **Monitor Your Drug** | Live openFDA query for any drug + adverse event, with signal status, BBW detection, and cohort benchmark (when applicable) |
-| **Reference Cohort** | Historical analysis of 40 drugs showing signal-to-label lag, filterable by class and signal status |
+| **Reference Cohort** | Signal-to-label lag across all 42 cohort drugs, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
 | **Drug Table** | Searchable table of cohort data with data provenance panel |
 | **Methodology** | Signal detection math, thresholds, PRR vs EBGM/IC comparison, and limitations |
 
@@ -138,7 +138,7 @@ Historical timeline comparison (cohort benchmark value boxes and dot plot) is on
 
 ## Black Box Warning (BBW) detection
 
-The Monitor tab checks the FDA Drug Labeling API for Boxed Warnings on any searched drug (not limited to the 40-drug cohort). The query searches both `openfda.brand_name` and `openfda.generic_name` fields, returning up to 5 label results.
+The Monitor tab checks the FDA Drug Labeling API for Boxed Warnings on any searched drug (not limited to the 42-drug cohort). The query searches both `openfda.brand_name` and `openfda.generic_name` fields, returning up to 5 label results.
 
 If a BBW is found and the queried adverse event (or its synonyms / medical-root equivalents) appears in the warning text, an alert banner is displayed. The app also checks `contraindications`, `warnings_and_precautions`, and `warnings` sections to determine whether the queried AE is already on the label.
 
@@ -158,7 +158,7 @@ This is contextual, not predictive. FAERS alone cannot predict when FDA will act
 
 ## Drug name resolution
 
-`resolve_drug_names()` in `R/utils.R` translates a brand name to its canonical active ingredient via the openFDA Drug Labeling API before querying FAERS. For example:
+`resolve_drug_names()` in `R/00_utils.R` translates a brand name to its canonical active ingredient via the openFDA Drug Labeling API before querying FAERS. For example:
 
 - `LIPITOR` → `ATORVASTATIN`
 - `HUMIRA` → `ADALIMUMAB`
@@ -399,7 +399,7 @@ Outputs:
 - `data/faers_raw.rds` — raw counts (one row per drug / AE / quarter)
 - `data/provenance.rds` — pipeline run metadata (timestamp, R version, platform, date range, drugs queried, record count)
 
-**Runtime:** approximately 45–60 minutes for 40 drugs. Set `OPENFDA_API_KEY` to avoid the anonymous daily cap — see [openFDA API key and caching](#openfda-api-key-and-caching).
+**Runtime:** approximately 45–60 minutes for 42 drugs. Set `OPENFDA_API_KEY` to avoid the anonymous daily cap — see [openFDA API key and caching](#openfda-api-key-and-caching).
 
 ### 02_signal_detection.R
 
@@ -537,7 +537,7 @@ prism/
 │   ├── 03_visualizations.R    # Standalone preview plots (same as in-app charts)
 │   └── refresh_cohort.sh      # Quarterly auto-refresh (cron target)
 ├── data/
-│   ├── label_changes.csv      # Curated: 40 drugs with label change dates and types
+│   ├── label_changes.csv      # Curated: 42 drugs with label change dates and types
 │   ├── faers_raw.rds          # Pipeline output: raw counts (one row per drug/AE/quarter)
 │   ├── combined.rds           # Pipeline output: signals + label change lag
 │   ├── provenance.rds         # Pipeline run metadata
@@ -574,7 +574,7 @@ The `test_*.R` and `inspect.R` scripts are development/debugging utilities and a
 
 ## Drug cohort
 
-40 drugs, classified by **mechanism** rather than therapeutic area:
+42 drugs, classified by **mechanism** rather than therapeutic area:
 
 | Class | Drugs | Adverse event tracked |
 |-------|-------|----------------------|
@@ -615,7 +615,7 @@ resolve for display but fall back to the all-drug benchmark.
 
 ## Cohort analysis findings
 
-Analysis of the 40-drug reference cohort revealed several systematic limitations of FAERS-based signal detection:
+Analysis of the reference cohort revealed several systematic limitations of FAERS-based signal detection:
 
 **Entire-class failures:**
 - All 4 PPIs (Nexium, Prilosec, Prevacid, Protonix) show no FAERS signal for C. difficile colitis. The entire class fails to generate disproportionality for this known risk.
@@ -654,7 +654,7 @@ ICH E2E. (2004). *Pharmacovigilance planning*. International Conference on Harmo
 
 ---
 
-## API reference — R/utils.R
+## API reference — R/00_utils.R
 
 All functions below are sourced by both the pipeline scripts and `app.R`.
 
