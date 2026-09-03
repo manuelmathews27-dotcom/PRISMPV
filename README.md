@@ -15,21 +15,22 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 3. [Signal detection](#signal-detection)
 4. [Monitor Your Drug — live query behavior](#monitor-your-drug--live-query-behavior)
 5. [Black Box Warning detection](#black-box-warning-bbw-detection)
-6. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
-7. [Drug name resolution](#drug-name-resolution)
-8. [AE synonym mapping](#ae-synonym-mapping)
-9. [Adverse event term selection](#adverse-event-term-selection)
-10. [openFDA API key and caching](#openfda-api-key-and-caching)
-11. [Setup](#setup)
-12. [Tests](#tests)
-13. [Data pipeline](#data-pipeline)
-14. [Deployment](#deployment)
-15. [Project structure](#project-structure)
-16. [Drug cohort](#drug-cohort)
-17. [Cohort analysis findings](#cohort-analysis-findings)
-18. [Data sources](#data-sources)
-19. [References](#references)
-20. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
+6. [Reference Cohort charts](#reference-cohort-charts)
+7. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
+8. [Drug name resolution](#drug-name-resolution)
+9. [AE synonym mapping](#ae-synonym-mapping)
+10. [Adverse event term selection](#adverse-event-term-selection)
+11. [openFDA API key and caching](#openfda-api-key-and-caching)
+12. [Setup](#setup)
+13. [Tests](#tests)
+14. [Data pipeline](#data-pipeline)
+15. [Deployment](#deployment)
+16. [Project structure](#project-structure)
+17. [Drug cohort](#drug-cohort)
+18. [Cohort analysis findings](#cohort-analysis-findings)
+19. [Data sources](#data-sources)
+20. [References](#references)
+21. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
 
 ---
 
@@ -141,6 +142,49 @@ Historical timeline comparison (cohort benchmark value boxes and dot plot) is on
 The Monitor tab checks the FDA Drug Labeling API for Boxed Warnings on any searched drug (not limited to the 42-drug cohort). The query searches both `openfda.brand_name` and `openfda.generic_name` fields, returning up to 5 label results.
 
 If a BBW is found and the queried adverse event (or its synonyms / medical-root equivalents) appears in the warning text, an alert banner is displayed. The app also checks `contraindications`, `warnings_and_precautions`, and `warnings` sections to determine whether the queried AE is already on the label.
+
+---
+
+## Reference Cohort charts
+
+**Primary view — signal-to-label lag.** One row per drug, sorted by lag and
+anchored at zero, faceted by mechanistic class. Colour encodes only the sign of
+the lag: a bar to the right means the FAERS signal preceded the label change, a
+bar to the left means FDA acted first. Real dates appear as a text column rather
+than as geometry, because the x-axis can encode either comparable lag lengths or
+a calendar, not both. Plot height is computed from the row count server-side so
+row spacing stays constant as the cohort grows.
+
+This replaced a per-drug quarterly PRR line as the landing view. The cohort
+answers a cross-drug question — how early is the signal relative to FDA action —
+which is one number per drug; a per-drug time series was the wrong encoding for
+it, and quarterly PRR on sparse counts is genuinely spiky rather than badly
+styled.
+
+**Drill-down — quarterly PRR trend.** Collapsed by default, showing the evidence
+behind a single row for the drug selected in the sidebar:
+
+- **One y-axis.** PRR only, log-scaled. The earlier version drew report counts as
+  bars against PRR as a line on a secondary axis, joined by an arbitrary scaling
+  factor (`sf <- count_max / prr_max`), so the apparent relationship between the
+  two series was an artefact of that constant. The log scale matters because PRR
+  spans two orders of magnitude across the cohort — Ambien/somnambulism reaches
+  ~161 against a typical 2–5, which flattens every other drug on a linear axis.
+- **Report count is dot size.** A larger dot is a better-supported estimate, so
+  a high PRR on a small dot reads as fragile — which is the honest picture for
+  the rare-event products. Yescarta has computable PRR in only 11 of 32 quarters.
+- Points are filled dark when they meet all signal criteria, pale when not.
+
+Annotation boxes for the signal and label-change dates flip to the left of their
+line past 70% of the query window. Without that, 15 of the 42 drugs clipped the
+box off the right edge — anything with a label change late in its pull window
+(Ambien at 87%, Yescarta at 81%, the PPIs, statins, Z-drugs, Vioxx, Xeljanz).
+
+A drug with no computable PRR in any quarter renders an explicit empty state
+rather than erroring. `compute_prr()` returns `NA` for degenerate cells, so the
+filtered frame can be empty; the downstream `max()` and `range()` calls then
+produce `-Inf`/`NaN` and the annotation branch throws "missing value where
+TRUE/FALSE needed".
 
 ---
 
@@ -528,47 +572,52 @@ deployment.
 
 ```
 prism/
-├── app.R                      # Shiny app (UI + server + all live-query logic)
-├── R/
-│   └── utils.R                # Shared helpers (openFDA queries, PRR, audit logging)
+├── app.R                      # Server logic + shinyApp() entry point
+├── R/                         # Sourced automatically by Shiny, in name order,
+│   │                          # BEFORE app.R — the numeric prefixes make that
+│   │                          # dependency order explicit rather than incidental.
+│   ├── 00_utils.R             # Packages, openFDA client, PRR maths, caching,
+│   │                          # name resolution. Must load first: 10_ calls
+│   │                          # compute_prr() at load time, and 50_ builds the
+│   │                          # `ui` object at source time.
+│   ├── 10_cohort_data.R       # Reference cohort load, class remap, lookups
+│   ├── 20_pt_terms.R          # Curated MedDRA Preferred Terms
+│   ├── 30_signal_query.R      # Live query path, BBW + label coverage checks
+│   ├── 40_timeline.R          # Regulatory timeline + cohort lag chart
+│   └── 50_ui.R                # UI definition
 ├── scripts/
 │   ├── 01_faers_pull.R        # Pull FAERS data from openFDA API
 │   ├── 02_signal_detection.R  # Compute PRR, identify first signal quarter
-│   ├── 03_visualizations.R    # Standalone preview plots (same as in-app charts)
-│   └── refresh_cohort.sh      # Quarterly auto-refresh (cron target)
-├── data/
-│   ├── label_changes.csv      # Curated: 42 drugs with label change dates and types
-│   ├── faers_raw.rds          # Pipeline output: raw counts (one row per drug/AE/quarter)
-│   ├── combined.rds           # Pipeline output: signals + label change lag
-│   ├── provenance.rds         # Pipeline run metadata
-│   ├── audit_log.csv          # Query audit trail (ICH E2E / GVP IX) — written at runtime
-│   ├── combined.csv           # CSV export of combined.rds
-│   ├── combined_export.csv    # CSV export (alternative format)
-│   └── faers_raw_export.csv   # CSV export of faers_raw.rds
+│   ├── 03_visualizations.R    # Standalone preview plots
+│   └── refresh_cohort.sh      # Quarterly refresh (installed as prism-refresh)
 ├── tests/
 │   ├── test_prr_formula.R     # Regression: PRR, Rothman CI, Yates chi-squared
 │   └── test_resolve_token.R   # Regression: canonical ingredient token
 ├── .github/workflows/
 │   └── deploy.yml             # CI: tests -> key injection -> deploy -> smoke test
+├── data/
+│   ├── label_changes.csv      # Curated: 42 drugs with label change dates and types
+│   ├── faers_raw.rds          # Pipeline output: raw counts per drug/AE/quarter
+│   ├── combined.rds           # Pipeline output: signals + label change lag
+│   ├── provenance.rds         # Pipeline run metadata
+│   └── audit_log.csv          # Query audit trail (ICH E2E / GVP IX)
 ├── deploy/caddy/              # Live Caddy block, pulled from the VPS by auto-sync
 ├── .env.example               # Template for OPENFDA_API_KEY (.env is gitignored)
-├── run_pipeline.R             # Runs the three pipeline scripts in order
+├── run_pipeline.R             # Test gate + the three pipeline scripts in order
 ├── install_packages.R         # One-time dependency installer
-├── inspect.R                  # Ad-hoc data inspection script (not used in production)
-├── test_bbw.R                 # Manual test: BBW detection for specific drugs
-├── test_check.R               # Manual test: signal check logic
-├── test_cipro.R               # Manual test: Cipro FAERS query
-├── test_cipro_bbw.R           # Manual test: Cipro BBW detection
-├── test_query.R               # Manual test: openFDA URL and query behavior
 └── rsconnect/                 # shinyapps.io deployment config
-    └── shinyapps.io/
-        └── mmdothim/
-            ├── PRISMPV.dcf    # Active production deployment
-            ├── prismrx.dcf    # Secondary slot
-            └── signal-to-label.dcf  # Archived — do not redeploy
 ```
 
-The `test_*.R` and `inspect.R` scripts are development/debugging utilities and are not sourced by the app or pipeline. They are safe to run manually from RStudio for ad-hoc verification.
+`app.R` was a single 2,162-line file holding UI, server, the API client, the
+synonym engine and the timeline model. It is now 927 lines of server logic, with
+the rest in `R/`. No behaviour changed in the split.
+
+**Load order is a real constraint, not cosmetic.** Shiny sources `R/`
+alphabetically before `app.R`, so `R/00_utils.R` attaches every package the app
+uses — they cannot live in `app.R`, because `R/50_ui.R` calls `page_navbar()` at
+source time and would run first. Getting this wrong parses cleanly and fails at
+startup with an HTTP 500.
+
 
 ---
 
@@ -578,21 +627,18 @@ The `test_*.R` and `inspect.R` scripts are development/debugging utilities and a
 
 | Class | Drugs | Adverse event tracked |
 |-------|-------|----------------------|
-| HMG-CoA Reductase Inhibitor | Zocor, Lipitor, Crestor, Pravachol | Rhabdomyolysis; diabetes mellitus |
-| Fluoroquinolone | Cipro, Levaquin, Avelox, Floxin | Tendon rupture; peripheral neuropathy |
-| Atypical Antipsychotic | Abilify, Seroquel, Zyprexa, Risperdal | Pathological gambling; mortality |
-| Proton Pump Inhibitor | Nexium, Prilosec, Prevacid, Protonix | Clostridium difficile colitis |
-| TNF-alpha Inhibitor | Humira, Enbrel, Remicade, Cimzia | Tuberculosis; lymphoma |
-| Bisphosphonate | Fosamax, Actonel, Boniva, Reclast | Osteonecrosis of jaw |
-| Nonbenzodiazepine Z-drug | Ambien, Lunesta, Sonata, Intermezzo | Somnambulism |
-| COX-2 Selective NSAID | Celebrex, Vioxx, Mobic | Myocardial infarction |
-| Nonselective NSAID | Voltaren | Myocardial infarction |
-| PPAR-gamma Agonist (TZD) | Avandia, Actos | MI; bladder cancer |
-| SGLT2 Inhibitor | Invokana | Amputation |
-| DPP-4 Inhibitor | Januvia | Pancreatitis |
-| Factor Xa Inhibitor | Xarelto, Eliquis | GI haemorrhage |
-| Direct Thrombin Inhibitor | Pradaxa | GI haemorrhage |
-| P2Y12 Inhibitor | Plavix | Drug interaction |
+| Atypical Antipsychotic | Abilify, Risperdal, Seroquel, Zyprexa | Increased mortality in elderly dementia patients; Pathological gambling |
+| Bisphosphonate | Actonel, Boniva, Fosamax, Reclast | Osteonecrosis of jaw |
+| CAR-T Cell Therapy | Abecma, Breyanzi, Kymriah, Yescarta | T-cell lymphoma |
+| Fluoroquinolone | Avelox, Cipro, Floxin, Levaquin | Tendon rupture |
+| HMG-CoA Reductase Inhibitor | Crestor, Lipitor, Pravachol, Zocor | Diabetes mellitus; Rhabdomyolysis |
+| Nonbenzodiazepine Z-drug | Ambien, Intermezzo, Lunesta, Sonata | Somnambulism |
+| Proton Pump Inhibitor | Nexium, Prevacid, Prilosec, Protonix | Clostridium difficile colitis |
+| TNF-alpha Inhibitor | Cimzia, Enbrel, Humira, Remicade | Lymphoma; Tuberculosis |
+| COX-2 Selective NSAID | Celebrex, Mobic, Vioxx | Myocardial infarction |
+| JAK Inhibitor | Olumiant, Rinvoq, Xeljanz | Myocardial infarction |
+| Factor Xa Inhibitor | Eliquis, Xarelto | Gastrointestinal haemorrhage |
+| PPAR-gamma Agonist (TZD) | Actos, Avandia | Bladder cancer; Myocardial infarction |
 
 The cohort was previously grouped into 10 therapeutic areas. Two of those groupings
 combined unrelated mechanisms: *Antidiabetic* covered a TZD, an SGLT2 inhibitor and a
