@@ -427,7 +427,6 @@ run_pipeline.R
   ├── tests/                       → regression gate (halts on failure)
   ├── scripts/01_faers_pull.R      → data/faers_raw.rds, data/provenance.rds
   ├── scripts/02_signal_detection.R → data/combined.rds
-  └── scripts/03_visualizations.R   (preview plots, non-fatal if it fails)
 ```
 
 ### 01_faers_pull.R
@@ -456,14 +455,6 @@ Loads `faers_raw.rds`, computes PRR and chi-squared via `compute_prr()`, applies
 Prints a summary of median/min/max lag to the console.
 
 Output: `data/combined.rds`
-
-### 03_visualizations.R
-
-Standalone preview plots (same functions used in the Shiny app). Non-fatal if it fails. Renders three charts:
-
-1. `plot_lag_bar()` — signal-to-label lag bar chart, sorted by lag, with median line
-2. `plot_prr_trend(drug)` — quarterly PRR line chart for a single drug, with signal-detected and label-change markers
-3. `plot_change_type()` — label change type breakdown bar chart
 
 ### Data freshness
 
@@ -588,7 +579,6 @@ prism/
 ├── scripts/
 │   ├── 01_faers_pull.R        # Pull FAERS data from openFDA API
 │   ├── 02_signal_detection.R  # Compute PRR, identify first signal quarter
-│   ├── 03_visualizations.R    # Standalone preview plots
 │   └── refresh_cohort.sh      # Quarterly refresh (installed as prism-refresh)
 ├── tests/
 │   ├── test_prr_formula.R     # Regression: PRR, Rothman CI, Yates chi-squared
