@@ -82,16 +82,16 @@ for (k in cases) {
   expect_equal("PRR_lo", out$PRR_lo,     exp(log(tp) - 1.96 * tse))
   expect_equal("PRR_hi", out$PRR_hi,     exp(log(tp) + 1.96 * tse))
 
-  tr   <- true_ror(a, b, c, d)
-  trse <- true_ror_log_se(a, b, c, d)
+  tr   <- true_ror(k$a, k$b, k$c, k$d)
+  trse <- true_ror_log_se(k$a, k$b, k$c, k$d)
   expect_equal("ROR",    out$ROR,    tr)
   expect_equal("ROR_lo", out$ROR_lo, exp(log(tr) - 1.96 * trse))
   expect_equal("ROR_hi", out$ROR_hi, exp(log(tr) + 1.96 * trse))
   # For a rare event PRR and ROR should agree closely; a large gap means the
   # cell reconstruction is wrong, not that the data is unusual.
-  if ((a + c) / (a + b + c + d) < 0.05 && abs(tr / tp - 1) > 0.25) {
+  if ((k$a + k$c) / (k$a + k$b + k$c + k$d) < 0.05 && abs(tr / tp - 1) > 0.25) {
     cat(sprintf("  FAIL: ROR/PRR diverge implausibly for a rare event (%.3f vs %.3f)\n", tr, tp))
-    FAIL <<- FAIL + 1L
+    FAIL <- FAIL + 1L
   }
   expect_equal("chi_sq", out$chi_sq,     tx2)
 }
