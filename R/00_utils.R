@@ -325,6 +325,31 @@ compute_prr <- function(df) {
       PRR_lo = ifelse(ok, exp(log(PRR) - 1.96 * PRR_log_se), NA_real_),
       PRR_hi = ifelse(ok, exp(log(PRR) + 1.96 * PRR_log_se), NA_real_),
 
+      # ── Reporting Odds Ratio ────────────────────────────────────────────────
+      # PRR compares PROPORTIONS, ROR compares ODDS. FDA screening leans on PRR
+      # (and EBGM internally); EMA/EudraVigilance uses ROR, so both are reported.
+      # For a rare event the two converge — b_cell dominates count_b and d_cell
+      # dominates cd_cell — and a material divergence is itself informative: it
+      # means the event is NOT rare in the exposed population.
+      #
+      # ROR needs the two cells PRR never forms:
+      #   b_cell = drug, no event      = count_b - count_a
+      #   d_cell = other drug, no event = cd_cell - c_cell
+      # ROR = (a * d) / (b * c);  SE(ln ROR) = sqrt(1/a + 1/b + 1/c + 1/d)
+      b_cell = count_b - count_a,
+      d_cell = cd_cell - c_cell,
+      # Same discipline as `ok` above: a zero in any cell makes the odds ratio
+      # undefined, so return NA rather than a plausible-looking number.
+      ok_ror = ok & b_cell > 0 & d_cell > 0,
+      ROR = ifelse(ok_ror,
+                   (as.numeric(count_a) * as.numeric(d_cell)) /
+                   (as.numeric(b_cell)  * as.numeric(c_cell)), NA_real_),
+      ROR_log_se = ifelse(ok_ror,
+                          sqrt(1/count_a + 1/b_cell + 1/c_cell + 1/d_cell),
+                          NA_real_),
+      ROR_lo = ifelse(ok_ror, exp(log(ROR) - 1.96 * ROR_log_se), NA_real_),
+      ROR_hi = ifelse(ok_ror, exp(log(ROR) + 1.96 * ROR_log_se), NA_real_),
+
       # Full Pearson chi-squared with Yates continuity correction (Evans criterion form)
       # Cast to numeric to avoid integer overflow on large FAERS counts.
       chi_sq_num  = pmax(abs(as.numeric(count_a) * as.numeric(count_d) -
@@ -335,7 +360,7 @@ compute_prr <- function(df) {
       chi_sq = ifelse(ok & chi_sq_den > 0,
                       as.numeric(count_d) * chi_sq_num / chi_sq_den, NA_real_)
     ) |>
-    dplyr::select(-ok, -chi_sq_num, -chi_sq_den)
+    dplyr::select(-ok, -ok_ror, -chi_sq_num, -chi_sq_den)
 }
 
 # ── Check if signal criteria are met ─────────────────────────────────────────

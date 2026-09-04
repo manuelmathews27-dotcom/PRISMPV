@@ -47,8 +47,12 @@ as_marginals <- function(a, b, c, d) {
   data.frame(count_a = a, count_b = a + b, count_c = a + c, count_d = a + b + c + d)
 }
 
-# ── textbook PRR from cells (ground truth) ─────────────────────────────────
+# ── textbook PRR / ROR from cells (ground truth) ───────────────────────────
 true_prr <- function(a, b, c, d) (a / (a + b)) / (c / (c + d))
+# ROR is the plain odds ratio of the same 2x2. It guards the cell reconstruction
+# for b and d, which PRR never forms and which therefore had no coverage before.
+true_ror <- function(a, b, c, d) (a * d) / (b * c)
+true_ror_log_se <- function(a, b, c, d) sqrt(1/a + 1/b + 1/c + 1/d)
 true_log_se <- function(a, b, c, d) sqrt(1/a - 1/(a+b) + 1/c - 1/(c+d))
 true_chi_yates <- function(a, b, c, d) {
   N <- a + b + c + d
@@ -77,6 +81,18 @@ for (k in cases) {
   expect_equal("log_SE", out$PRR_log_se, tse)
   expect_equal("PRR_lo", out$PRR_lo,     exp(log(tp) - 1.96 * tse))
   expect_equal("PRR_hi", out$PRR_hi,     exp(log(tp) + 1.96 * tse))
+
+  tr   <- true_ror(a, b, c, d)
+  trse <- true_ror_log_se(a, b, c, d)
+  expect_equal("ROR",    out$ROR,    tr)
+  expect_equal("ROR_lo", out$ROR_lo, exp(log(tr) - 1.96 * trse))
+  expect_equal("ROR_hi", out$ROR_hi, exp(log(tr) + 1.96 * trse))
+  # For a rare event PRR and ROR should agree closely; a large gap means the
+  # cell reconstruction is wrong, not that the data is unusual.
+  if ((a + c) / (a + b + c + d) < 0.05 && abs(tr / tp - 1) > 0.25) {
+    cat(sprintf("  FAIL: ROR/PRR diverge implausibly for a rare event (%.3f vs %.3f)\n", tr, tp))
+    FAIL <<- FAIL + 1L
+  }
   expect_equal("chi_sq", out$chi_sq,     tx2)
 }
 
