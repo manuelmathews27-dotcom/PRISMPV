@@ -97,11 +97,19 @@ server <- function(input, output, session) {
     current_prr_hi <- tail(df$PRR_hi[!is.na(df$PRR_hi) & is.finite(df$PRR_hi)], 1)
     if (length(current_prr_lo) == 0) current_prr_lo <- NA
     if (length(current_prr_hi) == 0) current_prr_hi <- NA
+    current_ror    <- tail(df$ROR[!is.na(df$ROR) & is.finite(df$ROR)], 1)
+    current_ror_lo <- tail(df$ROR_lo[!is.na(df$ROR_lo) & is.finite(df$ROR_lo)], 1)
+    current_ror_hi <- tail(df$ROR_hi[!is.na(df$ROR_hi) & is.finite(df$ROR_hi)], 1)
+    if (length(current_ror)    == 0) current_ror    <- NA
+    if (length(current_ror_lo) == 0) current_ror_lo <- NA
+    if (length(current_ror_hi) == 0) current_ror_hi <- NA
     prr_above_not_met <- sum(!is.na(df$PRR) & df$PRR >= 2 & !df$signal_met, na.rm = TRUE)
     months_first <- months_since_first_signal(df)
     list(df = df, status = status, n_active = n_active, months_first = months_first,
          current_prr = current_prr,
          current_prr_lo = current_prr_lo, current_prr_hi = current_prr_hi,
+         current_ror = current_ror, current_ror_lo = current_ror_lo,
+         current_ror_hi = current_ror_hi,
          prr_above_not_met = prr_above_not_met, total_a = total_a, sparse = sparse)
   })
 
@@ -128,6 +136,7 @@ server <- function(input, output, session) {
         "Data source", "Query window", "Quarters analysed",
         "Method", "Signal criteria",
         "Signal status", "Current PRR", "PRR 95% CI lower", "PRR 95% CI upper",
+        "Current ROR", "ROR 95% CI lower", "ROR 95% CI upper",
         "Total reports (drug + event)", "Quarters meeting criteria",
         "Months since first signal",
         "Interpretation limits"
@@ -140,11 +149,14 @@ server <- function(input, output, session) {
         prov$faers_api_source %||% "openFDA FAERS",
         prov$query_window %||% "",
         nrow(df),
-        "Proportional Reporting Ratio (PRR) with Yates-corrected chi-squared; Rothman 95% CI",
+        paste("Proportional Reporting Ratio (PRR) with Yates-corrected chi-squared,",
+              "Rothman 95% CI. Reporting Odds Ratio (ROR) reported alongside as a",
+              "cross-check; signal criteria are applied to PRR only."),
         paste0("PRR >= ", SIGNAL_MIN_PRR, "; chi-squared >= ", SIGNAL_MIN_CHISQ,
                "; A >= ", SIGNAL_MIN_REPORTS, "; CI lower bound > 1 (Evans criteria)"),
         s$status,
         fmt(s$current_prr), fmt(s$current_prr_lo), fmt(s$current_prr_hi),
+        fmt(s$current_ror), fmt(s$current_ror_lo), fmt(s$current_ror_hi),
         s$total_a,
         sum(df$signal_met, na.rm = TRUE),
         if (is.na(s$months_first)) "" else s$months_first,
@@ -189,6 +201,7 @@ server <- function(input, output, session) {
           event_all_drugs     = count_c,
           all_reports         = count_d,
           PRR = round(PRR, 3), PRR_lo = round(PRR_lo, 3), PRR_hi = round(PRR_hi, 3),
+          ROR = round(ROR, 3), ROR_lo = round(ROR_lo, 3), ROR_hi = round(ROR_hi, 3),
           chi_squared = round(chi_sq, 2),
           met_criteria = signal_met
         )
@@ -238,6 +251,23 @@ server <- function(input, output, session) {
                     "PRR elevated but CI includes 1"
                   else if (!is.na(s$current_prr))
                     "Below detection threshold")),
+      # ROR as a cross-check, deliberately NOT a second line on the trend chart:
+      # for a rare event the two measures converge, so plotting both would be two
+      # overlapping lines telling one story. Shown because FDA screening leans on
+      # PRR while EMA/EudraVigilance uses ROR — a divergence here means the event
+      # is not rare in the exposed population, which is worth noticing.
+      value_box(title = "Current ROR",
+                value = if (is.na(s$current_ror)) "N/A" else round(s$current_ror, 2),
+                showcase = icon("scale-balanced"), theme = "secondary",
+                p(if (is.na(s$current_ror)) "Insufficient reports"
+                  else paste0("95% CI: [",
+                              if (is.na(s$current_ror_lo)) "\u2014" else round(s$current_ror_lo, 2), ", ",
+                              if (is.na(s$current_ror_hi)) "\u2014" else round(s$current_ror_hi, 2), "]")),
+                p(if (!is.na(s$current_ror) && !is.na(s$current_prr) &&
+                      abs(s$current_ror / s$current_prr - 1) > 0.25)
+                    "Diverges from PRR \u2014 event is not rare in this population"
+                  else if (!is.na(s$current_ror))
+                    "Agrees with PRR, as expected for a rare event")),
       value_box(title = "Consecutive Signal Quarters", value = s$n_active,
                 showcase = icon("calendar"),
                 theme = if (s$n_active >= 2) "warning" else "secondary")

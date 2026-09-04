@@ -392,7 +392,20 @@ ui <- page_navbar(
             when a is small relative to the marginals, which holds for the vast majority of
             drug-AE pairs in FAERS. The 95% confidence interval uses the log-normal
             approximation for ratio measures (Rothman, 2008)."),
-          tags$h6(class = "mt-3 fw-semibold", "Why PRR and not EBGM or IC?"),
+          tags$h6(class = "mt-3 fw-semibold", "Reporting Odds Ratio (ROR)"),
+          p("PRR compares", tags$strong("proportions"), "; ROR compares",
+            tags$strong("odds"), "of the same 2\u00d72 table:"),
+          tags$div(class = "font-monospace small bg-light p-2 rounded",
+            tags$div("ROR = (a \u00d7 d) / (b \u00d7 c)"),
+            tags$div(class = "mt-1", "SE = \u221a(1/a + 1/b + 1/c + 1/d)")
+          ),
+          p("Both are reported because regulators differ:", tags$strong("FDA"),
+            "screens with PRR (and EBGM internally), while", tags$strong("EMA"),
+            "uses ROR in EudraVigilance. For a rare event the two converge, so ROR
+            serves as a cross-check rather than a second opinion \u2014 a material
+            divergence indicates the event is not rare in the exposed population.
+            Signal criteria are applied to PRR only; ROR is displayed, not thresholded."),
+          tags$h6(class = "mt-3 fw-semibold", "Why not EBGM or IC?"),
           p("The FDA uses", tags$strong("EBGM (Empirical Bayesian Geometric Mean)"),
             "internally (DuMouchel, 1999). It applies Bayesian shrinkage to reduce false positives
             when report counts are low. The WHO Uppsala Monitoring Centre uses the",
