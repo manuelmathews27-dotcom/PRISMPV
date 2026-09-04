@@ -29,7 +29,10 @@ tryCatch(source("scripts/02_signal_detection.R"),
 
 if (!file.exists("data/combined.rds")) stop("Pipeline halted: data/combined.rds not created")
 
-tryCatch(source("scripts/03_visualizations.R"),
-         error = function(e) message("03_visualizations.R failed (non-fatal): ", conditionMessage(e)))
+# scripts/03_visualizations.R was removed 2026-09-04. Its three functions
+# (plot_lag_bar, plot_prr_trend, plot_change_type) had ZERO references anywhere
+# in app.R or R/ — the app carries its own charts — so it was a second, silently
+# diverging copy. It ran under a non-fatal tryCatch, which is also why the CSV
+# exports under data/ went stale without anyone noticing.
 
 message("\nPipeline complete! Launch the dashboard with:\n  shiny::runApp()\n")

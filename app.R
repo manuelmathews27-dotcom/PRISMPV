@@ -105,6 +105,100 @@ server <- function(input, output, session) {
          prr_above_not_met = prr_above_not_met, total_a = total_a, sparse = sparse)
   })
 
+  # ── Signal assessment record (regulatory export) ────────────────────────────
+  # write_audit_log() has always appended each query to data/audit_log.csv for
+  # ICH E2E / GVP IX traceability, but nothing ever read it back, so the trail
+  # existed only on the server. GVP Module IX expects signal management to be
+  # documented and auditable; this is the artefact you would attach to a signal
+  # validation form — the query, the method and its thresholds, the result, and
+  # the data vintage, all stamped with the time it was run.
+  #
+  # Deliberately plain CSV: it opens in Excel, it is diffable, and it carries no
+  # formatting that could obscure a value.
+  assessment_record <- reactive({
+    s  <- monitor_stats()
+    df <- s$df
+    prov <- attributes(df)
+    fmt <- function(x, d = 3) if (is.null(x) || length(x) == 0 || is.na(x)) "" else round(x, d)
+
+    data.frame(
+      field = c(
+        "Report generated (UTC)",
+        "Drug queried", "Canonical ingredient", "Adverse event (MedDRA PT)",
+        "Data source", "Query window", "Quarters analysed",
+        "Method", "Signal criteria",
+        "Signal status", "Current PRR", "PRR 95% CI lower", "PRR 95% CI upper",
+        "Total reports (drug + event)", "Quarters meeting criteria",
+        "Months since first signal",
+        "Interpretation limits"
+      ),
+      value = c(
+        format(Sys.time(), "%Y-%m-%dT%H:%M:%S", tz = "UTC"),
+        toupper(trimws(input$live_drug)),
+        prov$canonical_ingredient %||% "",
+        tolower(trimws(input$live_ae)),
+        prov$faers_api_source %||% "openFDA FAERS",
+        prov$query_window %||% "",
+        nrow(df),
+        "Proportional Reporting Ratio (PRR) with Yates-corrected chi-squared; Rothman 95% CI",
+        paste0("PRR >= ", SIGNAL_MIN_PRR, "; chi-squared >= ", SIGNAL_MIN_CHISQ,
+               "; A >= ", SIGNAL_MIN_REPORTS, "; CI lower bound > 1 (Evans criteria)"),
+        s$status,
+        fmt(s$current_prr), fmt(s$current_prr_lo), fmt(s$current_prr_hi),
+        s$total_a,
+        sum(df$signal_met, na.rm = TRUE),
+        if (is.na(s$months_first)) "" else s$months_first,
+        paste("Disproportionality analysis of spontaneous reports.",
+              "A signal is a hypothesis for assessment, not evidence of causation.",
+              "FAERS has no denominator, is subject to reporting and notoriety bias,",
+              "and cannot be stratified by indication or age.")
+      ),
+      stringsAsFactors = FALSE
+    )
+  })
+
+  # Render the button only after a query exists, so it can never produce an
+  # empty record.
+  output$download_ui <- renderUI({
+    req(input$run_check > 0)
+    downloadButton("download_assessment", "Download assessment record",
+                   class = "btn-outline-secondary w-100 mt-2",
+                   icon = icon("file-arrow-down"))
+  })
+
+  output$download_assessment <- downloadHandler(
+    filename = function() {
+      paste0("PRISM_signal_assessment_",
+             gsub("[^A-Za-z0-9]+", "-", toupper(trimws(input$live_drug))), "_",
+             gsub("[^a-z0-9]+", "-", tolower(trimws(input$live_ae))), "_",
+             format(Sys.time(), "%Y%m%d-%H%M%S"), ".csv")
+    },
+    content = function(file) {
+      rec <- assessment_record()
+      # Summary block, then the full quarterly series it was derived from, so the
+      # record is self-contained and the conclusion can be recomputed from it.
+      writeLines("PRISM — SIGNAL ASSESSMENT RECORD", file)
+      write.table(rec, file, sep = ",", row.names = FALSE, col.names = FALSE,
+                  qmethod = "double", append = TRUE)
+      cat("\n\nQUARTERLY DATA\n", file = file, append = TRUE)
+      q <- monitor_stats()$df |>
+        transmute(
+          quarter      = fmt_quarter(quarter),
+          drug_event_reports  = count_a,
+          drug_all_reports    = count_b,
+          event_all_drugs     = count_c,
+          all_reports         = count_d,
+          PRR = round(PRR, 3), PRR_lo = round(PRR_lo, 3), PRR_hi = round(PRR_hi, 3),
+          chi_squared = round(chi_sq, 2),
+          met_criteria = signal_met
+        )
+      suppressWarnings(
+        write.table(q, file, sep = ",", row.names = FALSE, append = TRUE,
+                    qmethod = "double")
+      )
+    }
+  )
+
   output$monitor_status_row <- renderUI({
     s <- monitor_stats()
     status_theme <- switch(s$status,

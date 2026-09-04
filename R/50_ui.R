@@ -142,6 +142,10 @@ ui <- page_navbar(
                        options  = list(create = FALSE, placeholder = "Type to search PT terms...")),
         actionButton("run_check", "Check Signal",
                      class = "btn-primary w-100 mt-2", icon = icon("play")),
+        # Only appears once a query has run — an export of nothing is a broken
+        # promise, and a disabled button invites clicking. Server-side via
+        # uiOutput so it tracks the same reactive the record is built from.
+        uiOutput("download_ui"),
         hr(),
         div(class = "text-muted", style = "font-size:0.78rem;",
           strong("Tips:"), br(),
