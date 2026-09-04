@@ -834,21 +834,25 @@ server <- function(input, output, session) {
         subtitle = "Quarterly PRR (log scale). Dot size is the report count; the dashed line is the PRR = 2 signal threshold.",
         x = NULL, y = "PRR"
       ) +
-      guides(fill = guide_legend(order = 1, override.aes = list(size = 5)),
-             size = guide_legend(order = 2)) +
+      # No size legend. It rendered as a row of progressively larger circles that
+      # sat unevenly against the fill swatches, and nobody decodes an exact count
+      # from a circle's area — the encoding only needs to convey relative
+      # confidence, which the subtitle states in words.
+      guides(fill = guide_legend(override.aes = list(size = 5)),
+             size = "none") +
       theme_minimal(base_size = 14) +
       theme(
-        # Top-right, ABOVE the panel rather than floating inside it. An in-panel
-        # legend at (0.98, 0.98) would collide with the "Label change" box: for a
-        # late label change the box flips to the left of its line and lands in
-        # the upper right of the plotting area (Ambien at 87% of its window,
-        # Yescarta at 81%). Sitting outside the panel keeps it clear of both
-        # annotation boxes at any date.
-        legend.position      = "top",
-        legend.justification = "right",
-        legend.box           = "horizontal",
-        legend.box.spacing   = grid::unit(4, "pt"),
-        legend.margin        = margin(0, 0, 2, 0),
+        # Right margin, top-aligned. Two earlier placements failed:
+        #   inside the panel at (0.98, 0.98) collides with the "Label change" box,
+        #     which flips to the left of its line for a late label change and
+        #     lands in exactly that corner (Ambien 87%, Yescarta 81%);
+        #   position "top" + justification "right" renders CENTRED, because
+        #     ggplot2 3.5 changed how justification resolves for outside legends.
+        # The right margin is unambiguous, version-proof, and cannot overlap the
+        # plotting area at all.
+        legend.position      = "right",
+        legend.justification = "top",
+        legend.title         = element_blank(),
         panel.border       = element_rect(colour = "grey55", fill = NA, linewidth = 0.7),
         panel.grid.minor   = element_blank(),
         panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.4),
