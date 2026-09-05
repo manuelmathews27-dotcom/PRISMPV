@@ -16,27 +16,28 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 4. [Monitor Your Drug — live query behavior](#monitor-your-drug--live-query-behavior)
 5. [Black Box Warning detection](#black-box-warning-bbw-detection)
 6. [Reference Cohort charts](#reference-cohort-charts)
-7. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
-8. [Drug name resolution](#drug-name-resolution)
-9. [AE synonym mapping](#ae-synonym-mapping)
-10. [Adverse event term selection](#adverse-event-term-selection)
-11. [openFDA API key and caching](#openfda-api-key-and-caching)
-12. [Setup](#setup)
-13. [Tests](#tests)
-14. [Data pipeline](#data-pipeline)
-15. [Deployment](#deployment)
-16. [Project structure](#project-structure)
-17. [Drug cohort](#drug-cohort)
-18. [Cohort analysis findings](#cohort-analysis-findings)
-19. [Data sources](#data-sources)
-20. [References](#references)
-21. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
+7. [Signal assessment record (export)](#signal-assessment-record-export)
+8. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
+9. [Drug name resolution](#drug-name-resolution)
+10. [AE synonym mapping](#ae-synonym-mapping)
+11. [Adverse event term selection](#adverse-event-term-selection)
+12. [openFDA API key and caching](#openfda-api-key-and-caching)
+13. [Setup](#setup)
+14. [Tests](#tests)
+15. [Data pipeline](#data-pipeline)
+16. [Deployment](#deployment)
+17. [Project structure](#project-structure)
+18. [Drug cohort](#drug-cohort)
+19. [Cohort analysis findings](#cohort-analysis-findings)
+20. [Data sources](#data-sources)
+21. [References](#references)
+22. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
 
 ---
 
 ## What it does
 
-PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 12 mechanistic classes in the curated 42-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
+PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identify statistically disproportionate drug-adverse event pairs in FAERS data, reporting the Reporting Odds Ratio (ROR) alongside it as a cross-check. It can query any drug sold in the US, not just those in the reference cohort. For drugs that map to one of the 12 mechanistic classes in the curated 42-drug cohort, PRISM also provides historical timeline comparisons showing how the current signal compares to past FDA actions on similar drugs.
 
 ---
 
@@ -44,10 +45,10 @@ PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identif
 
 | Tab | Description |
 |-----|-------------|
-| **Monitor Your Drug** | Live openFDA query for any drug + adverse event, with signal status, BBW detection, and cohort benchmark (when applicable) |
+| **Monitor Your Drug** | Live openFDA query for any drug + adverse event: signal status, PRR and ROR with CIs, BBW detection, cohort benchmark (when applicable), and a downloadable assessment record |
 | **Reference Cohort** | Signal-to-label lag across all 42 cohort drugs, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
 | **Drug Table** | Searchable table of cohort data with data provenance panel |
-| **Methodology** | Signal detection math, thresholds, PRR vs EBGM/IC comparison, and limitations |
+| **Methodology** | Signal detection math, thresholds, PRR vs ROR vs EBGM/IC, and limitations |
 
 ---
 
@@ -86,6 +87,38 @@ the log-normal approximation for ratio measures (Rothman, 2008).
 
 `tests/test_prr_formula.R` verifies this against known cell configurations and gates
 both the pipeline and every deploy.
+
+### Reporting Odds Ratio
+
+PRR compares **proportions**; ROR compares **odds** of the same 2×2 table. ROR needs
+the two cells PRR never forms, reconstructed from the marginals alongside the rest:
+
+```
+b_cell = count_b − a          # drug, no event
+d_cell = cd_cell − c_cell     # other drug, no event
+
+ROR = (a × d_cell) / (b_cell × c_cell)
+SE  = sqrt(1/a + 1/b_cell + 1/c_cell + 1/d_cell)
+```
+
+Both measures are reported because the regulators differ: **FDA** screens with PRR
+(and EBGM internally), while **EMA** uses ROR in EudraVigilance. For a rare event
+the two converge, so ROR functions as a cross-check rather than a second opinion —
+a material divergence indicates the event is *not* rare in the exposed population,
+and the Monitor tab says so explicitly when the two differ by more than 25%.
+
+**Signal criteria are applied to PRR only.** ROR is displayed and exported, never
+thresholded, so the detection rule stays a single documented method.
+
+ROR is deliberately *not* plotted on the quarterly trend. For rare events it would
+draw a second line almost on top of the first, telling the same story twice and
+inviting a question ("why do these differ?") whose honest answer is "they barely
+do." It belongs as a number.
+
+The same degenerate-cell guard applies: a zero in any cell yields `NA` rather than
+a plausible-looking value. `tests/test_prr_formula.R` pins ROR and its CI against
+the textbook odds ratio for every case, which is also the only coverage the `b`
+and `d` reconstruction has.
 
 ### Signal criteria (Evans + Rothman)
 
@@ -185,6 +218,33 @@ rather than erroring. `compute_prr()` returns `NA` for degenerate cells, so the
 filtered frame can be empty; the downstream `max()` and `range()` calls then
 produce `-Inf`/`NaN` and the annotation branch throws "missing value where
 TRUE/FALSE needed".
+
+---
+
+## Signal assessment record (export)
+
+`write_audit_log()` has always appended every query to `data/audit_log.csv` —
+timestamp, drug, event, status, PRR and CI — for ICH E2E / GVP IX traceability.
+Nothing read it back, so the trail existed only on the server.
+
+The Monitor tab now offers **Download assessment record**, which appears once a
+query has run. It produces a timestamped CSV containing:
+
+| Block | Contents |
+|-------|----------|
+| Provenance | Generation time (UTC), drug queried, the canonical ingredient it resolved to, MedDRA PT, data source, query window, quarters analysed |
+| Method | Named method and the thresholds, read from the live constants rather than retyped |
+| Result | Signal status, current PRR and ROR with 95% CIs, total reports, quarters meeting criteria, months since first signal |
+| Limits | A stated interpretation caveat — no denominator, reporting and notoriety bias, no stratification by indication or age |
+| Quarterly data | Every quarter's four counts, PRR, ROR, chi-squared and pass/fail |
+
+Including the full quarterly series is what makes it an audit artefact rather than
+a screenshot: the conclusion can be recomputed from the record without rerunning
+the app. GVP Module IX expects signal management to be documented and auditable,
+and this is the artefact that would be attached to a signal validation form.
+
+Plain CSV by choice — it opens in Excel, it diffs cleanly in version control, and
+it carries no formatting that could obscure a value.
 
 ---
 
@@ -555,7 +615,7 @@ deployment.
 - Run `run_pipeline.R` to regenerate `data/faers_raw.rds`, `data/combined.rds`, and `data/provenance.rds` if the cohort or date ranges have changed.
 - Verify `data/label_changes.csv` is up to date.
 - Confirm `shiny::runApp()` works locally before deploying.
-- The `data/audit_log.csv` file is written at runtime on the server and will not be bundled in the deployment.
+- `data/audit_log.csv` is written at runtime on the server and is not bundled in the deployment. The user-facing export is the assessment record — see [Signal assessment record](#signal-assessment-record-export).
 
 ---
 
