@@ -7,6 +7,17 @@
 # Criteria: serious, unexpected, life-threatening, or historically led to FDA
 # action (BBW, contraindication, withdrawal). Excludes common pharmacological
 # effects (nausea, headache, dizziness) that rarely trigger regulatory action.
+# CORRECTED 2026-09-05 — three entries were not MedDRA Preferred Terms at all.
+# They returned results only because the query matched substrings of real PTs;
+# under exact-field matching they return ZERO:
+#   "stroke"                   -> not a PT. Replaced with "ischaemic stroke"
+#                                 ("cerebrovascular accident" and "haemorrhagic
+#                                  stroke" were already listed, so "stroke" was
+#                                  also silently double-counting both).
+#   "intracranial haemorrhage" -> MedDRA inverts it: "haemorrhage intracranial".
+#   "malignant neoplasm"       -> MedDRA inverts it: "neoplasm malignant".
+# None of the three is a reference-cohort pair, so this does not disturb
+# combined.rds; it only changes what the Monitor dropdown can query.
 pt_terms <- sort(c(
   # ── Cardiac ──
   "myocardial infarction", "cardiac arrest", "cardiac failure",
@@ -15,7 +26,7 @@ pt_terms <- sort(c(
   "cardiomyopathy", "myocarditis", "cardiac tamponade", "sudden death",
   # ── Vascular / Thromboembolic ──
   "pulmonary embolism", "deep vein thrombosis", "thrombosis",
-  "stroke", "cerebrovascular accident", "haemorrhagic stroke",
+  "ischaemic stroke", "cerebrovascular accident", "haemorrhagic stroke",
   "hypertensive crisis", "shock", "circulatory collapse", "vasculitis",
   # The boxed warning on every DOAC (Xarelto, Eliquis, Savaysa) and on Plavix.
   # MedDRA spells it haematoma; the FDA labels spell it "spinal/epidural
@@ -34,7 +45,7 @@ pt_terms <- sort(c(
   # for the correct form -- it was masked until queries became phrase-matched.
   "neuropathy peripheral",
   "Guillain-Barre syndrome", "progressive multifocal leukoencephalopathy",
-  "encephalopathy", "cerebral haemorrhage", "intracranial haemorrhage",
+  "encephalopathy", "cerebral haemorrhage", "haemorrhage intracranial",
   "demyelination", "encephalitis", "tardive dyskinesia",
   # ── Neuropsychiatric ──
   "suicidal ideation", "suicide attempt", "completed suicide",
@@ -73,7 +84,7 @@ pt_terms <- sort(c(
   "opportunistic infection",
   # ── Oncology ──
   "bladder cancer", "lymphoma", "hepatocellular carcinoma",
-  "malignant neoplasm", "skin cancer",
+  "neoplasm malignant", "skin cancer",
   # ── Ocular ──
   "blindness", "optic neuritis", "retinal detachment",
   # ── General ──
