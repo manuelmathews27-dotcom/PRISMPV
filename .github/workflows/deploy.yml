@@ -38,15 +38,24 @@ jobs:
           Rscript -e 'install.packages(c("rsconnect", "curl", "jsonlite", "dplyr", "lubridate", "ggplot2", "ggrepel", "shiny", "bslib", "DT"), repos = "https://cloud.r-project.org")'
 
       - name: Run R regression tests (gate the deploy)
+        env:
+          OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
         run: |
           # These previously ran ONLY inside run_pipeline.R, i.e. during the
           # quarterly cohort refresh — so a broken formula or resolver could sit
           # undetected for months and ship on every deploy in between. Running
           # them here means no deploy can reach shinyapps.io with a red test.
-          # Both are pure and offline: no openFDA calls, no data files needed.
+          # The first two are pure and offline; the third needs network and skips
+          # itself if openFDA is unreachable.
           set -e
           Rscript tests/test_prr_formula.R
           Rscript tests/test_resolve_token.R
+          # Needs network: confirms every curated term is a real MedDRA PT.
+          # Queries use .exact matching, so a non-PT returns zero rather than an
+          # error — it reads in the UI as "no reports" and is invisible without
+          # this check. Skips itself (exit 0) if openFDA is unreachable, so it
+          # cannot redden a deploy for an unrelated reason.
+          OPENFDA_API_KEY="${OPENFDA_API_KEY}" Rscript tests/test_pt_terms.R
 
       - name: Inject openFDA API key into the bundle
         env:

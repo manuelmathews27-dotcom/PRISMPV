@@ -213,7 +213,26 @@ build_url <- function(drug_name = NULL, pt_term = NULL, q_start, q_end) {
       "+patient.drug.openfda.generic_name:", dn, ")"))
   }
   if (!is.null(pt_term))
-    parts <- c(parts, paste0("patient.reaction.reactionmeddrapt:", quote_term(pt_term)))
+    # `.exact` matches the WHOLE Preferred Term. Without it the quoted phrase is
+    # still a substring match, so a short PT silently absorbs every longer one
+    # containing it — "thrombosis" swept in "deep vein thrombosis" (both curated
+    # terms), "cardiac failure" swept "cardiac failure congestive", and so on.
+    #
+    # This is not merely inflation that cancels in the ratio. Measured 2026-09-05
+    # over 2023-2025, PRR moved materially AND IN BOTH DIRECTIONS, because a
+    # drug's case mix within a PT family differs from the population's:
+    #   Fosamax  / osteonecrosis      6.26 -> 3.44   (-45%)
+    #   Remicade / lymphoma           2.44 -> 3.55   (+46%)
+    #   Humira   / tuberculosis       5.99 -> 4.07   (-32%)
+    #   Lipitor  / diabetes mellitus  2.56 -> 3.13   (+22%)
+    # Chi-squared uses the raw cells and falls outright.
+    #
+    # PRECONDITION: every term in pt_terms must be a real MedDRA PT. Three were
+    # not ("stroke", "malignant neoplasm", "intracranial haemorrhage") and
+    # returned zero here until they were remapped; tests/test_pt_terms.R now
+    # guards that.
+    parts <- c(parts, paste0("patient.reaction.reactionmeddrapt.exact:",
+                             quote_term(pt_term)))
   parts <- c(parts, paste0("receivedate:[", q_start, "+TO+", q_end, "]"))
   paste0("https://api.fda.gov/drug/event.json?search=",
          paste(parts, collapse = "+AND+"), "&limit=1")
