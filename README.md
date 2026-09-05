@@ -807,7 +807,7 @@ Parses a single response object from `curl::curl_fetch_multi` into a report coun
 
 ### `compute_prr(df)`
 
-Computes PRR, 95% CI, and Yates-corrected chi-squared from a data frame with
+Computes PRR, ROR, their 95% CIs, and Yates-corrected chi-squared from a data frame with
 `count_a`, `count_b`, `count_c`, `count_d` columns. Reconstructs the 2×2 cells from
 the openFDA marginals first. Rather than flooring the marginals, it applies a
 degenerate-cell guard: if any required marginal or derived cell is zero or negative,
@@ -827,6 +827,11 @@ PRR, CI and chi-squared are all `NA` for that row.
 | `PRR_log_se` | Log-scale standard error of PRR |
 | `PRR_lo` | 95% CI lower bound (log-normal approximation) |
 | `PRR_hi` | 95% CI upper bound |
+| `b_cell` | Reconstructed cell: drug, no event (`count_b − a`) |
+| `d_cell` | Reconstructed cell: other drug, no event (`cd_cell − c_cell`) |
+| `ROR` | Reporting Odds Ratio |
+| `ROR_log_se` | Log-scale standard error of ROR |
+| `ROR_lo` / `ROR_hi` | ROR 95% CI bounds |
 | `chi_sq` | Pearson chi-squared with Yates continuity correction |
 
 ### `check_signal(count_a, PRR, chi_sq, PRR_lo)`
