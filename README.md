@@ -188,21 +188,20 @@ than as geometry, because the x-axis can encode either comparable lag lengths or
 a calendar, not both. Plot height is computed from the row count server-side so
 row spacing stays constant as the cohort grows.
 
-This replaced a per-drug quarterly PRR line as the landing view. The cohort
-answers a cross-drug question — how early is the signal relative to FDA action —
-which is one number per drug; a per-drug time series was the wrong encoding for
-it, and quarterly PRR on sparse counts is genuinely spiky rather than badly
-styled.
+The cohort answers a cross-drug question — how early is the signal relative to FDA
+action — which is one number per drug, so a single row per drug is the encoding
+that fits it. A per-drug time series answers a different question and, on sparse
+quarterly counts, is genuinely spiky rather than badly styled.
 
 **Drill-down — quarterly PRR trend.** Collapsed by default, showing the evidence
 behind a single row for the drug selected in the sidebar:
 
-- **One y-axis.** PRR only, log-scaled. The earlier version drew report counts as
-  bars against PRR as a line on a secondary axis, joined by an arbitrary scaling
-  factor (`sf <- count_max / prr_max`), so the apparent relationship between the
-  two series was an artefact of that constant. The log scale matters because PRR
-  spans two orders of magnitude across the cohort — Ambien/somnambulism reaches
-  ~161 against a typical 2–5, which flattens every other drug on a linear axis.
+- **One y-axis.** PRR only, log-scaled. Plotting counts on a secondary axis would
+  require an arbitrary scaling factor, and any apparent relationship between the
+  two series would be an artefact of that constant rather than of the data. The
+  log scale matters because PRR spans two orders of magnitude across the cohort —
+  Ambien/somnambulism reaches ~161 against a typical 2–5, which flattens every
+  other drug on a linear axis.
 - **Report count is dot size.** A larger dot is a better-supported estimate, so
   a high PRR on a small dot reads as fragile — which is the honest picture for
   the rare-event products. Yescarta has computable PRR in only 11 of 32 quarters.
@@ -281,8 +280,8 @@ any remaining non-letters with a space rather than deleting them, so a hyphenate
 combination such as `SACUBITRIL-VALSARTAN` splits into two words and falls through
 instead of collapsing into a single invalid token.
 
-Earlier behaviour deleted the hyphen and produced `TAFASITAMABCXIX`, which matches
-no FAERS records. The app reported this as "no signal" rather than as a failed
+Deleting the hyphen instead would weld the suffix onto the stem — `TAFASITAMABCXIX`,
+which matches no FAERS records and surfaces as "no signal" rather than as a failed
 lookup:
 
 | Canonical produced | FAERS reports | Correct form | Reports |
@@ -324,7 +323,7 @@ PT terms contain more than one word:
 | acute kidney injury | 901,197 | 150,318 |
 | herpes zoster | 225,468 | 60,592 |
 
-**Matching is exact-field, not substring** (corrected 2026-09-05). Queries use
+**Matching is exact-field, not substring.** Queries use
 `patient.reaction.reactionmeddrapt.exact`, which matches the whole Preferred Term.
 
 Quoting alone was not enough: a quoted phrase is still a substring match, so a
@@ -533,8 +532,8 @@ marginals, and asserts the textbook values come back — guarding the cell
 reconstruction and the Yates correction.
 
 `test_resolve_token.R` covers `canonical_ingredient_token()`, including the FDA
-biologic suffix case that previously produced a canonical name matching no FAERS
-records (see [Drug name resolution](#drug-name-resolution)).
+biologic suffix case, where deleting the hyphen yields a canonical name matching no
+FAERS records (see [Drug name resolution](#drug-name-resolution)).
 
 ---
 
@@ -644,8 +643,8 @@ Paths excluded from triggering a deploy: `**.md`, `.claude/**`, `deploy/**`.
 
 The workflow declares `concurrency: deploy-shinyapps-prismpv` with
 `cancel-in-progress: true`. Without it, overlapping runs collide on the shinyapps
-app lock and the later run fails, which previously produced an alternating
-success/failure pattern unrelated to the health of the app.
+app lock and the later run fails, producing an alternating success/failure pattern
+unrelated to the health of the app.
 
 The two gates cover different failures: the tests catch a broken formula or
 resolver before it ships, and the smoke test prevents a green run on a deployed app
@@ -750,11 +749,11 @@ startup with an HTTP 500.
 | Factor Xa Inhibitor | Eliquis, Xarelto | Gastrointestinal haemorrhage |
 | PPAR-gamma Agonist (TZD) | Actos, Avandia | Bladder cancer; Myocardial infarction |
 
-The cohort was previously grouped into 10 therapeutic areas. Two of those groupings
-combined unrelated mechanisms: *Antidiabetic* covered a TZD, an SGLT2 inhibitor and a
-DPP-4 inhibitor, and *Antithrombotic* combined two Factor Xa inhibitors with a direct
-thrombin inhibitor and a P2Y12 antiplatelet. The class-specific signal-to-label
-estimate was therefore averaged across drugs with no shared pharmacology.
+Classes are mechanistic rather than therapeutic areas. A therapeutic grouping such
+as *Antidiabetic* spans a TZD, an SGLT2 inhibitor and a DPP-4 inhibitor, and
+*Antithrombotic* spans Factor Xa inhibitors, a direct thrombin inhibitor and a P2Y12
+antiplatelet — so a class-specific signal-to-label estimate would average across
+drugs with no shared pharmacology.
 
 As a result, seven classes fall below the timeline model's three-drug minimum and
 use the all-drug benchmark instead. This is intended: a class-specific estimate
