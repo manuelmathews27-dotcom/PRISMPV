@@ -55,7 +55,7 @@ first_signals <- signals |>
   filter(signal_met) |>
   slice_min(quarter, n = 1) |>
   ungroup() |>
-  select(drug, pt, signal_start_quarter = quarter,
+  select(drug, pt, signal_start_quarter_first_crossing = quarter,
          PRR_at_signal = PRR, PRR_lo_at_signal = PRR_lo, PRR_hi_at_signal = PRR_hi)
 
 # Same series, scored under the persistence rule (2 of any trailing 6 quarters).
@@ -68,10 +68,10 @@ first_signals_persistent <- signals |>
   group_by(drug, pt) |>
   summarise(
     .idx = first_persistent_index(signal_met),
-    signal_start_quarter_persistent = if (is.na(.idx)) as.Date(NA) else quarter[.idx],
+    signal_start_quarter = if (is.na(.idx)) as.Date(NA) else quarter[.idx],
     .groups = "drop"
   ) |>
-  select(drug, pt, signal_start_quarter_persistent)
+  select(drug, pt, signal_start_quarter)
 
 
 # ── Join with label change data ───────────────────────────────────────────────
@@ -80,9 +80,13 @@ label_changes <- read.csv("data/label_changes.csv", stringsAsFactors = FALSE) |>
 
 combined <- label_changes |>
   mutate(drug_name_upper = toupper(drug_name)) |>
-  left_join(first_signals, by = c("drug_name_upper" = "drug")) |>
+  # PRIMARY: the persistence rule. One definition of "a signal exists" across
+  # the whole app -- signal_status(), months_since_first_signal() and this lag.
   left_join(first_signals_persistent |> select(-pt),
             by = c("drug_name_upper" = "drug")) |>
+  # SECONDARY: the first-crossing series, retained ONLY so the Methods tab can
+  # show what the looser rule would have produced. Nothing else consumes it.
+  left_join(first_signals |> select(-pt), by = c("drug_name_upper" = "drug")) |>
   select(-drug_name_upper) |>
   mutate(
     # signal_start_quarter is already a Date (first day of that quarter)
@@ -91,10 +95,9 @@ combined <- label_changes |>
     lag_months = round(lag_days / 30.44, 1),
     lag_years  = round(lag_days / 365.25, 2),
 
-    # Lag under the persistence rule. Later than lag_months whenever the first
-    # crossing was isolated, which is the case the specificity arm flags.
-    lag_days_persistent   = as.numeric(label_change_date - signal_start_quarter_persistent),
-    lag_months_persistent = round(lag_days_persistent / 30.44, 1),
+    # What the looser first-crossing rule would have reported. Methods tab only.
+    lag_months_first_crossing = round(
+      as.numeric(label_change_date - signal_start_quarter_first_crossing) / 30.44, 1),
 
     # Did we detect a signal at all before the label change?
     signal_detected_before_change = !is.na(signal_start_date) & signal_start_date <= label_change_date
@@ -110,12 +113,13 @@ cat(sprintf("  Signals detected       : %d\n",   sum(!is.na(combined$signal_star
 cat(sprintf("  Median lag (months)    : %.1f\n", median(combined$lag_months, na.rm = TRUE)))
 cat(sprintf("  Min lag (months)       : %.1f\n", min(combined$lag_months,    na.rm = TRUE)))
 cat(sprintf("  Max lag (months)       : %.1f\n", max(combined$lag_months,    na.rm = TRUE)))
-cat(sprintf("  -- under the persistence rule (%d of any trailing %d quarters) --\n",
+cat(sprintf("  (rule: %d crossings within any trailing %d quarters)\n",
             PERSISTENCE_MIN, PERSISTENCE_WINDOW))
+cat(sprintf("  -- for comparison, the looser first-crossing rule --\n"))
 cat(sprintf("  Signals detected       : %d\n",
-            sum(!is.na(combined$signal_start_quarter_persistent))))
+            sum(!is.na(combined$signal_start_quarter_first_crossing))))
 cat(sprintf("  Median lag (months)    : %.1f\n",
-            median(combined$lag_months_persistent, na.rm = TRUE)))
+            median(combined$lag_months_first_crossing, na.rm = TRUE)))
 cat("─────────────────────────────────────────────────────────────\n\n")
 
 

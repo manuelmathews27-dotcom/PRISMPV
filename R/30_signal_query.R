@@ -380,13 +380,17 @@ quarters_active <- function(df) {
   run
 }
 
-# Months since the first quarter where signal criteria were met
+# Months since the signal began, under the SAME rule signal_status() uses:
+# 2 crossings within any trailing 6 quarters. This previously used the first
+# crossing anywhere, which contradicted the status directly above it -- a drug
+# could read NOT DETECTED while reporting a multi-year "signal duration" off one
+# isolated quarter. The negative control arm measured what that rule costs: it
+# fires on 17 of 37 pairs with no plausible association, against 10 under
+# persistence. One rule now governs status, duration, and the cohort lag.
 months_since_first_signal <- function(df) {
-  s <- df$signal_met
-  s[is.na(s)] <- FALSE
-  if (!any(s)) return(0)
-  first_q <- df$quarter[which(s)[1]]
-  round(as.numeric(difftime(Sys.Date(), first_q, units = "days")) / 30.44)
+  idx <- first_persistent_index(df$signal_met)
+  if (is.na(idx)) return(0)
+  round(as.numeric(difftime(Sys.Date(), df$quarter[idx], units = "days")) / 30.44)
 }
 
 # Format a Date to "YYYY QN" quarter label
