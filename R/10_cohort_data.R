@@ -82,6 +82,14 @@ faers_raw <- readRDS("data/faers_raw.rds")
 # Load pipeline provenance (graceful fallback if not yet generated)
 provenance <- if (file.exists("data/provenance.rds")) readRDS("data/provenance.rds") else NULL
 
+# Negative control arm (specificity). Loaded defensively: data/negative_controls.rds
+# is produced by scripts/02_signal_detection.R and will NOT exist until the next
+# pipeline run. R/50_ui.R builds the UI at source time, so every consumer must
+# tolerate NULL -- a missing artifact here must degrade to "not yet computed",
+# never to a startup error that takes the deployed app down.
+negative_controls <- if (file.exists("data/negative_controls.rds"))
+  readRDS("data/negative_controls.rds") else NULL
+
 # compute_prr() returns the statistics but not the pass/fail verdict, so apply
 # the Evans + Rothman criteria here — once, at the source. The Reference Cohort
 # drill-down colours points by this, and deriving it per-consumer would risk the

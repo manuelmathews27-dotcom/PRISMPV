@@ -151,3 +151,43 @@ provenance <- list(
 )
 saveRDS(provenance, "data/provenance.rds")
 message("Done. Saved to data/faers_raw.rds and data/provenance.rds")
+
+
+# ── Negative control arm ──────────────────────────────────────────────────────
+# WHY: every drug in the cohort above was selected BECAUSE FDA acted on it, so
+# every one of them signals. That measures sensitivity and says nothing about
+# specificity — a method that fired on everything would look identical. Negative
+# controls are drug/event pairs with no plausible mechanism and no label mention,
+# run through the identical pipeline: anything that fires there is a false
+# positive by construction. This is the OHDSI/OMOP negative-control approach
+# (Ryan et al. 2013; Schuemie et al. 2016).
+#
+# Pairs are read from data/negative_controls.csv rather than hardcoded here, so
+# the curation rationale and the query list cannot drift apart. Each pair reuses
+# a drug already in the cohort over that drug's own case window, so exposure and
+# reporting era match its case row exactly.
+neg_controls <- read.csv("data/negative_controls.csv", stringsAsFactors = FALSE)
+
+message("Pulling FAERS data for ", nrow(neg_controls), " negative-control pairs...")
+
+faers_neg <- lapply(seq_len(nrow(neg_controls)), function(i) {
+  r <- neg_controls[i, ]
+  message("  Pulling (neg control): ", toupper(r$drug_name), " / ", r$pt_term)
+  pull_quarterly_counts(toupper(r$drug_name), r$pt_term, r$window_start, r$window_end)
+})
+
+faers_neg <- bind_rows(faers_neg)
+
+# Same completeness gate as the case arm: a partial pull must never be saved,
+# because a missing quarter silently lowers the apparent false-positive count
+# and would make specificity look better than it is.
+missing_neg <- vapply(faers_neg[count_cols], function(x) sum(is.na(x)), integer(1))
+if (any(missing_neg > 0L)) {
+  stop(
+    "Negative-control pull incomplete; refusing to save: ",
+    paste(names(missing_neg), missing_neg, sep = "=", collapse = ", ")
+  )
+}
+
+saveRDS(faers_neg, "data/faers_negative_controls.rds")
+message("Done. Saved to data/faers_negative_controls.rds")
