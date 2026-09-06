@@ -1142,22 +1142,43 @@ server <- function(input, output, session) {
     }
     s   <- negative_controls$summary
     fmt <- function(x) sprintf("%.1f%%", 100 * x)
-    boxes <- list(
-      list("Informative pairs",   as.character(s$n_informative), "#334155"),
-      list("False positives",     as.character(s$n_false_pos),
-           if (s$n_false_pos > 0) "#b45309" else "#166534"),
-      list("Specificity",         fmt(s$specificity),  "#166534"),
-      list("FP rate, 95% upper",  fmt(s$fp_rate_hi95), "#334155")
-    )
-    div(
-      class = "d-flex flex-wrap gap-3 mt-3",
-      lapply(boxes, function(b) div(
-        style = paste0("flex:1 1 140px;border:1px solid #e2e8f0;border-radius:8px;",
-                       "padding:10px 14px;background:#f8fafc;"),
-        div(style = paste0("font-size:0.72rem;text-transform:uppercase;",
-                           "letter-spacing:0.04em;color:#64748b;"), b[[1]]),
-        div(style = paste0("font-size:1.4rem;font-weight:650;color:", b[[3]], ";"), b[[2]])
-      ))
+    # Two rules, same pairs, same data. Rule A is what the signal-to-label lag is
+    # anchored on; Rule B is the persistence rule the Monitor tab already uses for
+    # CONFIRMED. Showing them together is the point of the arm -- the gap between
+    # them is the cost of scoring a ten-year series one quarter at a time.
+    ruleblock <- function(title, note, n_fp, spec, hi, accent) {
+      div(
+        style = "flex:1 1 320px;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;background:#f8fafc;",
+        div(style = paste0("font-size:0.78rem;font-weight:700;color:", accent, ";"), title),
+        div(style = "font-size:0.72rem;color:#64748b;margin-bottom:8px;", note),
+        div(style = "display:flex;gap:18px;",
+            div(div(style = "font-size:0.68rem;text-transform:uppercase;color:#64748b;", "Specificity"),
+                div(style = paste0("font-size:1.5rem;font-weight:650;color:", accent, ";"), fmt(spec))),
+            div(div(style = "font-size:0.68rem;text-transform:uppercase;color:#64748b;", "False pos."),
+                div(style = "font-size:1.5rem;font-weight:650;color:#334155;",
+                    paste0(n_fp, " / ", s$n_informative))),
+            div(div(style = "font-size:0.68rem;text-transform:uppercase;color:#64748b;", "FP 95% upper"),
+                div(style = "font-size:1.5rem;font-weight:650;color:#334155;", fmt(hi))))
+      )
+    }
+    tagList(
+      div(class = "d-flex flex-wrap gap-3 mt-3",
+        ruleblock("Rule A — any single quarter crosses",
+                  "The rule the signal-to-label lag is anchored on.",
+                  s$n_false_pos, s$specificity, s$fp_rate_hi95, "#b45309"),
+        ruleblock(sprintf("Rule B — %d of any trailing %d quarters",
+                          s$persistence_min, s$persistence_window),
+                  "The persistence rule the Monitor tab uses for CONFIRMED.",
+                  s$n_false_pos_persistent, s$specificity_persistent,
+                  s$fp_rate_hi95_persistent, "#166534")
+      ),
+      p(class = "text-muted mt-2", style = "font-size:0.82rem;",
+        "Same pairs, same counts, same thresholds — only the rule for turning a ",
+        "series of quarterly verdicts into one signal differs. Scoring ~40 quarters ",
+        "independently gives ~40 chances to cross: at a nominal 5% per-quarter error ",
+        "rate, the chance of at least one false crossing is about 87%. That is the ",
+        "gap between the two numbers above, and it is a property of the rule rather ",
+        "than of the data.")
     )
   })
 
@@ -1171,15 +1192,17 @@ server <- function(input, output, session) {
       arrange(desc(ever_signalled), desc(max_PRR)) |>
       mutate(
         Result = dplyr::case_when(
-          status != "negative_control" ~ "Excluded - confounded",
-          !informative                 ~ "Too sparse to test",
-          ever_signalled               ~ "FALSE POSITIVE",
-          TRUE                         ~ "Correctly silent"
+          status != "negative_control"  ~ "Excluded - confounded",
+          !informative                  ~ "Too sparse to test",
+          ever_signalled_persistent     ~ "FP under both rules",
+          ever_signalled                ~ "FP under Rule A only",
+          TRUE                          ~ "Correctly silent"
         ),
-        `Max PRR` = ifelse(is.na(max_PRR), NA, round(max_PRR, 2))
+        `Max PRR` = ifelse(is.na(max_PRR), NA, round(max_PRR, 2)),
+        Quarters  = paste0(signal_quarters, " / ", n_quarters)
       ) |>
       select(Drug = drug, Event = pt, Reports = n_reports, `Max PRR`,
-             `Signal quarters` = signal_quarters, Result, Rationale = rationale)
+             `Signal quarters` = Quarters, Result, Rationale = rationale)
     DT::datatable(
       tbl, rownames = FALSE, filter = "top", style = "bootstrap4",
       options = list(pageLength = 10, scrollX = TRUE,
@@ -1188,9 +1211,10 @@ server <- function(input, output, session) {
       DT::formatStyle(
         "Result",
         color = DT::styleEqual(
-          c("FALSE POSITIVE", "Correctly silent", "Excluded - confounded"),
-          c("#b45309", "#166534", "#64748b")),
-        fontWeight = DT::styleEqual("FALSE POSITIVE", "700", default = "400")
+          c("FP under both rules", "FP under Rule A only",
+            "Correctly silent", "Excluded - confounded"),
+          c("#b45309", "#a16207", "#166534", "#64748b")),
+        fontWeight = DT::styleEqual("FP under both rules", "700", default = "400")
       )
   })
 }

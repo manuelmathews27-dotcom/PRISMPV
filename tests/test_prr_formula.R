@@ -117,6 +117,38 @@ out <- compute_prr(as_marginals(k$a, k$b, k$c, k$d))
 sig <- check_signal(k$a, out$PRR, out$chi_sq, out$PRR_lo)
 expect_equal("check_signal on true PRR>=2 case", as.logical(sig), TRUE)
 
+# ── Persistence rule ──────────────────────────────────────────────────────
+# first_persistent_index() converts a series of per-quarter verdicts into one
+# signal. The negative control arm showed the any-quarter rule has ~54%
+# specificity, so this is the rule the app leans on -- it needs a guard.
+cat("── persistence rule (2 of any trailing 6) ──────────────────────\n")
+expect_equal("no quarters signal",
+             first_persistent_index(c(FALSE, FALSE, FALSE)), NA_integer_)
+expect_equal("one isolated crossing is NOT persistent",
+             first_persistent_index(c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+             NA_integer_)
+expect_equal("two adjacent crossings fire on the second",
+             first_persistent_index(c(FALSE, TRUE, TRUE, FALSE)), 3L)
+expect_equal("two crossings 5 apart are inside the 6-window",
+             first_persistent_index(c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE)), 6L)
+expect_equal("two crossings 6 apart are OUTSIDE the 6-window",
+             first_persistent_index(c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)),
+             NA_integer_)
+expect_equal("NA verdicts are treated as non-signalling",
+             first_persistent_index(c(NA, TRUE, NA, TRUE)), 4L)
+expect_equal("empty series", first_persistent_index(logical(0)), NA_integer_)
+# Rule B must be strictly stricter than Rule A: anything the persistence rule
+# flags, the any-quarter rule must also flag. If that ordering ever broke, the
+# side-by-side specificity comparison on the Methods tab would be meaningless.
+set.seed(42)
+violations <- 0L
+for (i in 1:500) {
+  v <- sample(c(TRUE, FALSE), 40, replace = TRUE, prob = c(0.15, 0.85))
+  if (!is.na(first_persistent_index(v)) && !any(v)) violations <- violations + 1L
+}
+expect_equal("Rule B implies Rule A over 500 random series (violations)",
+             violations, 0L)
+
 cat("──────────────────────────────────────────────────────────────\n")
 if (FAIL > 0) {
   cat(sprintf("\nFAILED: %d assertion(s) failed.\n", FAIL))
