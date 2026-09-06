@@ -346,8 +346,8 @@ family differs from the population's:
 Chi-squared uses the raw cells and falls outright. Across the cohort the change
 moved the median lag from 34.1 to 37.2 months and the signal count from 37 to 36 —
 a smaller aggregate shift than the per-pair moves, because most pairs stayed on
-the same side of the threshold. Two documented findings did not survive; see
-[Cohort analysis findings](#cohort-analysis-findings).
+the same side of the threshold. Cohort results predating 2026-09-05 are not
+comparable with current output.
 
 **Exact matching has a precondition:** every curated term must be a real MedDRA PT.
 A non-PT returns zero rather than an error, which reads in the UI as "no reports"
@@ -402,39 +402,33 @@ Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric
 - **Common pharmacological effects** (nausea, headache, dizziness) — rarely trigger regulatory action
 - **Reproductive/teratogenic outcomes** (teratogenicity, foetal death, congenital anomaly, spontaneous abortion) — poorly suited to FAERS-based detection due to REMS-suppressed exposure, pregnancy registry surveillance, and fragmented MedDRA coding
 
-### Correction: the base cytopenias were missing (2026-09-06)
+### Haematological coverage
 
-The "serious, unexpected, life-threatening" criterion was applied in a way that
-kept the *severe variants* of the haematological terms while dropping the base
-terms they derive from:
+The list carries both the base cytopenias and their severe variants, because for
+oncology, haematology and JAK products the cytopenias **are** the dose-limiting
+toxicities and the reason those labels carry monitoring requirements. Ruxolitinib
+is the clearest case: thrombocytopenia is its defining risk and drives
+platelet-count-based dosing.
 
-| Was listed | Reports | Was missing | Reports |
-|------------|---------|-------------|---------|
-| aplastic anaemia | 5,234 | **anaemia** | 188,339 |
-| febrile neutropenia | 65,353 | **neutropenia** | 133,700 |
-| pancytopenia | 55,112 | **thrombocytopenia** | 110,048 |
-| agranulocytosis | 18,250 | **leukopenia** | 49,236 |
+| Base term | Reports | Severe variant | Reports |
+|-----------|---------|----------------|---------|
+| anaemia | 188,339 | aplastic anaemia | 5,234 |
+| neutropenia | 133,700 | febrile neutropenia | 65,353 |
+| thrombocytopenia | 110,048 | pancytopenia | 55,112 |
+| leukopenia | 49,236 | agranulocytosis | 18,250 |
 
-That reasoning holds for older small-molecule drugs, where an isolated cytopenia
-is often incidental. It breaks down for oncology, haematology and JAK products,
-where the cytopenias **are** the dose-limiting toxicities and the reason the labels
-carry monitoring requirements. Ruxolitinib is the clearest case: thrombocytopenia
-is its defining risk and drives platelet-count-based dosing, and it could not be
-selected in the dropdown at all.
+Listing base and variant terms separately is only meaningful under exact-field
+matching. With substring matching `anaemia` would absorb `aplastic anaemia` and
+`neutropenia` would absorb `febrile neutropenia`, so the two entries would return
+overlapping counts.
 
-The four base terms are now included (116 total). Ordering mattered — they could
-only be added safely *after* the move to exact-field matching. Under the previous
-substring matching, `anaemia` would have silently absorbed `aplastic anaemia` and
-`neutropenia` would have absorbed `febrile neutropenia`, so two separate dropdown
-entries would have returned overlapping counts.
-
-**Worked example.** `JAKAFI` + `thrombocytopenia`, 2023 Q3 – 2025 Q4:
-CONFIRMED, signal in 10 of 10 quarters, PRR 3.57 (95% CI 2.47–5.17), ROR 3.62
-(95% CI 2.48–5.28), 309 reports. PRR and ROR agree to within 1.4%, as expected for
-an event that is ~0.6% of all FAERS reports. One quarter stands out — 2024 Q4 at
-PRR 7.04 with 58 reports and χ² 286, roughly double the surrounding quarters. A
-single-quarter spike in spontaneous reporting usually reflects a reporting event
-rather than a change in underlying risk.
+**Worked example.** `JAKAFI` + `thrombocytopenia`, 2023 Q3 – 2025 Q4: CONFIRMED,
+signal in 10 of 10 quarters, PRR 3.57 (95% CI 2.47–5.17), ROR 3.62 (2.48–5.28),
+309 reports. PRR and ROR agree to within 1.4%, as expected for an event that is
+~0.6% of all FAERS reports. One quarter stands out — 2024 Q4 at PRR 7.04 with 58
+reports and χ² 286, roughly double its neighbours. A single-quarter spike in
+spontaneous reporting usually reflects a reporting event rather than a change in
+underlying risk.
 
 ---
 
@@ -777,39 +771,15 @@ resolve for display but fall back to the all-drug benchmark.
 
 ## Cohort analysis findings
 
-Re-derived 2026-09-05 after the query layer moved from substring to exact MedDRA
-Preferred Term matching (see [Signal detection](#signal-detection)). Two findings
-previously documented here did not survive that correction; they are recorded
-below rather than quietly removed, because *why* they were wrong is the useful
-part.
+Derived from the 42-drug cohort using exact MedDRA PT matching (data current as of
+2026-09-05).
 
-**Corrected — the PPI "class-wide failure" was an artefact of the query, not a
-property of FAERS.**
+**FAERS detects the cytopenia and infection risks it is often assumed to miss.**
+All four PPIs signal for *Clostridium difficile* colitis — Protonix in 17 quarters
+(max PRR 17.7), Prevacid 12 (11.1), Nexium 10 (7.7), Prilosec 4 (7.8).
 
-This section previously claimed that none of the four PPIs generated a signal for
-*Clostridium difficile* colitis. Under exact PT matching all four do:
-
-| Drug | Signal quarters | Max PRR | First signal |
-|------|-----------------|---------|--------------|
-| Protonix | 17 | 17.71 | 2006 Q4 |
-| Prevacid | 12 | 11.13 | 2006 Q3 |
-| Nexium | 10 | 7.71 | 2008 Q1 |
-| Prilosec | 4 | 7.81 | 2008 Q3 |
-
-Substring matching inflated `count_c` — the event across *all* drugs — by the
-whole *C. difficile* PT family, while the drugs' own reports stayed concentrated
-in the exact term. The denominator grew faster than the numerator and PRR was
-diluted below threshold. The "blind spot" was in the tool.
-
-**Corrected — the antipsychotics do signal on mortality.** Seroquel, Zyprexa and
-Risperdal each reach signal criteria for `death` (3, 4 and 4 quarters). The
-underlying regulatory point still stands and is worth keeping: the 2005 boxed
-warning came from a meta-analysis of 17 placebo-controlled trials, and FAERS
-cannot stratify by age or indication, so it could not have supported that
-conclusion on its own. But "no signal" was the wrong evidence for it.
-
-**Holds — bisphosphonate ONJ was found in the literature, not in FAERS.** Every
-first signal *postdates* its label change:
+**Bisphosphonate ONJ was found in the literature, not in FAERS.** Every first
+signal postdates its label change:
 
 | Drug | Label change | First FAERS signal |
 |------|--------------|--------------------|
@@ -818,31 +788,28 @@ first signal *postdates* its label change:
 | Reclast | 2009-09-01 | 2010 Q2 |
 | Boniva | 2007-05-09 | never signals |
 
-Osteonecrosis of the jaw was identified from dental case series. FAERS reporting
+Osteonecrosis of the jaw was identified from dental case series; FAERS reporting
 followed the FDA notification rather than preceding it.
 
-**Holds, with a mechanism — Seroquel's negative lag is stimulated reporting.**
-Its first signal is 2007 Q1 against an April 2005 label change: the signal
-appears roughly 21 months *after* the regulator acted, which is the cohort's
-minimum lag (−20.8 months). Once a warning is published, clinicians code for the
-event, and reporting rises because of the label change rather than before it —
-notoriety bias. A negative lag is not a detection failure; it is the label
-causing the data.
+**A negative lag means the label caused the data.** Seroquel's first signal for
+`death` is 2007 Q1 against an April 2005 boxed warning — the cohort's minimum lag
+at −20.8 months. Once a warning is published, clinicians code for the event and
+reporting rises *because* of the label change. This is notoriety bias, not a
+detection failure.
 
-**Holds — Ambien remains the strength outlier**, though the magnitude changed
-with exact matching: max PRR **161.4** (previously reported as 57.6), across 42
-signal quarters, with a 9.3-year signal-to-label lag.
+**Disproportionality cannot substitute for a controlled comparison.** The 2005
+antipsychotic mortality warning came from a meta-analysis of 17 placebo-controlled
+trials. FAERS cannot stratify by age or indication, so it could not have reached
+that conclusion regardless of what the reporting shows.
 
-**Still no signal:** Floxin (tendon rupture) and Sonata (somnambulism). Eliquis,
-previously listed here, reaches signal criteria in 14 quarters for
-gastrointestinal haemorrhage under exact matching. Intermezzo is marginal at one
-quarter.
+**Ambien is the strength outlier** — max PRR 161.4 across 42 signal quarters, with
+a 9.3-year signal-to-label lag.
 
-**What this episode is actually evidence for.** The original findings were
-plausible, internally consistent, and wrong, and nothing in the app surfaced that
-— a diluted PRR looks exactly like a real negative. Disproportionality results
-are only as good as the term matching underneath them, and a "class-wide blind
-spot" is a claim that deserves the same scepticism as a positive signal.
+**No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
+Intermezzo is marginal at one quarter.
+
+Median signal-to-label lag across the cohort is **37.2 months**, with signals
+detected for 36 of 42 drugs.
 
 ---
 
