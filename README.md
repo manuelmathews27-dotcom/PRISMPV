@@ -324,9 +324,37 @@ PT terms contain more than one word:
 | acute kidney injury | 901,197 | 150,318 |
 | herpes zoster | 225,468 | 60,592 |
 
-Phrase matching is substring-based rather than exact-field, so `cardiac failure`
-also matches `cardiac failure congestive`. This groups a PT family together, at the
-cost of counts being broader than a strict PT match.
+**Matching is exact-field, not substring** (corrected 2026-09-05). Queries use
+`patient.reaction.reactionmeddrapt.exact`, which matches the whole Preferred Term.
+
+Quoting alone was not enough: a quoted phrase is still a substring match, so a
+short PT silently absorbed every longer one containing it — `thrombosis` swept in
+`deep vein thrombosis`, and `cardiac failure` swept `cardiac failure congestive`.
+Both pairs are separately curated terms, so picking one silently included the other.
+
+This was not inflation that cancels in the ratio. Measured over 2023–2025, PRR
+moved materially **and in both directions**, because a drug's case mix within a PT
+family differs from the population's:
+
+| Drug / event | Substring | Exact | Shift |
+|---|---|---|---|
+| Fosamax / osteonecrosis | 6.26 | 3.44 | −45% |
+| Remicade / lymphoma | 2.44 | 3.55 | +46% |
+| Humira / tuberculosis | 5.99 | 4.07 | −32% |
+| Lipitor / diabetes mellitus | 2.56 | 3.13 | +22% |
+
+Chi-squared uses the raw cells and falls outright. Across the cohort the change
+moved the median lag from 34.1 to 37.2 months and the signal count from 37 to 36 —
+a smaller aggregate shift than the per-pair moves, because most pairs stayed on
+the same side of the threshold. Two documented findings did not survive; see
+[Cohort analysis findings](#cohort-analysis-findings).
+
+**Exact matching has a precondition:** every curated term must be a real MedDRA PT.
+A non-PT returns zero rather than an error, which reads in the UI as "no reports"
+and is invisible. Three entries were in that state and were remapped —
+`stroke` → `ischaemic stroke`, `malignant neoplasm` → `neoplasm malignant`,
+`intracranial haemorrhage` → `haemorrhage intracranial`. `tests/test_pt_terms.R`
+now validates all 112 terms against openFDA on every deploy.
 
 ---
 
@@ -458,15 +486,19 @@ shiny::runApp()
 
 ## Tests
 
-Two offline regression suites. Both gate `run_pipeline.R` and every deploy, so
-neither a cohort refresh nor a shipped build can proceed with a failing test.
+Three regression suites. The first two gate `run_pipeline.R` **and** every deploy,
+so neither a cohort refresh nor a shipped build can proceed with a failing test.
 
 ```bash
-Rscript tests/test_prr_formula.R      # PRR, Rothman CI, Yates chi-squared
+Rscript tests/test_prr_formula.R      # PRR, ROR, Rothman CI, Yates chi-squared
 Rscript tests/test_resolve_token.R    # generic-name -> canonical ingredient
+Rscript tests/test_pt_terms.R         # every curated term is a real MedDRA PT
 ```
 
-Neither hits the network.
+The first two are pure and offline. `test_pt_terms.R` needs network — it asks
+openFDA whether each of the 112 curated terms resolves under exact-field matching
+— and runs in CI only. It skips itself cleanly (exit 0) when openFDA is
+unreachable, so it can never redden a deploy for an unrelated reason.
 
 `test_prr_formula.R` builds known 2×2 configurations, feeds the equivalent
 marginals, and asserts the textbook values come back — guarding the cell
