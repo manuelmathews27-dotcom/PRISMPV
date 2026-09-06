@@ -394,6 +394,37 @@ check_signal <- function(count_a, PRR, chi_sq, PRR_lo = NA_real_) {
   base & ci_ok
 }
 
+# ── Persistence rule ─────────────────────────────────────────────────────────
+# check_signal() is a PER-QUARTER verdict. Declaring a drug/event pair signalling
+# because ANY single quarter crossed gives roughly one test per quarter — about
+# 40 chances over a ten-year window. At a nominal 5% per-quarter error rate the
+# chance of at least one false crossing is 1 - 0.95^40, near 87%, and the
+# negative control arm measured exactly that: 17 of 37 control pairs fired under
+# the any-quarter rule (54.1% specificity), six of them in a single quarter.
+#
+# This is the same persistence requirement the Monitor tab already applies when
+# it labels a live query CONFIRMED (2 or more of the last 6 quarters), restated
+# for a historical series: the rule is met at the first quarter where at least
+# PERSISTENCE_MIN of the trailing PERSISTENCE_WINDOW quarters signalled.
+#
+# PRECONDITION: signal_met must be in chronological order with no gaps, which is
+# what pull_quarterly_counts() produces (seq(..., by = "quarter")).
+PERSISTENCE_WINDOW <- 6L
+PERSISTENCE_MIN    <- 2L
+
+first_persistent_index <- function(signal_met,
+                                   window   = PERSISTENCE_WINDOW,
+                                   min_hits = PERSISTENCE_MIN) {
+  s <- !is.na(signal_met) & signal_met
+  n <- length(s)
+  if (n == 0L) return(NA_integer_)
+  for (i in seq_len(n)) {
+    lo <- max(1L, i - window + 1L)
+    if (sum(s[lo:i]) >= min_hits) return(i)
+  }
+  NA_integer_
+}
+
 # ── Audit trail logging ─────────────────────────────────────────────────────
 # Appends one row per query to data/audit_log.csv for ICH E2E / GVP IX traceability.
 AUDIT_LOG_PATH <- "data/audit_log.csv"
