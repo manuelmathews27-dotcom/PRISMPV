@@ -1,43 +1,55 @@
-drug_name,generic_name,therapeutic_class,approval_year,signal_quarter,label_change_date,label_change_type,adverse_event,source_notes
-Avandia,rosiglitazone,PPAR-gamma Agonist (TZD),1999,2007 Q1,2007-08-14,Boxed Warning Added,Myocardial infarction,Nissen & Wolski NEJM meta-analysis triggered FDA review; Boxed Warning added Aug 2007
-Actos,pioglitazone,PPAR-gamma Agonist (TZD),1999,2010 Q2,2011-06-15,Warning Added,Bladder cancer,French cohort study signal; FDA added bladder cancer warning June 2011
-Zocor,simvastatin,HMG-CoA Reductase Inhibitor,1991,2009 Q2,2011-06-08,Contraindication Added,Rhabdomyolysis,FDA restricted 80mg dose after SEARCH trial data; contraindication for high-dose June 2011
-Lipitor,atorvastatin,HMG-CoA Reductase Inhibitor,1996,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
-Crestor,rosuvastatin,HMG-CoA Reductase Inhibitor,2003,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
-Pravachol,pravastatin,HMG-CoA Reductase Inhibitor,1991,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012
-Cipro,ciprofloxacin,Fluoroquinolone,1987,2006 Q2,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone signal; Boxed Warning July 2008
-Levaquin,levofloxacin,Fluoroquinolone,1996,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
-Avelox,moxifloxacin,Fluoroquinolone,1999,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
-Floxin,ofloxacin,Fluoroquinolone,1990,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008
-Abilify,aripiprazole,Atypical Antipsychotic,2002,,2016-05-03,Warning Added,Pathological gambling,FDA safety communication May 2016 for compulsive behaviors including gambling
-Seroquel,quetiapine,Atypical Antipsychotic,1997,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
-Zyprexa,olanzapine,Atypical Antipsychotic,1996,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
-Risperdal,risperidone,Atypical Antipsychotic,1993,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005
-Celebrex,celecoxib,COX-2 Selective NSAID,1998,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005 following Vioxx withdrawal
-Vioxx,rofecoxib,COX-2 Selective NSAID,1999,,2004-09-30,Withdrawn,Myocardial infarction,Withdrawn after APPROVe trial confirmed increased CV risk Sep 2004
-Mobic,meloxicam,COX-2 Selective NSAID,2000,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005
-Nexium,esomeprazole,Proton Pump Inhibitor,2001,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 for C. difficile-associated diarrhea risk with PPI use
-Prilosec,omeprazole,Proton Pump Inhibitor,1989,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
-Prevacid,lansoprazole,Proton Pump Inhibitor,1995,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
-Protonix,pantoprazole,Proton Pump Inhibitor,2000,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide
-Humira,adalimumab,TNF-alpha Inhibitor,2002,,2008-09-04,Boxed Warning Updated,Tuberculosis,Postmarket TB reactivation reports; strengthened Boxed Warning for serious infections Sep 2008
-Enbrel,etanercept,TNF-alpha Inhibitor,1998,,2008-09-04,Boxed Warning Updated,Tuberculosis,Class-wide TNF inhibitor TB/serious infection Boxed Warning update Sep 2008
-Remicade,infliximab,TNF-alpha Inhibitor,1998,,2006-10-19,Boxed Warning Updated,Lymphoma,Postmarket hepatosplenic T-cell lymphoma reports; Boxed Warning updated Oct 2006
-Cimzia,certolizumab pegol,TNF-alpha Inhibitor,2008,,2009-10-07,Boxed Warning Updated,Tuberculosis,TB risk warning updated based on class data + early postmarket reports Oct 2009
-Fosamax,alendronate,Bisphosphonate,1995,,2005-11-12,Warning Added,Osteonecrosis of jaw,Postmarket dental literature case series; FDA notified HCPs Nov 2005
-Actonel,risedronate,Bisphosphonate,2000,,2005-11-12,Warning Added,Osteonecrosis of jaw,Class-wide bisphosphonate ONJ warning Nov 2005
-Boniva,ibandronate,Bisphosphonate,2003,,2007-05-09,Warning Added,Osteonecrosis of jaw,ONJ warning added to label based on accumulating postmarket evidence May 2007
-Reclast,zoledronic acid,Bisphosphonate,2007,,2009-09-01,Warning Added,Osteonecrosis of jaw,ONJ warning based on class-wide bisphosphonate signal Sep 2009
-Xarelto,rivaroxaban,Factor Xa Inhibitor,2011,,2013-11-04,Warning Updated,Gastrointestinal haemorrhage,Postmarket bleeding signal in real-world use; warning updated Nov 2013
-Eliquis,apixaban,Factor Xa Inhibitor,2012,,2014-03-14,Warning Updated,Gastrointestinal haemorrhage,Postmarket GI bleeding reports; warning strengthened Mar 2014
-Ambien,zolpidem,Nonbenzodiazepine Z-drug,1992,,2019-04-30,Boxed Warning Added,Somnambulism,FDA required Boxed Warning for complex sleep behaviors (sleepwalking/sleep-driving) April 2019
-Lunesta,eszopiclone,Nonbenzodiazepine Z-drug,2004,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide sedative-hypnotic Boxed Warning for complex sleep behaviors April 2019
-Sonata,zaleplon,Nonbenzodiazepine Z-drug,1999,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning + contraindication for complex sleep behaviors April 2019
-Intermezzo,zolpidem sublingual,Nonbenzodiazepine Z-drug,2011,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning for complex sleep behaviors April 2019
-Xeljanz,tofacitinib,JAK Inhibitor,2012,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,"ORAL Surveillance RCT; FDA DSC 2021-09-01 required boxed warning for MACE, malignancy, thrombosis and death"
-Olumiant,baricitinib,JAK Inhibitor,2018,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,Class-wide action extrapolated from tofacitinib ORAL Surveillance; no dedicated RCT for baricitinib
-Rinvoq,upadacitinib,JAK Inhibitor,2019,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,Class-wide action extrapolated from tofacitinib ORAL Surveillance; no dedicated RCT for upadacitinib
-Yescarta,axicabtagene ciloleucel,CAR-T Cell Therapy,2017,,2024-04-19,Boxed Warning Added,T-cell lymphoma,FDA letters to sponsors 2024-01-19; class-wide boxed warning for secondary T-cell malignancy required 2024-04-19
-Kymriah,tisagenlecleucel,CAR-T Cell Therapy,2017,,2024-04-19,Boxed Warning Added,T-cell lymphoma,Largest case count (n=7) among CAR-T products in FDA review; class-wide boxed warning 2024-04-19
-Breyanzi,lisocabtagene maraleucel,CAR-T Cell Therapy,2021,,2024-04-19,Boxed Warning Added,T-cell lymphoma,Class-wide boxed warning for secondary T-cell malignancy required 2024-04-19
-Abecma,idecabtagene vicleucel,CAR-T Cell Therapy,2021,,2024-04-19,Boxed Warning Added,T-cell lymphoma,BCMA-directed; class-wide boxed warning for secondary T-cell malignancy required 2024-04-19
+drug_name,generic_name,therapeutic_class,approval_year,signal_quarter,label_change_date,label_change_type,adverse_event,source_notes,cohort_role
+Avandia,rosiglitazone,PPAR-gamma Agonist (TZD),1999,2007 Q1,2007-08-14,Boxed Warning Added,Myocardial infarction,Nissen & Wolski NEJM meta-analysis triggered FDA review; Boxed Warning added Aug 2007,case
+Actos,pioglitazone,PPAR-gamma Agonist (TZD),1999,2010 Q2,2011-06-15,Warning Added,Bladder cancer,French cohort study signal; FDA added bladder cancer warning June 2011,case
+Zocor,simvastatin,HMG-CoA Reductase Inhibitor,1991,2009 Q2,2011-06-08,Contraindication Added,Rhabdomyolysis,FDA restricted 80mg dose after SEARCH trial data; contraindication for high-dose June 2011,case
+Lipitor,atorvastatin,HMG-CoA Reductase Inhibitor,1996,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012,case
+Crestor,rosuvastatin,HMG-CoA Reductase Inhibitor,2003,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012,case
+Pravachol,pravastatin,HMG-CoA Reductase Inhibitor,1991,,2012-02-28,Warning Added,Diabetes mellitus,FDA class-wide label change for increased diabetes risk Feb 2012,case
+Cipro,ciprofloxacin,Fluoroquinolone,1987,2006 Q2,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone signal; Boxed Warning July 2008,case
+Levaquin,levofloxacin,Fluoroquinolone,1996,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008,case
+Avelox,moxifloxacin,Fluoroquinolone,1999,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008,case
+Floxin,ofloxacin,Fluoroquinolone,1990,,2008-07-08,Boxed Warning Added,Tendon rupture,Class-wide fluoroquinolone Boxed Warning July 2008,case
+Abilify,aripiprazole,Atypical Antipsychotic,2002,,2016-05-03,Warning Added,Pathological gambling,FDA safety communication May 2016 for compulsive behaviors including gambling,case
+Seroquel,quetiapine,Atypical Antipsychotic,1997,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005,case
+Zyprexa,olanzapine,Atypical Antipsychotic,1996,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005,case
+Risperdal,risperidone,Atypical Antipsychotic,1993,,2005-04-11,Boxed Warning Added,Increased mortality in elderly dementia patients,Class-wide elderly dementia mortality Boxed Warning April 2005,case
+Celebrex,celecoxib,COX-2 Selective NSAID,1998,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005 following Vioxx withdrawal,case
+Vioxx,rofecoxib,COX-2 Selective NSAID,1999,,2004-09-30,Withdrawn,Myocardial infarction,Withdrawn after APPROVe trial confirmed increased CV risk Sep 2004,case
+Mobic,meloxicam,COX-2 Selective NSAID,2000,,2005-04-07,Boxed Warning Added,Myocardial infarction,Class-wide NSAID cardiovascular risk Boxed Warning April 2005,case
+Nexium,esomeprazole,Proton Pump Inhibitor,2001,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 for C. difficile-associated diarrhea risk with PPI use,case
+Prilosec,omeprazole,Proton Pump Inhibitor,1989,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide,case
+Prevacid,lansoprazole,Proton Pump Inhibitor,1995,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide,case
+Protonix,pantoprazole,Proton Pump Inhibitor,2000,,2012-02-08,Warning Added,Clostridium difficile colitis,FDA Drug Safety Communication Feb 2012 class-wide,case
+Humira,adalimumab,TNF-alpha Inhibitor,2002,,2008-09-04,Boxed Warning Updated,Tuberculosis,Postmarket TB reactivation reports; strengthened Boxed Warning for serious infections Sep 2008,case
+Enbrel,etanercept,TNF-alpha Inhibitor,1998,,2008-09-04,Boxed Warning Updated,Tuberculosis,Class-wide TNF inhibitor TB/serious infection Boxed Warning update Sep 2008,case
+Remicade,infliximab,TNF-alpha Inhibitor,1998,,2006-10-19,Boxed Warning Updated,Lymphoma,Postmarket hepatosplenic T-cell lymphoma reports; Boxed Warning updated Oct 2006,case
+Cimzia,certolizumab pegol,TNF-alpha Inhibitor,2008,,2009-10-07,Boxed Warning Updated,Tuberculosis,TB risk warning updated based on class data + early postmarket reports Oct 2009,case
+Fosamax,alendronate,Bisphosphonate,1995,,2005-11-12,Warning Added,Osteonecrosis of jaw,Postmarket dental literature case series; FDA notified HCPs Nov 2005,case
+Actonel,risedronate,Bisphosphonate,2000,,2005-11-12,Warning Added,Osteonecrosis of jaw,Class-wide bisphosphonate ONJ warning Nov 2005,case
+Boniva,ibandronate,Bisphosphonate,2003,,2007-05-09,Warning Added,Osteonecrosis of jaw,ONJ warning added to label based on accumulating postmarket evidence May 2007,case
+Reclast,zoledronic acid,Bisphosphonate,2007,,2009-09-01,Warning Added,Osteonecrosis of jaw,ONJ warning based on class-wide bisphosphonate signal Sep 2009,case
+Xarelto,rivaroxaban,Factor Xa Inhibitor,2011,,2013-11-04,Warning Updated,Gastrointestinal haemorrhage,Postmarket bleeding signal in real-world use; warning updated Nov 2013,case
+Eliquis,apixaban,Factor Xa Inhibitor,2012,,2014-03-14,Warning Updated,Gastrointestinal haemorrhage,Postmarket GI bleeding reports; warning strengthened Mar 2014,case
+Ambien,zolpidem,Nonbenzodiazepine Z-drug,1992,,2019-04-30,Boxed Warning Added,Somnambulism,FDA required Boxed Warning for complex sleep behaviors (sleepwalking/sleep-driving) April 2019,case
+Lunesta,eszopiclone,Nonbenzodiazepine Z-drug,2004,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide sedative-hypnotic Boxed Warning for complex sleep behaviors April 2019,case
+Sonata,zaleplon,Nonbenzodiazepine Z-drug,1999,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning + contraindication for complex sleep behaviors April 2019,case
+Intermezzo,zolpidem sublingual,Nonbenzodiazepine Z-drug,2011,,2019-04-30,Boxed Warning Added,Somnambulism,Class-wide Z-drug Boxed Warning for complex sleep behaviors April 2019,case
+Xeljanz,tofacitinib,JAK Inhibitor,2012,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,"ORAL Surveillance RCT; FDA DSC 2021-09-01 required boxed warning for MACE, malignancy, thrombosis and death",case
+Olumiant,baricitinib,JAK Inhibitor,2018,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,Class-wide action extrapolated from tofacitinib ORAL Surveillance; no dedicated RCT for baricitinib,case
+Rinvoq,upadacitinib,JAK Inhibitor,2019,,2021-09-01,Boxed Warning Expanded,Myocardial infarction,Class-wide action extrapolated from tofacitinib ORAL Surveillance; no dedicated RCT for upadacitinib,case
+Yescarta,axicabtagene ciloleucel,CAR-T Cell Therapy,2017,,2024-04-19,Boxed Warning Added,T-cell lymphoma,FDA letters to sponsors 2024-01-19; class-wide boxed warning for secondary T-cell malignancy required 2024-04-19,case
+Kymriah,tisagenlecleucel,CAR-T Cell Therapy,2017,,2024-04-19,Boxed Warning Added,T-cell lymphoma,Largest case count (n=7) among CAR-T products in FDA review; class-wide boxed warning 2024-04-19,case
+Breyanzi,lisocabtagene maraleucel,CAR-T Cell Therapy,2021,,2024-04-19,Boxed Warning Added,T-cell lymphoma,Class-wide boxed warning for secondary T-cell malignancy required 2024-04-19,case
+Abecma,idecabtagene vicleucel,CAR-T Cell Therapy,2021,,2024-04-19,Boxed Warning Added,T-cell lymphoma,BCMA-directed; class-wide boxed warning for secondary T-cell malignancy required 2024-04-19,case
+Lescol,fluvastatin,HMG-CoA Reductase Inhibitor,1993,,,,Diabetes mellitus,Same-class control: no FDA labelling action for new-onset diabetes. Marketed for the full 2004-2014 case window.,control
+Livalo,pitavastatin,HMG-CoA Reductase Inhibitor,2009,,,,Diabetes mellitus,"Same-class control: no diabetes labelling action. Approved 2009, so covers ~5 of the 10-year case window.",control
+Dexilant,dexlansoprazole,Proton Pump Inhibitor,2009,,,,Clostridium difficile colitis,"Same-class control: no C. difficile labelling action specific to this product. Approved 2009, ~5 of 10 years.",control
+Aciphex,rabeprazole,Proton Pump Inhibitor,1999,,,,Clostridium difficile colitis,Same-class control: no C. difficile labelling action. Marketed for the full case window.,control
+Geodon,ziprasidone,Atypical Antipsychotic,2001,,,,Increased mortality in elderly dementia patients,Same-class control: covered by the 2005 class warning but no product-specific action in the case window.,control
+Tecartus,brexucabtagene autoleucel,CAR-T Cell Therapy,2020,,,,T-cell lymphoma,"Same-class control. NOTE: zero FAERS reports for this drug-event pair, so no PRR is computable - a true negative, contributing no statistic.",control
+Zetia,ezetimibe,Cholesterol Absorption Inhibitor,2002,,,,Rhabdomyolysis,"Era-matched control: lipid-lowering, different mechanism, no rhabdomyolysis labelling action.",control
+Belsomra,suvorexant,Orexin Receptor Antagonist,2014,,,,Somnambulism,"Era-matched control: hypnotic, non-GABA mechanism, no somnambulism boxed warning (the 2019 action named the Z-drugs only).",control
+Simponi,golimumab,TNF-alpha Inhibitor,2009,,,,Tuberculosis,"THIN EXPOSURE: approved 2009, only ~2 of the 7-year case window. Absence of signal may reflect exposure time, not safety.",control
+Savaysa,edoxaban,Factor Xa Inhibitor,2015,,,,Gastrointestinal haemorrhage,"THIN EXPOSURE: approved 2015, only ~1 of the 3-year case window. Interpret a null result with caution.",control
+Carvykti,ciltacabtagene autoleucel,CAR-T Cell Therapy,2022,,,,T-cell lymphoma,"THIN EXPOSURE: approved 2022, ~3 of the 7-year case window.",control
+Stelara,ustekinumab,IL-12/23 Inhibitor,2009,,,,Tuberculosis,"THIN EXPOSURE: approved 2009, ~2 of the 7-year case window. Era-matched biologic, different mechanism.",control
