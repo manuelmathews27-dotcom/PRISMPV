@@ -402,6 +402,40 @@ Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric
 - **Common pharmacological effects** (nausea, headache, dizziness) — rarely trigger regulatory action
 - **Reproductive/teratogenic outcomes** (teratogenicity, foetal death, congenital anomaly, spontaneous abortion) — poorly suited to FAERS-based detection due to REMS-suppressed exposure, pregnancy registry surveillance, and fragmented MedDRA coding
 
+### Correction: the base cytopenias were missing (2026-09-06)
+
+The "serious, unexpected, life-threatening" criterion was applied in a way that
+kept the *severe variants* of the haematological terms while dropping the base
+terms they derive from:
+
+| Was listed | Reports | Was missing | Reports |
+|------------|---------|-------------|---------|
+| aplastic anaemia | 5,234 | **anaemia** | 188,339 |
+| febrile neutropenia | 65,353 | **neutropenia** | 133,700 |
+| pancytopenia | 55,112 | **thrombocytopenia** | 110,048 |
+| agranulocytosis | 18,250 | **leukopenia** | 49,236 |
+
+That reasoning holds for older small-molecule drugs, where an isolated cytopenia
+is often incidental. It breaks down for oncology, haematology and JAK products,
+where the cytopenias **are** the dose-limiting toxicities and the reason the labels
+carry monitoring requirements. Ruxolitinib is the clearest case: thrombocytopenia
+is its defining risk and drives platelet-count-based dosing, and it could not be
+selected in the dropdown at all.
+
+The four base terms are now included (116 total). Ordering mattered — they could
+only be added safely *after* the move to exact-field matching. Under the previous
+substring matching, `anaemia` would have silently absorbed `aplastic anaemia` and
+`neutropenia` would have absorbed `febrile neutropenia`, so two separate dropdown
+entries would have returned overlapping counts.
+
+**Worked example.** `JAKAFI` + `thrombocytopenia`, 2023 Q3 – 2025 Q4:
+CONFIRMED, signal in 10 of 10 quarters, PRR 3.57 (95% CI 2.47–5.17), ROR 3.62
+(95% CI 2.48–5.28), 309 reports. PRR and ROR agree to within 1.4%, as expected for
+an event that is ~0.6% of all FAERS reports. One quarter stands out — 2024 Q4 at
+PRR 7.04 with 58 reports and χ² 286, roughly double the surrounding quarters. A
+single-quarter spike in spontaneous reporting usually reflects a reporting event
+rather than a change in underlying risk.
+
 ---
 
 ## openFDA API key and caching
