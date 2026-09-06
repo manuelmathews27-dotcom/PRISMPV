@@ -40,17 +40,26 @@ cat("\n-- schema --\n")
 need <- c("drug_name", "generic_name", "pt_term", "window_start", "window_end",
           "source_class", "rationale", "status")
 missing_cols <- setdiff(need, names(nc))
-if (length(missing_cols)) fail("missing column(s): %s", paste(missing_cols, collapse = ", "))
-else ok("all %d required columns present", length(need))
+if (length(missing_cols)) {
+  fail("missing column(s): %s", paste(missing_cols, collapse = ", "))
+} else {
+  ok("all %d required columns present", length(need))
+}
 
 blank <- which(!nzchar(trimws(nc$rationale)))
-if (length(blank)) fail("%d row(s) have no rationale: %s", length(blank),
-                        paste(nc$drug_name[blank], collapse = ", "))
-else ok("every pair carries a curation rationale")
+if (length(blank)) {
+  fail("%d row(s) have no rationale: %s", length(blank),
+       paste(nc$drug_name[blank], collapse = ", "))
+} else {
+  ok("every pair carries a curation rationale")
+}
 
 bad_status <- setdiff(unique(nc$status), c("negative_control", "excluded_confounded"))
-if (length(bad_status)) fail("unrecognised status value(s): %s", paste(bad_status, collapse = ", "))
-else ok("status values are all recognised")
+if (length(bad_status)) {
+  fail("unrecognised status value(s): %s", paste(bad_status, collapse = ", "))
+} else {
+  ok("status values are all recognised")
+}
 
 # ── 2. No negative control may share its own class's labelled event ──────────
 # This is the check that makes the arm valid. See the header note.
@@ -80,20 +89,27 @@ cat("\n-- promiscuous events barred as controls --\n")
 barred <- c("death", "myocardial infarction", "gastrointestinal haemorrhage",
             "rhabdomyolysis", "diabetes mellitus", "lymphoma")
 hit <- which(tolower(trimws(nc$pt_term)) %in% barred)
-if (length(hit)) fail("barred control event(s) used: %s",
-                      paste(unique(nc$pt_term[hit]), collapse = ", "))
-else ok("none of the %d barred events appear as a control event", length(barred))
+if (length(hit)) {
+  fail("barred control event(s) used: %s", paste(unique(nc$pt_term[hit]), collapse = ", "))
+} else {
+  ok("none of the %d barred events appear as a control event", length(barred))
+}
 
 # ── 4. Keys unique, windows sane ─────────────────────────────────────────────
 cat("\n-- keys and windows --\n")
 k <- paste(toupper(nc$drug_name), tolower(nc$pt_term))
-if (anyDuplicated(k)) fail("duplicate (drug, event) key(s): %s",
-                           paste(unique(k[duplicated(k)]), collapse = ", "))
-else ok("all %d (drug, event) keys are unique", length(k))
+if (anyDuplicated(k)) {
+  fail("duplicate (drug, event) key(s): %s", paste(unique(k[duplicated(k)]), collapse = ", "))
+} else {
+  ok("all %d (drug, event) keys are unique", length(k))
+}
 
 bad_win <- which(!(nc$window_start <= nc$window_end))
-if (length(bad_win)) fail("%d row(s) have window_start > window_end", length(bad_win))
-else ok("every window runs forwards")
+if (length(bad_win)) {
+  fail("%d row(s) have window_start > window_end", length(bad_win))
+} else {
+  ok("every window runs forwards")
+}
 
 # ── 5. Enough informative pairs for the interval to mean anything ────────────
 cat("\n-- arm is large enough to be worth reporting --\n")
