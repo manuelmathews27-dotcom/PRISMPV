@@ -208,9 +208,10 @@ behind a single row for the drug selected in the sidebar:
 - Points are filled dark when they meet all signal criteria, pale when not.
 
 Annotation boxes for the signal and label-change dates flip to the left of their
-line past 70% of the query window. Without that, 15 of the 42 drugs clipped the
-box off the right edge — anything with a label change late in its pull window
-(Ambien at 87%, Yescarta at 81%, the PPIs, statins, Z-drugs, Vioxx, Xeljanz).
+line past 70% of the query window. 15 of the 42 drugs have a label change late
+enough in their pull window that a right-hand box would run off the panel — Ambien
+sits at 87% and Yescarta at 81%, along with the PPIs, statins, Z-drugs, Vioxx and
+Xeljanz.
 
 A drug with no computable PRR in any quarter renders an explicit empty state
 rather than erroring. `compute_prr()` returns `NA` for degenerate cells, so the
@@ -348,10 +349,11 @@ side of the threshold.
 
 **Exact matching has a precondition:** every curated term must be a real MedDRA PT.
 A non-PT returns zero rather than an error, which reads in the UI as "no reports"
-and is invisible. Three entries were in that state and were remapped —
-`stroke` → `ischaemic stroke`, `malignant neoplasm` → `neoplasm malignant`,
-`intracranial haemorrhage` → `haemorrhage intracranial`. `tests/test_pt_terms.R`
-now validates all 116 terms against openFDA on every deploy.
+and is invisible. Several plausible-looking terms are not PTs at all: MedDRA
+inverts some word orders (`neoplasm malignant`, `haemorrhage intracranial`) and
+subdivides others (`stroke` exists only as `ischaemic stroke` and `haemorrhagic
+stroke`). `tests/test_pt_terms.R` validates all 116 terms against openFDA on
+every deploy.
 
 ---
 
@@ -715,9 +717,9 @@ prism/
 └── rsconnect/                 # shinyapps.io deployment config
 ```
 
-`app.R` was a single 2,162-line file holding UI, server, the API client, the
-synonym engine and the timeline model. It is now 927 lines of server logic, with
-the rest in `R/`. No behaviour changed in the split.
+`app.R` holds the server logic and the entry point — 927 lines. UI, the openFDA
+client, the synonym engine and the timeline model each live in their own file
+under `R/`.
 
 **Load order is a real constraint, not cosmetic.** Shiny sources `R/`
 alphabetically before `app.R`, so `R/00_utils.R` attaches every package the app
