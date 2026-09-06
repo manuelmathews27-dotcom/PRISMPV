@@ -233,7 +233,24 @@ ui <- page_navbar(
       # wrong encoding for a cross-drug question and unreadably spiky on sparse
       # counts. Height scales with the number of drugs so facets never squash.
       card(
-        card_header("Signal-to-label lag across the cohort"),
+        card_header(
+          "Signal-to-label lag across the cohort",
+          # The disclosure has to sit WITH the chart. It was previously only in
+          # the "How to read this chart" card two cards down, which a reader
+          # scanning the bars never reaches -- and the bars are the claim.
+          tags$div(
+            style = paste0("font-size:0.78rem;font-weight:400;color:#64748b;",
+                           "margin-top:4px;line-height:1.35;"),
+            "Lag is measured from the ", tags$strong("first"), " quarter meeting ",
+            "signal criteria. That rule scores ~40 quarters independently, and the ",
+            tags$span(style = "color:#b45309;font-weight:600;", "negative control arm"),
+            " on the Methods tab measures its specificity at 54%. A spurious early ",
+            "crossing can only move a bar ", tags$strong("longer"),
+            ", never shorter, so these lead times are upper estimates. Requiring the ",
+            "signal to persist (2 of any trailing 6 quarters) halves the cohort ",
+            "median, from 37.2 to 17.0 months."
+          )
+        ),
         # height is set server-side (see cohort_lag_height) so it tracks the
         # number of drugs in view; "auto" lets that value through.
         plotOutput("cohort_lag", height = "auto")
@@ -262,15 +279,6 @@ ui <- page_navbar(
                  " mean FDA acted before FAERS showed anything \u2014 usually because the ",
                  "risk was found in trials or published case series, not spontaneous ",
                  "reports. The dashed orange line is the cohort median."),
-          tags$p(class = "text-muted", style = "font-size:0.82rem;",
-                 tags$strong("Caveat on the lag. "),
-                 "The signal date is the FIRST quarter meeting the criteria. The ",
-                 "negative control arm on the Methods tab measures that rule's ",
-                 "specificity directly, and it is poor \u2014 scoring ~40 quarters ",
-                 "independently gives ~40 chances to cross. Some first-signal ",
-                 "quarters here are therefore noise, which biases the lag ",
-                 tags$em("downward"), " (a spurious early quarter looks like early ",
-                 "detection). The stricter persistence rule is reported alongside it."),
           tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 the evidence ",
                  "behind a single row, for the drug selected in the sidebar:"),
           tags$ul(
