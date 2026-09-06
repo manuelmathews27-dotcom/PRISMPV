@@ -1,6 +1,6 @@
-# cohort_data.R — reference cohort load, class remap, and derived lookups
-# Loads the pipeline artifacts and shapes them for the app: therapeutic-class
-# reconciliation, detection-limitation notes, and the drug -> class lookup.
+# cohort_data.R — reference cohort load and derived lookups
+# Loads the pipeline artifacts and shapes them for the app: detection-limitation
+# notes and the drug -> class lookup.
 # Sourced automatically by Shiny before app.R (all files in R/ are).
 
 # ── Load historical reference data ────────────────────────────────────────────
@@ -8,75 +8,15 @@ if (!file.exists("data/combined.rds") || !file.exists("data/faers_raw.rds"))
   stop("Data files missing. Run run_pipeline.R first to generate data/faers_raw.rds and data/combined.rds")
 combined  <- readRDS("data/combined.rds")
 
-# -- Therapeutic class reclassification (runtime remap) -----------------------
-# The classes baked into combined.rds are therapeutic AREAS, not mechanistic
-# classes. "Antidiabetic" lumped a TZD, an SGLT2 and a DPP-4 inhibitor;
-# "Antithrombotic" mixed two Factor Xa inhibitors with a direct thrombin
-# inhibitor and a P2Y12 antiplatelet. Averaging a signal-to-label lag across
-# unrelated mechanisms makes the class-specific timeline estimate meaningless.
+# Therapeutic classes are mechanistic and come straight from
+# data/label_changes.csv, so combined.rds already carries them.
 #
-# STATUS 2026-08-26: the mechanistic classes are now written into
-# data/label_changes.csv, so a freshly built combined.rds already carries them and
-# this remap is a NO-OP. It is kept deliberately as a safety net, because the .rds
-# in the repo may still predate that CSV edit (the 2026-08-26 refresh rebuilt it
-# from the OLD classes). Once a pipeline run happens after this commit, the
-# reconciliation message below will confirm zero rows were remapped and this whole
-# block can be deleted.
-#
-# Splitting drops some classes below the timeline model's 3-drug minimum; those
-# fall back to the all-drug estimate, which is the correct behaviour -- a
-# prediction from a fabricated class is worse than no class-specific prediction.
-CLASS_REMAP <- setNames(
-  c("HMG-CoA Reductase Inhibitor","HMG-CoA Reductase Inhibitor",
-    "HMG-CoA Reductase Inhibitor","HMG-CoA Reductase Inhibitor",
-    "Proton Pump Inhibitor","Proton Pump Inhibitor",
-    "Proton Pump Inhibitor","Proton Pump Inhibitor",
-    "TNF-alpha Inhibitor","TNF-alpha Inhibitor",
-    "TNF-alpha Inhibitor","TNF-alpha Inhibitor",
-    "Fluoroquinolone","Fluoroquinolone","Fluoroquinolone","Fluoroquinolone",
-    "Bisphosphonate","Bisphosphonate","Bisphosphonate","Bisphosphonate",
-    "Atypical Antipsychotic","Atypical Antipsychotic",
-    "Atypical Antipsychotic","Atypical Antipsychotic",
-    "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
-    "Nonbenzodiazepine Z-drug","Nonbenzodiazepine Z-drug",
-    "COX-2 Selective NSAID","COX-2 Selective NSAID","COX-2 Selective NSAID",
-    "PPAR-gamma Agonist (TZD)","PPAR-gamma Agonist (TZD)",
-    "Factor Xa Inhibitor","Factor Xa Inhibitor",
-    "JAK Inhibitor","JAK Inhibitor","JAK Inhibitor",
-    "CAR-T Cell Therapy","CAR-T Cell Therapy",
-    "CAR-T Cell Therapy","CAR-T Cell Therapy"),
-  c("atorvastatin","rosuvastatin","simvastatin","pravastatin",
-    "omeprazole","esomeprazole","lansoprazole","pantoprazole",
-    "adalimumab","etanercept","infliximab","certolizumab pegol",
-    "ciprofloxacin","levofloxacin","moxifloxacin","ofloxacin",
-    "alendronate","risedronate","ibandronate","zoledronic acid",
-    "aripiprazole","risperidone","quetiapine","olanzapine",
-    "zolpidem","eszopiclone","zaleplon","zolpidem sublingual",
-    "celecoxib","rofecoxib","meloxicam",
-    "pioglitazone","rosiglitazone",
-    "apixaban","rivaroxaban",
-    "tofacitinib","baricitinib","upadacitinib",
-    "axicabtagene ciloleucel","tisagenlecleucel",
-    "lisocabtagene maraleucel","idecabtagene vicleucel")
-)
-local({
-  g   <- tolower(trimws(combined$generic_name))
-  hit <- g %in% names(CLASS_REMAP)
-  if (any(!hit)) message("[PRISM] class remap: no mapping for ",
-                         paste(unique(combined$generic_name[!hit]), collapse = ", "))
-  # Report whether the .rds still disagrees with the CSV, so this block's job is
-  # visible in the log rather than silent. n_stale == 0 means the data is already
-  # correct and the remap can be removed.
-  n_stale <- sum(hit & combined$therapeutic_class != unname(CLASS_REMAP[g]), na.rm = TRUE)
-  if (n_stale > 0) {
-    message("[PRISM] class remap: corrected ", n_stale,
-            " row(s) whose .rds classes predate data/label_changes.csv")
-  } else {
-    message("[PRISM] class remap: no-op (combined.rds already matches the CSV) ",
-            "-- safe to delete CLASS_REMAP")
-  }
-  combined$therapeutic_class[hit] <<- unname(CLASS_REMAP[g[hit]])
-})
+# A 50-line CLASS_REMAP lookup used to re-apply them at runtime, guarding against
+# an .rds built before the CSV was reclassified. It logged "no-op -- safe to
+# delete" on every start once the pipeline had run past that point, which it has.
+# Removed 2026-09-06: the CSV is the single source of truth, and a second copy of
+# the class list that nothing verified was a place for the two to drift apart.
+
 faers_raw <- readRDS("data/faers_raw.rds")
 
 # Load pipeline provenance (graceful fallback if not yet generated)
@@ -110,18 +50,17 @@ detection_notes <- list(
              showing excess mortality in elderly dementia patients. FAERS cannot stratify
              by age or indication, making this risk structurally undetectable via
              disproportionality analysis."
-  ),
-  PPI = list(
-    short = "No FAERS signal (class-wide failure)",
-    long  = "Class-wide detection failure \u2014 no PPI in the cohort generated a FAERS
-             disproportionality signal for C. difficile colitis."
   )
+  # The PPI entry was removed 2026-09-06. It claimed "no PPI in the cohort
+  # generated a FAERS disproportionality signal for C. difficile colitis",
+  # which the switch to .exact PT matching disproved: all four signal, and all
+  # four signalled years before the Feb 2012 label change. The note was shown as
+  # a warning badge on every PPI row, so this was a false statement in the UI.
 )
 
 get_detection_type <- function(tc, ae) {
   if (tc == "Bisphosphonate") "Bisphosphonate"
   else if (tc == "Atypical Antipsychotic" && grepl("mortality|death", ae, ignore.case = TRUE)) "Antipsychotic"
-  else if (tc == "Proton Pump Inhibitor") "PPI"
   else NULL
 }
 
@@ -149,8 +88,8 @@ benchmark_drugs <- combined |> filter(!is.na(lag_months), lag_months > 0)
 # Drug-to-class lookup for matching queried drugs to reference cohort classes
 # Includes cohort drugs + common related drugs users might query
 drug_class_map <- c(
-  # Kept in sync with CLASS_REMAP above -- a live query only gets a class-specific
-  # benchmark if the name it maps to also exists in the reclassified cohort.
+  # A live query only gets a class-specific benchmark if the name it maps to
+  # also exists in data/label_changes.csv with the same class string.
   # PPAR-gamma / SGLT2 / DPP-4 / GLP-1 (cohort: Avandia, Actos | Invokana | Januvia | none)
   "AVANDIA" = "PPAR-gamma Agonist (TZD)", "ACTOS" = "PPAR-gamma Agonist (TZD)",
   "INVOKANA" = "SGLT2 Inhibitor", "JARDIANCE" = "SGLT2 Inhibitor",

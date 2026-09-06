@@ -138,7 +138,7 @@ server <- function(input, output, session) {
         "Signal status", "Current PRR", "PRR 95% CI lower", "PRR 95% CI upper",
         "Current ROR", "ROR 95% CI lower", "ROR 95% CI upper",
         "Total reports (drug + event)", "Quarters meeting criteria",
-        "Months since first signal",
+        "Months since signal began",
         "Interpretation limits"
       ),
       value = c(
@@ -152,8 +152,14 @@ server <- function(input, output, session) {
         paste("Proportional Reporting Ratio (PRR) with Yates-corrected chi-squared,",
               "Rothman 95% CI. Reporting Odds Ratio (ROR) reported alongside as a",
               "cross-check; signal criteria are applied to PRR only."),
-        paste0("PRR >= ", SIGNAL_MIN_PRR, "; chi-squared >= ", SIGNAL_MIN_CHISQ,
-               "; A >= ", SIGNAL_MIN_REPORTS, "; CI lower bound > 1 (Evans criteria)"),
+        paste0("Per quarter: PRR >= ", SIGNAL_MIN_PRR, "; chi-squared >= ",
+               SIGNAL_MIN_CHISQ, "; A >= ", SIGNAL_MIN_REPORTS,
+               "; CI lower bound > 1 (Evans criteria). ",
+               "A signal is declared when ", PERSISTENCE_MIN,
+               " of any trailing ", PERSISTENCE_WINDOW,
+               " quarters meet those criteria; a single isolated quarter is not ",
+               "sufficient. This persistence requirement was set from a negative ",
+               "control arm of drug/event pairs with no plausible association."),
         s$status,
         fmt(s$current_prr), fmt(s$current_prr_lo), fmt(s$current_prr_hi),
         fmt(s$current_ror), fmt(s$current_ror_lo), fmt(s$current_ror_hi),
@@ -1145,13 +1151,13 @@ server <- function(input, output, session) {
     # Version skew guard. The app and the .rds ship in separate commits: code
     # lands as soon as it is written, data only after the ~40-minute pipeline
     # run. A build in that window has dual-rule code reading a single-rule
-    # artifact, where the Rule B fields are simply absent -- and sprintf() on
-    # NULL errors, taking the whole Methods tab down. Degrade to Rule A instead.
+    # artifact, where the persistence fields are simply absent -- and sprintf()
+    # on NULL errors, taking the whole Methods tab down. Degrade gracefully.
     has_ruleB <- !is.null(s$specificity_persistent)
-    # Two rules, same pairs, same data. Rule A is what the signal-to-label lag is
-    # anchored on; Rule B is the persistence rule the Monitor tab already uses for
-    # CONFIRMED. Showing them together is the point of the arm -- the gap between
-    # them is the cost of scoring a ten-year series one quarter at a time.
+    # Two rules, same pairs, same data. PRISM uses the persistence rule
+    # everywhere; the any-quarter rule is shown only as the rejected alternative,
+    # because a threshold is defensible only if you can say what the other option
+    # would have cost. The gap between them is that cost.
     ruleblock <- function(title, note, n_fp, spec, hi, accent) {
       div(
         style = "flex:1 1 320px;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;background:#f8fafc;",

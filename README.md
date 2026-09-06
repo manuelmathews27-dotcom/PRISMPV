@@ -123,11 +123,13 @@ This requires every curated term to be a real MedDRA PT, since a non-PT returns 
 rather than an error. MedDRA inverts some word orders (`neoplasm malignant`,
 `haemorrhage intracranial`) and subdivides others (`stroke` exists only as
 `ischaemic stroke` and `haemorrhagic stroke`). `tests/test_pt_terms.R` validates all
-116 terms against openFDA on every deploy.
+127 terms against openFDA on every deploy.
 
 ### Signal criteria (Evans + Rothman)
 
-A signal is flagged when **all four** criteria are met in a given quarter:
+Detection has **two layers**, and both must be satisfied.
+
+**Layer 1 — per quarter.** A quarter crosses when all four are met:
 
 | Criterion | Threshold | Rationale |
 |-----------|-----------|-----------|
@@ -136,18 +138,24 @@ A signal is flagged when **all four** criteria are met in a given quarter:
 | 95% CI lower bound | > 1.0 | Statistical significance |
 | chi-squared | ≥ 4.0 | Independence test |
 
+**Layer 2 — persistence.** A *signal* requires **2 crossings within any trailing 6 quarters**. One isolated crossing is not a signal.
+
+The second layer is not decoration. A ten-year series is ~40 quarters, so accepting any single crossing gives ~40 chances to cross; the [negative control arm](#negative-control-arm-specificity) measured that rule firing on 17 of 37 pairs with no plausible association, against 10 of 37 under persistence. One rule governs the whole app — live status, signal duration, and cohort lag — implemented once as `first_persistent_index()` in `R/00_utils.R`.
+
 ### Signal classification
 
-Based on the most recent 6 quarters:
+Applying layer 2 to the most recent 6 quarters:
 
-- **CONFIRMED** — signal met in 2 or more of the last 6 quarters
-- **EMERGING** — signal met in exactly 1 of the last 6 quarters
-- **NOT DETECTED** — signal not met in any of the last 6 quarters
+- **CONFIRMED** — 2 or more of the last 6 quarters crossed (meets the signal rule)
+- **EMERGING** — exactly 1 of the last 6 crossed (below the signal rule; a watch state, not a signal)
+- **NOT DETECTED** — no crossings in the last 6 quarters
 - **INSUFFICIENT DATA** — fewer than 10 total reports across all queried quarters, or no single quarter with ≥ 3 reports; PRR is not reliable at this sample size
 
 ### Signal duration metrics
 
-**Signal Duration** is months since the signal was first detected in any quarter;
+**Signal Duration** is months since the signal began — the first quarter meeting
+criteria in 2 of any trailing 6 quarters, the same rule used for the status above
+and for the cohort lag;
 **Current Streak** is consecutive signalling quarters ending at the most recent one.
 A long duration with no current streak indicates a fading signal; a short duration
 with a long streak, a newly emerging but consistent one.
@@ -164,16 +172,13 @@ This is the negative control outcomes approach used by OHDSI/OMOP (Ryan et al. 2
 
 **Curation rules.** A pair qualifies only if the drug has no mechanistic route to the event and the event is absent from its label. Events that are pharmacologically promiscuous — death, myocardial infarction, GI haemorrhage, rhabdomyolysis, diabetes mellitus — are excluded as control events entirely, because too many drugs have a defensible route to them. The eight events used are ones with mechanism-specific causes: osteonecrosis of jaw, tendon rupture, bladder cancer, pathological gambling, somnambulism, tuberculosis, T-cell lymphoma, and *C. difficile* colitis.
 
-**Scoring — two rules, reported side by side.** Pairs with fewer than 3 reports across the whole window are excluded from the rate: the n ≥ 3 criterion means they could never have signalled, and counting them as passes would inflate specificity. The remainder are scored twice:
+**Scoring.** Pairs with fewer than 3 reports across the whole window are excluded from the rate: the n ≥ 3 criterion means they could never have signalled, and counting them as passes would inflate specificity.
 
-| | Rule | Used by |
-|---|---|---|
-| **A** | any single quarter meets all four criteria | the signal-to-label lag |
-| **B** | 2 of any trailing 6 quarters | the Monitor tab's CONFIRMED label |
+The remainder are scored under the rule PRISM actually uses — **2 crossings within any trailing 6 quarters** — and, for comparison, under the looser alternative of accepting any single crossing. The second column exists because a threshold is only defensible if you can say what the alternative would have cost.
 
-Same pairs, same counts, same thresholds — only the rule for collapsing ~40 quarterly verdicts into one signal differs. That difference is not cosmetic. Scoring each quarter independently gives ~40 chances to cross; at a nominal 5% per-quarter error rate the chance of at least one false crossing is 1 − 0.95⁴⁰ ≈ **87%**. Rule A was always going to behave this way — the arm is what made it measurable.
+Same pairs, same counts, same criteria; only the rule for collapsing ~40 quarterly verdicts into one signal differs. That difference is not cosmetic. Scoring each quarter independently gives ~40 chances to cross; at a nominal 5% per-quarter error rate the chance of at least one false crossing is 1 − 0.95⁴⁰ ≈ **87%**. The looser rule was always going to behave this way — the arm is what made it measurable, and why it was rejected.
 
-`first_persistent_index()` in `R/00_utils.R` implements Rule B and is covered by `tests/test_prr_formula.R`, including a property test asserting Rule B is strictly stricter than Rule A.
+`first_persistent_index()` in `R/00_utils.R` implements the persistence rule and is covered by `tests/test_prr_formula.R`, including a property test asserting it is strictly stricter than the any-crossing alternative.
 
 **Two kinds of failure.** They need separating. A pair firing in a *single* quarter out of forty is multiplicity, exactly as the arithmetic predicts. A pair firing in ten or more is not noise — esomeprazole and osteonecrosis of jaw fires across 15 quarters at PRR 34, because PPIs and bisphosphonates reach the same elderly and oncology populations. That is channelling, it is real disproportionality, and no threshold removes it. It is the concrete reason disproportionality output needs clinical review before it means anything.
 
@@ -194,7 +199,7 @@ All four openFDA API calls per quarter are fired **in parallel** using `curl`'s 
 After the query completes, results are displayed as:
 - Signal status value box with CONFIRMED / EMERGING / NOT DETECTED / INSUFFICIENT DATA
 - Current PRR with 95% CI
-- Signal duration (months since first signal) and current streak (consecutive signal quarters)
+- Signal duration (months since the signal began, persistence rule) and current streak (consecutive signal quarters)
 - PRR trend chart with signal threshold line
 - Regulatory Context panel (cohort benchmark, BBW check, label coverage check)
 - Raw Quarterly Data table (collapsible)
@@ -258,7 +263,7 @@ query has run. It produces a timestamped CSV containing:
 |-------|----------|
 | Provenance | Generation time (UTC), drug queried, the canonical ingredient it resolved to, MedDRA PT, data source, query window, quarters analysed |
 | Method | Named method and the thresholds, read from the live constants rather than retyped |
-| Result | Signal status, current PRR and ROR with 95% CIs, total reports, quarters meeting criteria, months since first signal |
+| Result | Signal status, current PRR and ROR with 95% CIs, total reports, quarters meeting criteria, months since the signal began |
 | Limits | A stated interpretation caveat — no denominator, reporting and notoriety bias, no stratification by indication or age |
 | Quarterly data | Every quarter's four counts, PRR, ROR, chi-squared and pass/fail |
 
@@ -355,7 +360,7 @@ Both maps are applied by `expand_ae_terms()`, which also extracts meaningful ind
 
 ## Adverse event term selection
 
-The Monitor tab provides a curated dropdown of 116 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
+The Monitor tab provides a curated dropdown of 127 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
 
 Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric, Respiratory, Gastrointestinal, Musculoskeletal, Skin, Endocrine/Metabolic, Haematological, Immune/Allergic, Infectious, Oncology, Ocular, General.
 
@@ -478,7 +483,7 @@ Rscript tests/test_pt_terms.R            # every curated term is a real MedDRA P
 ```
 
 The first three are pure and offline. `test_pt_terms.R` needs network — it asks
-openFDA whether each of the 116 curated terms resolves under exact-field matching
+openFDA whether each of the 127 curated terms resolves under exact-field matching
 — and runs in CI only. It skips itself cleanly (exit 0) when openFDA is
 unreachable, so it can never redden a deploy for an unrelated reason.
 
@@ -645,10 +650,10 @@ bundled — the user-facing export is the
 
 ```
 prism/
-├── app.R                  # Server logic + shinyApp() entry point (927 lines)
+├── app.R                  # Server logic + shinyApp() entry point (1,244 lines)
 ├── R/                     # Auto-sourced by Shiny in name order, BEFORE app.R
 │   ├── 00_utils.R         # Packages, openFDA client, PRR/ROR maths, caching
-│   ├── 10_cohort_data.R   # Cohort load, class remap, lookups
+│   ├── 10_cohort_data.R   # Cohort load, negative controls, lookups
 │   ├── 20_pt_terms.R      # Curated MedDRA Preferred Terms
 │   ├── 30_signal_query.R  # Live query path, BBW + label coverage, synonyms
 │   ├── 40_timeline.R      # Regulatory timeline + cohort lag chart
@@ -753,27 +758,31 @@ a 9.3-year signal-to-label lag.
 **No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
 Intermezzo is marginal at one quarter.
 
-### Signal-to-label lag depends heavily on the rule
+### Signal-to-label lag
 
-Median lag across the cohort is **37.2 months** (36 of 42 drugs) when a signal is
-declared at the first quarter meeting the criteria. Requiring persistence — 2 of
-any trailing 6 quarters — the median falls to **17.0 months** (33 of 42 drugs).
+Median lag across the cohort is **17.0 months**, with a signal detected for 33 of
+42 drugs. A signal begins at the first quarter where criteria were met in 2 of any
+trailing 6 quarters — the same rule that marks a live query CONFIRMED, so one
+definition governs the whole app.
 
-The gap is not a detail. Over half the apparent early-warning margin comes from
-isolated single-quarter crossings, and the [negative control
-arm](#negative-control-arm-specificity) measures how often that rule fires on
-pairs with no plausible association: **17 of 37**. Under the persistence rule
-that drops to **10 of 37**, and every single-quarter false positive disappears —
+An earlier version accepted a single isolated crossing and reported 37.2 months
+across 36 drugs. That rule was dropped once the [negative control
+arm](#negative-control-arm-specificity) measured it: it fires on **17 of 37** pairs
+with no plausible association, against **10 of 37** under persistence. Every
+single-quarter false positive disappeared under the stricter rule —
 Ambien/bladder cancer, Ambien/tendon rupture, Celebrex/bladder cancer,
-Cipro/gambling, Fosamax/bladder cancer, Protonix/tendon rupture. That is textbook
-multiplicity: ~40 quarters is ~40 chances to cross.
+Cipro/gambling, Fosamax/bladder cancer, Protonix/tendon rupture — which is
+textbook multiplicity: ~40 quarters is ~40 chances to cross.
 
-The 17.0-month figure is the more defensible one, and it is still a real lead
-time. The 37.2-month figure is reported alongside it rather than dropped, because
-the difference between them is the finding.
+Since a spurious early crossing can only move a lag longer, never shorter, the
+37.2-month figure was an overestimate by roughly a factor of two. It is retained
+in `combined.rds` as `lag_months_first_crossing` and printed by the pipeline for
+comparison, but nothing in the app reads it. The Methods tab shows the
+specificity comparison that drove the decision, not the two lag figures.
 
-| | Any-quarter rule | Persistence rule |
+| | Rejected rule | **Rule in use** |
 |---|---|---|
+| Definition | any single crossing | 2 of any trailing 6 quarters |
 | Median lag | 37.2 months | **17.0 months** |
 | Drugs with a signal | 36 / 42 | 33 / 42 |
 | Specificity (negative controls) | 54.1% | **73.0%** |

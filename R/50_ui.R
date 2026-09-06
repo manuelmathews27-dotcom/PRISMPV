@@ -457,7 +457,7 @@ ui <- page_navbar(
           tags$h6(class = "mt-3 fw-semibold", "Signal duration metrics"),
           p("The Monitor tab reports two complementary duration measures:"),
           tags$ul(
-            tags$li(tags$strong("Signal Duration"), " \u2014 months since the signal was first detected in any quarter. Used for regulatory timeline comparison against historical lag data."),
+            tags$li(tags$strong("Signal Duration"), " \u2014 months since the signal began, where a signal begins at the first quarter meeting criteria in 2 of any trailing 6 quarters. Same rule as the status above and as the cohort lag, so the three are directly comparable."),
             tags$li(tags$strong("Current Streak"), " \u2014 consecutive quarters where signal criteria are currently met. Indicates signal persistence and stability.")
           ),
           p(class = "text-muted", "A long duration with a short streak may indicate an intermittent signal. A short duration with a long streak suggests a newly emerging but consistent signal.")
