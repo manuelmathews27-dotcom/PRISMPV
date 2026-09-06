@@ -516,8 +516,13 @@ Pulls quarterly FAERS counts for each cohort drug-AE pair — four API calls per
 drug/AE/quarter (`count_a` drug+event, `count_b` drug, `count_c` event, `count_d`
 all reports), with a 0.25s delay to stay inside openFDA's rate limit. Bounded retry
 with backoff on 429/5xx, and a completeness gate that refuses to save if any count
-is missing. Outputs `data/faers_raw.rds` and `data/provenance.rds`. Runtime ~45–60
-minutes for 42 drugs.
+is missing. Outputs `data/faers_raw.rds` and `data/provenance.rds`.
+
+It then pulls the negative control pairs listed in `data/negative_controls.csv`
+into `data/faers_negative_controls.rds`, under the same completeness gate. The
+pairs are read from the CSV rather than hardcoded, so the curation rationale and
+the query list cannot drift apart. Runtime ~45–60 minutes for the 42 cohort drugs,
+plus roughly the same again for the 43 control pairs.
 
 ### 02_signal_detection.R
 
@@ -525,6 +530,16 @@ Computes PRR, ROR and chi-squared via `compute_prr()`, flags each quarter with
 `check_signal()`, finds each pair's first signalling quarter, and joins
 `data/label_changes.csv` to derive `lag_days` / `lag_months` / `lag_years` and
 `signal_detected_before_change`. Outputs `data/combined.rds`.
+
+It then applies the identical detection rule to the negative control pairs and
+writes `data/negative_controls.rds`: per-pair results plus the specificity
+summary (informative pairs, false positives, and a Clopper–Pearson upper bound on
+the false-positive rate). Negative controls are kept in a **separate** artifact
+rather than added to `combined`, because `first_signals` is grouped by
+`(drug, pt)` while the label join is on `drug` alone — a second event for a
+cohort drug would fan out every row for that drug. The join back to the curation
+CSV is asserted, so a key mismatch stops the pipeline instead of silently
+shrinking the denominator.
 
 ### Data freshness
 
@@ -631,9 +646,11 @@ prism/
 │   ├── 01_faers_pull.R    # Pull FAERS counts from openFDA
 │   ├── 02_signal_detection.R
 │   └── refresh_cohort.sh  # Quarterly refresh (installed as prism-refresh)
-├── tests/                 # test_prr_formula.R, test_resolve_token.R, test_pt_terms.R
+├── tests/                 # test_prr_formula.R, test_resolve_token.R,
+│                          # test_negative_controls.R, test_pt_terms.R
 ├── .github/workflows/deploy.yml
-├── data/                  # label_changes.csv (curated) + pipeline .rds output
+├── data/                  # label_changes.csv + negative_controls.csv (curated)
+│                          # + pipeline .rds output
 │                          # + audit_log.csv (ICH E2E / GVP IX trail)
 ├── deploy/caddy/          # Live Caddy block, pulled from the VPS by auto-sync
 ├── run_pipeline.R         # Test gate + pipeline scripts in order
