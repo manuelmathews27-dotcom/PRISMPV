@@ -37,6 +37,34 @@ jobs:
         run: |
           Rscript -e 'install.packages(c("rsconnect", "curl", "jsonlite", "dplyr", "lubridate", "ggplot2", "ggrepel", "shiny", "bslib", "DT"), repos = "https://cloud.r-project.org")'
 
+      - name: Parse every R file (catch syntax errors before deploy)
+        run: |
+          # WHY THIS EXISTS: on 2026-09-04 a syntax/load-order fault in R/50_ui.R
+          # reached shinyapps.io and the app served HTTP 500 for ~13 minutes. The
+          # R regression tests below did NOT catch it -- they only source
+          # R/00_utils.R and R/20_pt_terms.R -- and the smoke test only fires
+          # AFTER the bad bundle is already live. parse() reads and checks syntax
+          # without executing, so it is safe to run over app.R and the UI module.
+          set -e
+          Rscript -e '
+            files <- c("app.R", "run_pipeline.R",
+                       list.files("R",       "[.]R$", full.names = TRUE),
+                       list.files("scripts", "[.]R$", full.names = TRUE),
+                       list.files("tests",   "[.]R$", full.names = TRUE))
+            files <- files[file.exists(files)]
+            bad <- character(0)
+            for (f in files) {
+              ok <- tryCatch({ parse(f); TRUE },
+                             error = function(e) {
+                               cat(sprintf("  PARSE FAIL: %s\n    %s\n", f, conditionMessage(e)))
+                               FALSE
+                             })
+              if (!ok) bad <- c(bad, f)
+            }
+            cat(sprintf("parsed %d R files, %d failed\n", length(files), length(bad)))
+            if (length(bad)) quit(status = 1L)
+          '
+
       - name: Run R regression tests (gate the deploy)
         env:
           OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
