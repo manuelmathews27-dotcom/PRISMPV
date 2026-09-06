@@ -44,13 +44,7 @@ CLASS_REMAP <- setNames(
     "Factor Xa Inhibitor","Factor Xa Inhibitor",
     "JAK Inhibitor","JAK Inhibitor","JAK Inhibitor",
     "CAR-T Cell Therapy","CAR-T Cell Therapy",
-    "CAR-T Cell Therapy","CAR-T Cell Therapy",
-    # control arm
-    "HMG-CoA Reductase Inhibitor","HMG-CoA Reductase Inhibitor",
-    "Proton Pump Inhibitor","Proton Pump Inhibitor",
-    "Atypical Antipsychotic","CAR-T Cell Therapy","CAR-T Cell Therapy",
-    "Cholesterol Absorption Inhibitor","Orexin Receptor Antagonist",
-    "TNF-alpha Inhibitor","Factor Xa Inhibitor","IL-12/23 Inhibitor"),
+    "CAR-T Cell Therapy","CAR-T Cell Therapy"),
   c("atorvastatin","rosuvastatin","simvastatin","pravastatin",
     "omeprazole","esomeprazole","lansoprazole","pantoprazole",
     "adalimumab","etanercept","infliximab","certolizumab pegol",
@@ -63,12 +57,7 @@ CLASS_REMAP <- setNames(
     "apixaban","rivaroxaban",
     "tofacitinib","baricitinib","upadacitinib",
     "axicabtagene ciloleucel","tisagenlecleucel",
-    "lisocabtagene maraleucel","idecabtagene vicleucel",
-    "fluvastatin","pitavastatin",
-    "dexlansoprazole","rabeprazole",
-    "ziprasidone","brexucabtagene autoleucel","ciltacabtagene autoleucel",
-    "ezetimibe","suvorexant",
-    "golimumab","edoxaban","ustekinumab")
+    "lisocabtagene maraleucel","idecabtagene vicleucel")
 )
 local({
   g   <- tolower(trimws(combined$generic_name))
