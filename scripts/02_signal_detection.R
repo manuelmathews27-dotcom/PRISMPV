@@ -207,14 +207,14 @@ if (file.exists("data/faers_negative_controls.rds")) {
       n_informative  = n_prim,
       n_uninformative = sum(neg_pairs$status == "negative_control" & !neg_pairs$informative),
       n_excluded     = nrow(excluded),
-      # Rule A -- any single quarter crosses. This is the rule the
-      # signal-to-label lag is anchored on.
+      # REJECTED rule -- any single quarter crosses. Retained only so the
+      # Methods tab can show what the looser alternative would have cost.
       n_false_pos    = n_fp,
       fp_rate        = if (n_prim > 0) n_fp / n_prim else NA_real_,
       fp_rate_hi95   = fp_hi,
       specificity    = if (n_prim > 0) 1 - n_fp / n_prim else NA_real_,
-      # Rule B -- persistence: 2 of any trailing 6 quarters. Same rule the
-      # Monitor tab uses for CONFIRMED.
+      # RULE IN USE -- persistence: 2 of any trailing 6 quarters. Governs the
+      # live status, the signal duration, and the cohort lag.
       n_false_pos_persistent  = n_fp_p,
       fp_rate_persistent      = if (n_prim > 0) n_fp_p / n_prim else NA_real_,
       fp_rate_hi95_persistent = fp_hi_p,
@@ -231,22 +231,22 @@ if (file.exists("data/faers_negative_controls.rds")) {
   cat(sprintf("  Excluded (confounded)  : %d\n", s$n_excluded))
   cat(sprintf("  Too sparse to test     : %d\n", s$n_uninformative))
   cat(sprintf("  Informative pairs      : %d\n", s$n_informative))
-  cat(sprintf("  -- Rule A: any single quarter crosses (the lag rule) --\n"))
+  cat(sprintf("  -- rejected: any single quarter crosses --\n"))
   cat(sprintf("  False positives        : %d\n", s$n_false_pos))
   cat(sprintf("  Specificity            : %.1f%%\n", 100 * s$specificity))
   cat(sprintf("  FP rate 95%% upper bound: %.1f%%\n", 100 * s$fp_rate_hi95))
-  cat(sprintf("  -- Rule B: %d of any trailing %d quarters (CONFIRMED rule) --\n",
+  cat(sprintf("  -- in use: %d of any trailing %d quarters --\n",
               s$persistence_min, s$persistence_window))
   cat(sprintf("  False positives        : %d\n", s$n_false_pos_persistent))
   cat(sprintf("  Specificity            : %.1f%%\n", 100 * s$specificity_persistent))
   cat(sprintf("  FP rate 95%% upper bound: %.1f%%\n", 100 * s$fp_rate_hi95_persistent))
   if (s$n_false_pos > 0) {
-    cat("  Pairs that fired (B = also fires under the persistence rule):\n")
+    cat("  Pairs that fired (* = also fires under the rule in use):\n")
     for (i in which(primary$ever_signalled))
       cat(sprintf("    %-10s %-30s maxPRR=%6.2f  quarters=%2d/%2d  %s\n",
                   primary$drug[i], primary$pt[i], primary$max_PRR[i],
                   primary$signal_quarters[i], primary$n_quarters[i],
-                  if (primary$ever_signalled_persistent[i]) "B" else "-"))
+                  if (primary$ever_signalled_persistent[i]) "*" else "-"))
   }
   cat("─────────────────────────────────────────────────────────────\n\n")
 

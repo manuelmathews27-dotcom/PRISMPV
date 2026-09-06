@@ -741,9 +741,9 @@ signal postdates its label change:
 Osteonecrosis of the jaw was identified from dental case series; FAERS reporting
 followed the FDA notification rather than preceding it.
 
-**A negative lag means the label caused the data.** Seroquel's first signal for
-`death` is 2007 Q1 against an April 2005 boxed warning — the cohort's minimum lag
-at −20.8 months. Once a warning is published, clinicians code for the event and
+**A negative lag means the label caused the data.** Seroquel's signal for `death`
+begins 2007 Q2 against an April 2005 boxed warning — the cohort's minimum lag at
+−23.8 months. Once a warning is published, clinicians code for the event and
 reporting rises *because* of the label change. This is notoriety bias, not a
 detection failure.
 
@@ -753,7 +753,7 @@ trials. FAERS cannot stratify by age or indication, so it could not have reached
 that conclusion regardless of what the reporting shows.
 
 **Ambien is the strength outlier** — max PRR 161.4 across 42 signal quarters, with
-a 9.3-year signal-to-label lag.
+a 9.1-year signal-to-label lag, the cohort maximum.
 
 **No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
 Intermezzo is marginal at one quarter.
