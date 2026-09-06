@@ -58,6 +58,21 @@ first_signals <- signals |>
   select(drug, pt, signal_start_quarter = quarter,
          PRR_at_signal = PRR, PRR_lo_at_signal = PRR_lo, PRR_hi_at_signal = PRR_hi)
 
+# Same series, scored under the persistence rule (2 of any trailing 6 quarters).
+# Reported ALONGSIDE the any-quarter lag, never instead of it: the negative
+# control arm shows the any-quarter rule has ~54% specificity, so a lag anchored
+# on a single crossing may be anchored on noise. Keeping both columns lets the
+# app state the lag under each rule and show how much the choice moves it.
+first_signals_persistent <- signals |>
+  arrange(drug, quarter) |>
+  group_by(drug, pt) |>
+  summarise(
+    .idx = first_persistent_index(signal_met),
+    signal_start_quarter_persistent = if (is.na(.idx)) as.Date(NA) else quarter[.idx],
+    .groups = "drop"
+  ) |>
+  select(drug, pt, signal_start_quarter_persistent)
+
 
 # ── Join with label change data ───────────────────────────────────────────────
 label_changes <- read.csv("data/label_changes.csv", stringsAsFactors = FALSE) |>
@@ -66,6 +81,8 @@ label_changes <- read.csv("data/label_changes.csv", stringsAsFactors = FALSE) |>
 combined <- label_changes |>
   mutate(drug_name_upper = toupper(drug_name)) |>
   left_join(first_signals, by = c("drug_name_upper" = "drug")) |>
+  left_join(first_signals_persistent |> select(-pt),
+            by = c("drug_name_upper" = "drug")) |>
   select(-drug_name_upper) |>
   mutate(
     # signal_start_quarter is already a Date (first day of that quarter)
@@ -73,6 +90,11 @@ combined <- label_changes |>
     lag_days   = as.numeric(label_change_date - signal_start_date),
     lag_months = round(lag_days / 30.44, 1),
     lag_years  = round(lag_days / 365.25, 2),
+
+    # Lag under the persistence rule. Later than lag_months whenever the first
+    # crossing was isolated, which is the case the specificity arm flags.
+    lag_days_persistent   = as.numeric(label_change_date - signal_start_quarter_persistent),
+    lag_months_persistent = round(lag_days_persistent / 30.44, 1),
 
     # Did we detect a signal at all before the label change?
     signal_detected_before_change = !is.na(signal_start_date) & signal_start_date <= label_change_date
@@ -88,6 +110,12 @@ cat(sprintf("  Signals detected       : %d\n",   sum(!is.na(combined$signal_star
 cat(sprintf("  Median lag (months)    : %.1f\n", median(combined$lag_months, na.rm = TRUE)))
 cat(sprintf("  Min lag (months)       : %.1f\n", min(combined$lag_months,    na.rm = TRUE)))
 cat(sprintf("  Max lag (months)       : %.1f\n", max(combined$lag_months,    na.rm = TRUE)))
+cat(sprintf("  -- under the persistence rule (%d of any trailing %d quarters) --\n",
+            PERSISTENCE_MIN, PERSISTENCE_WINDOW))
+cat(sprintf("  Signals detected       : %d\n",
+            sum(!is.na(combined$signal_start_quarter_persistent))))
+cat(sprintf("  Median lag (months)    : %.1f\n",
+            median(combined$lag_months_persistent, na.rm = TRUE)))
 cat("─────────────────────────────────────────────────────────────\n\n")
 
 
@@ -111,15 +139,22 @@ if (file.exists("data/faers_negative_controls.rds")) {
     mutate(signal_met = check_signal(count_a, PRR, chi_sq, PRR_lo))
 
   neg_pairs <- neg_signals |>
+    arrange(drug, pt, quarter) |>          # first_persistent_index() needs order
     group_by(drug, pt) |>
     summarise(
       n_reports      = sum(count_a, na.rm = TRUE),
       max_PRR        = suppressWarnings(max(PRR, na.rm = TRUE)),
       signal_quarters = sum(signal_met, na.rm = TRUE),
+      n_quarters     = dplyr::n(),
       first_signal   = if (any(signal_met, na.rm = TRUE))
                          min(quarter[which(signal_met)]) else as.Date(NA),
+      # Same series under the persistence rule, so the two rules are compared on
+      # identical data rather than on separately curated sets.
+      .pidx          = first_persistent_index(signal_met),
+      ever_signalled_persistent = !is.na(.pidx),
       .groups = "drop"
     ) |>
+    select(-.pidx) |>
     mutate(
       max_PRR       = ifelse(is.finite(max_PRR), max_PRR, NA_real_),
       ever_signalled = signal_quarters > 0,
@@ -154,8 +189,11 @@ if (file.exists("data/faers_negative_controls.rds")) {
 
   n_prim <- nrow(primary)
   n_fp   <- sum(primary$ever_signalled)
+  n_fp_p <- sum(primary$ever_signalled_persistent)
   # Exact binomial (Clopper-Pearson) upper bound on the false-positive rate.
-  fp_hi  <- if (n_prim > 0) stats::qbeta(0.975, n_fp + 1, n_prim - n_fp) else NA_real_
+  cp_hi  <- function(k, n) if (n > 0) stats::qbeta(0.975, k + 1, n - k) else NA_real_
+  fp_hi   <- cp_hi(n_fp,   n_prim)
+  fp_hi_p <- cp_hi(n_fp_p, n_prim)
 
   negative_controls <- list(
     pairs    = neg_pairs,
@@ -165,10 +203,20 @@ if (file.exists("data/faers_negative_controls.rds")) {
       n_informative  = n_prim,
       n_uninformative = sum(neg_pairs$status == "negative_control" & !neg_pairs$informative),
       n_excluded     = nrow(excluded),
+      # Rule A -- any single quarter crosses. This is the rule the
+      # signal-to-label lag is anchored on.
       n_false_pos    = n_fp,
       fp_rate        = if (n_prim > 0) n_fp / n_prim else NA_real_,
       fp_rate_hi95   = fp_hi,
-      specificity    = if (n_prim > 0) 1 - n_fp / n_prim else NA_real_
+      specificity    = if (n_prim > 0) 1 - n_fp / n_prim else NA_real_,
+      # Rule B -- persistence: 2 of any trailing 6 quarters. Same rule the
+      # Monitor tab uses for CONFIRMED.
+      n_false_pos_persistent  = n_fp_p,
+      fp_rate_persistent      = if (n_prim > 0) n_fp_p / n_prim else NA_real_,
+      fp_rate_hi95_persistent = fp_hi_p,
+      specificity_persistent  = if (n_prim > 0) 1 - n_fp_p / n_prim else NA_real_,
+      persistence_window = PERSISTENCE_WINDOW,
+      persistence_min    = PERSISTENCE_MIN
     )
   )
   saveRDS(negative_controls, "data/negative_controls.rds")
@@ -179,15 +227,22 @@ if (file.exists("data/faers_negative_controls.rds")) {
   cat(sprintf("  Excluded (confounded)  : %d\n", s$n_excluded))
   cat(sprintf("  Too sparse to test     : %d\n", s$n_uninformative))
   cat(sprintf("  Informative pairs      : %d\n", s$n_informative))
+  cat(sprintf("  -- Rule A: any single quarter crosses (the lag rule) --\n"))
   cat(sprintf("  False positives        : %d\n", s$n_false_pos))
   cat(sprintf("  Specificity            : %.1f%%\n", 100 * s$specificity))
   cat(sprintf("  FP rate 95%% upper bound: %.1f%%\n", 100 * s$fp_rate_hi95))
+  cat(sprintf("  -- Rule B: %d of any trailing %d quarters (CONFIRMED rule) --\n",
+              s$persistence_min, s$persistence_window))
+  cat(sprintf("  False positives        : %d\n", s$n_false_pos_persistent))
+  cat(sprintf("  Specificity            : %.1f%%\n", 100 * s$specificity_persistent))
+  cat(sprintf("  FP rate 95%% upper bound: %.1f%%\n", 100 * s$fp_rate_hi95_persistent))
   if (s$n_false_pos > 0) {
-    cat("  Pairs that fired:\n")
+    cat("  Pairs that fired (B = also fires under the persistence rule):\n")
     for (i in which(primary$ever_signalled))
-      cat(sprintf("    %-10s %-30s maxPRR=%6.2f  quarters=%d\n",
+      cat(sprintf("    %-10s %-30s maxPRR=%6.2f  quarters=%2d/%2d  %s\n",
                   primary$drug[i], primary$pt[i], primary$max_PRR[i],
-                  primary$signal_quarters[i]))
+                  primary$signal_quarters[i], primary$n_quarters[i],
+                  if (primary$ever_signalled_persistent[i]) "B" else "-"))
   }
   cat("─────────────────────────────────────────────────────────────\n\n")
 
