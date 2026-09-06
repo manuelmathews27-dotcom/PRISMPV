@@ -314,7 +314,7 @@ generic name.
 
 Multi-word values are wrapped in `%22`. Without the quotes Lucene splits them:
 `reactionmeddrapt:TENDON PAIN` parses as `reactionmeddrapt:TENDON` OR a free-text
-match on `PAIN`. Single-word terms are unaffected, but roughly 70 of the 112 curated
+match on `PAIN`. Single-word terms are unaffected, but roughly 70 of the 116 curated
 PT terms contain more than one word:
 
 | Term | Unquoted | Exact phrase |
@@ -354,7 +354,7 @@ A non-PT returns zero rather than an error, which reads in the UI as "no reports
 and is invisible. Three entries were in that state and were remapped —
 `stroke` → `ischaemic stroke`, `malignant neoplasm` → `neoplasm malignant`,
 `intracranial haemorrhage` → `haemorrhage intracranial`. `tests/test_pt_terms.R`
-now validates all 112 terms against openFDA on every deploy.
+now validates all 116 terms against openFDA on every deploy.
 
 ---
 
@@ -394,7 +394,7 @@ Both maps are applied by `expand_ae_terms()`, which also extracts meaningful ind
 
 ## Adverse event term selection
 
-The Monitor tab provides a curated dropdown of 112 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
+The Monitor tab provides a curated dropdown of 116 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
 
 Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric, Respiratory, Gastrointestinal, Musculoskeletal, Skin, Endocrine/Metabolic, Haematological, Immune/Allergic, Infectious, Oncology, Ocular, General.
 
@@ -496,7 +496,7 @@ Rscript tests/test_pt_terms.R         # every curated term is a real MedDRA PT
 ```
 
 The first two are pure and offline. `test_pt_terms.R` needs network — it asks
-openFDA whether each of the 112 curated terms resolves under exact-field matching
+openFDA whether each of the 116 curated terms resolves under exact-field matching
 — and runs in CI only. It skips itself cleanly (exit 0) when openFDA is
 unreachable, so it can never redden a deploy for an unrelated reason.
 

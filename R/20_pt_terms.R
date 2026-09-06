@@ -73,6 +73,17 @@ pt_terms <- sort(c(
   "hypoglycaemia", "adrenal insufficiency",
   "diabetes mellitus", "thyroid cancer",
   # ── Haematological ──
+  # The base cytopenias were missing while their severe variants were present —
+  # "aplastic anaemia" (5,234 reports) was listed but "anaemia" (188,339) was not,
+  # "febrile neutropenia" (65,353) but not "neutropenia" (133,700). That gap is
+  # most visible on modern oncology and JAK products, where the cytopenias ARE the
+  # dose-limiting toxicities and the reason labels carry monitoring requirements:
+  # Jakafi's defining risk is thrombocytopenia and it could not be queried at all.
+  # Safe to add only now that matching is exact-field — under the old substring
+  # matching "anaemia" would have silently swallowed "aplastic anaemia" and
+  # "neutropenia" would have swallowed "febrile neutropenia", making two dropdown
+  # entries return overlapping counts.
+  "anaemia", "thrombocytopenia", "neutropenia", "leukopenia",
   "agranulocytosis", "pancytopenia", "aplastic anaemia",
   "thrombotic thrombocytopenic purpura", "haemolytic uraemic syndrome",
   "disseminated intravascular coagulation", "febrile neutropenia",
