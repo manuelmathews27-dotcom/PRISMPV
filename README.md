@@ -326,14 +326,14 @@ PT terms contain more than one word:
 **Matching is exact-field, not substring.** Queries use
 `patient.reaction.reactionmeddrapt.exact`, which matches the whole Preferred Term.
 
-Quoting alone was not enough: a quoted phrase is still a substring match, so a
-short PT silently absorbed every longer one containing it — `thrombosis` swept in
-`deep vein thrombosis`, and `cardiac failure` swept `cardiac failure congestive`.
-Both pairs are separately curated terms, so picking one silently included the other.
+Quoting alone is not enough: a quoted phrase is still a substring match, so a short
+PT absorbs every longer one containing it — `thrombosis` would sweep in `deep vein
+thrombosis`, and `cardiac failure` would sweep `cardiac failure congestive`. Both
+pairs are separately curated terms, so one selection would silently include the other.
 
-This was not inflation that cancels in the ratio. Measured over 2023–2025, PRR
-moved materially **and in both directions**, because a drug's case mix within a PT
-family differs from the population's:
+That inflation does not cancel in the ratio. Measured over 2023–2025, PRR moves
+materially **and in both directions** between the two matching modes, because a
+drug's case mix within a PT family differs from the population's:
 
 | Drug / event | Substring | Exact | Shift |
 |---|---|---|---|
@@ -342,11 +342,9 @@ family differs from the population's:
 | Humira / tuberculosis | 5.99 | 4.07 | −32% |
 | Lipitor / diabetes mellitus | 2.56 | 3.13 | +22% |
 
-Chi-squared uses the raw cells and falls outright. Across the cohort the change
-moved the median lag from 34.1 to 37.2 months and the signal count from 37 to 36 —
-a smaller aggregate shift than the per-pair moves, because most pairs stayed on
-the same side of the threshold. Cohort results predating 2026-09-05 are not
-comparable with current output.
+Chi-squared uses the raw cells and is affected outright. Aggregate cohort figures
+move less than the per-pair shifts suggest, because most pairs stay on the same
+side of the threshold.
 
 **Exact matching has a precondition:** every curated term must be a real MedDRA PT.
 A non-PT returns zero rather than an error, which reads in the UI as "no reports"
