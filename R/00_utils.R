@@ -256,7 +256,15 @@ fetch_total <- function(url) {
   # quarterly cohort refresh, so retry transient transport/server failures with
   # a short bounded backoff. Non-transient HTTP failures remain NA and are
   # rejected by the cohort completeness gate in scripts/01_faers_pull.R.
-  max_attempts <- 4L
+  # Retry budget is context-dependent on purpose. The interactive Monitor tab
+  # fires ~40 calls and a user is waiting, so a long retry chain on one bad call
+  # would stall the page: 4 attempts (1+2+4s backoff) is the right ceiling there.
+  # The quarterly pull fires ~5,000 calls unattended, where the arithmetic
+  # inverts -- on 2026-09-06 a 20-minute pull was discarded because 3 calls
+  # exhausted 4 attempts each, and the completeness gate correctly refused to
+  # save a cohort with holes. scripts/01_faers_pull.R raises this via
+  # options(prism.fetch_max_attempts=).
+  max_attempts <- as.integer(getOption("prism.fetch_max_attempts", 4L))
   val <- NA_integer_
   for (attempt in seq_len(max_attempts)) {
     result <- tryCatch({
@@ -285,8 +293,9 @@ fetch_total <- function(url) {
     val <- result$value
     if (!is.na(val) || !result$retryable || attempt == max_attempts) break
 
-    delay <- 2^(attempt - 1L)
-    message("[FAERS] Transient failure; retrying in ", delay, "s...")
+    # Jitter so a burst of failures does not retry in lockstep and re-collide.
+    delay <- 2^(attempt - 1L) + stats::runif(1, 0, 0.5)
+    message("[FAERS] Transient failure; retrying in ", round(delay, 1), "s...")
     Sys.sleep(delay)
   }
   if (!is.na(val)) cache_set(ck, val)   # failures stay uncached and get retried

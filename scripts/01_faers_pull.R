@@ -10,6 +10,12 @@ library(lubridate)
 
 source("R/00_utils.R")
 
+# Unattended batch of ~5,000 calls: be far more patient than the interactive
+# path. With 7 attempts the backoff runs 1+2+4+8+16+32s before giving up, so a
+# short openFDA wobble no longer discards a 20-minute pull at the completeness
+# gate. See the note in fetch_total() in R/00_utils.R.
+options(prism.fetch_max_attempts = 7L)
+
 
 # ── Helper: pull quarterly counts for one drug/event pair ─────────────────────
 pull_quarterly_counts <- function(drug_name, pt_term, start_year, end_year) {

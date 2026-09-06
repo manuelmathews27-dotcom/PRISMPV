@@ -164,7 +164,18 @@ This is the negative control outcomes approach used by OHDSI/OMOP (Ryan et al. 2
 
 **Curation rules.** A pair qualifies only if the drug has no mechanistic route to the event and the event is absent from its label. Events that are pharmacologically promiscuous — death, myocardial infarction, GI haemorrhage, rhabdomyolysis, diabetes mellitus — are excluded as control events entirely, because too many drugs have a defensible route to them. The eight events used are ones with mechanism-specific causes: osteonecrosis of jaw, tendon rupture, bladder cancer, pathological gambling, somnambulism, tuberculosis, T-cell lymphoma, and *C. difficile* colitis.
 
-**Scoring.** A pair counts as a false positive if any single quarter meets all four signal criteria — the same rule the case arm uses to declare a signal. Pairs with fewer than 3 reports across the whole window are reported but excluded from the rate: the n ≥ 3 criterion means they could never have signalled, and counting them as passes would inflate specificity.
+**Scoring — two rules, reported side by side.** Pairs with fewer than 3 reports across the whole window are excluded from the rate: the n ≥ 3 criterion means they could never have signalled, and counting them as passes would inflate specificity. The remainder are scored twice:
+
+| | Rule | Used by |
+|---|---|---|
+| **A** | any single quarter meets all four criteria | the signal-to-label lag |
+| **B** | 2 of any trailing 6 quarters | the Monitor tab's CONFIRMED label |
+
+Same pairs, same counts, same thresholds — only the rule for collapsing ~40 quarterly verdicts into one signal differs. That difference is not cosmetic. Scoring each quarter independently gives ~40 chances to cross; at a nominal 5% per-quarter error rate the chance of at least one false crossing is 1 − 0.95⁴⁰ ≈ **87%**. Rule A was always going to behave this way — the arm is what made it measurable.
+
+`first_persistent_index()` in `R/00_utils.R` implements Rule B and is covered by `tests/test_prr_formula.R`, including a property test asserting Rule B is strictly stricter than Rule A.
+
+**Two kinds of failure.** They need separating. A pair firing in a *single* quarter out of forty is multiplicity, exactly as the arithmetic predicts. A pair firing in ten or more is not noise — esomeprazole and osteonecrosis of jaw fires across 15 quarters at PRR 34, because PPIs and bisphosphonates reach the same elderly and oncology populations. That is channelling, it is real disproportionality, and no threshold removes it. It is the concrete reason disproportionality output needs clinical review before it means anything.
 
 **Why 43 pairs and not 6.** With zero failures out of 6, the exact 95% upper bound on the false-positive rate is about 39% — nearly uninformative. At ~40 informative pairs that bound falls to roughly 7%, which is tight enough to state. The arm is sized for the confidence interval, not for the point estimate.
 
