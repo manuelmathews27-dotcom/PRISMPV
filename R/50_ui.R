@@ -546,6 +546,12 @@ ui <- page_navbar(
                     and transparent large-scale pattern discovery.",
                     tags$em("Statistical Methods in Medical Research"),
                     ", 22(1), 57\u201369. [Shrinkage IC refinement]"),
+            tags$li("Ryan PB, Schuemie MJ, Welebob E, et al. (2013). Defining a reference set to support
+                    methodological research in drug safety.", tags$em("Drug Safety"),
+                    ", 36(S1), S33\u2013S47. [OMOP negative control reference set]"),
+            tags$li("Schuemie MJ, Ryan PB, Hripcsak G, Madigan D, Suchard MA. (2016). Measuring signal detection
+                    performance: can we trust negative controls and do we need them?",
+                    tags$em("Drug Safety"), ", 39(11), 1039\u20131042."),
             tags$li("FDA. openFDA: FAERS API documentation.",
                     tags$a(href = "https://open.fda.gov/apis/drug/event/", target = "_blank",
                            "https://open.fda.gov/apis/drug/event/")),

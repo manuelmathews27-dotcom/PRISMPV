@@ -13,25 +13,26 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 1. [What it does](#what-it-does)
 2. [Dashboard tabs](#dashboard-tabs)
 3. [Signal detection](#signal-detection)
-4. [Monitor Your Drug — live query behavior](#monitor-your-drug--live-query-behavior)
-5. [Black Box Warning detection](#black-box-warning-bbw-detection)
-6. [Reference Cohort charts](#reference-cohort-charts)
-7. [Signal assessment record (export)](#signal-assessment-record-export)
-8. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
-9. [Drug name resolution](#drug-name-resolution)
-10. [AE synonym mapping](#ae-synonym-mapping)
-11. [Adverse event term selection](#adverse-event-term-selection)
-12. [openFDA API key and caching](#openfda-api-key-and-caching)
-13. [Setup](#setup)
-14. [Tests](#tests)
-15. [Data pipeline](#data-pipeline)
-16. [Deployment](#deployment)
-17. [Project structure](#project-structure)
-18. [Drug cohort](#drug-cohort)
-19. [Cohort analysis findings](#cohort-analysis-findings)
-20. [Data sources](#data-sources)
-21. [References](#references)
-22. [Code reference](#code-reference)
+4. [Negative control arm (specificity)](#negative-control-arm-specificity)
+5. [Monitor Your Drug — live query behavior](#monitor-your-drug--live-query-behavior)
+6. [Black Box Warning detection](#black-box-warning-bbw-detection)
+7. [Reference Cohort charts](#reference-cohort-charts)
+8. [Signal assessment record (export)](#signal-assessment-record-export)
+9. [Regulatory Timeline Intelligence](#regulatory-timeline-intelligence)
+10. [Drug name resolution](#drug-name-resolution)
+11. [AE synonym mapping](#ae-synonym-mapping)
+12. [Adverse event term selection](#adverse-event-term-selection)
+13. [openFDA API key and caching](#openfda-api-key-and-caching)
+14. [Setup](#setup)
+15. [Tests](#tests)
+16. [Data pipeline](#data-pipeline)
+17. [Deployment](#deployment)
+18. [Project structure](#project-structure)
+19. [Drug cohort](#drug-cohort)
+20. [Cohort analysis findings](#cohort-analysis-findings)
+21. [Data sources](#data-sources)
+22. [References](#references)
+23. [Code reference](#code-reference)
 
 ---
 
@@ -150,6 +151,26 @@ Based on the most recent 6 quarters:
 **Current Streak** is consecutive signalling quarters ending at the most recent one.
 A long duration with no current streak indicates a fading signal; a short duration
 with a long streak, a newly emerging but consistent one.
+
+---
+
+## Negative control arm (specificity)
+
+Every drug in the reference cohort was selected *because* FDA acted on it, so almost all of them signal. That measures how **fast** the method detects real signals; it says nothing about how **often** it fires when it should not. A method that flagged everything would score identically on the cohort alone.
+
+The negative control arm supplies the missing denominator. Each pair takes a drug already in the cohort, over that drug's own window, and pairs it with an adverse event it has no plausible mechanism for and no label mention — atorvastatin and somnambulism, rivaroxaban and tuberculosis, esomeprazole and tendon rupture. The identical detection rule runs over them with nothing relaxed, so anything that fires is a false positive by construction.
+
+This is the negative control outcomes approach used by OHDSI/OMOP (Ryan et al. 2013; Schuemie et al. 2016).
+
+**Curation rules.** A pair qualifies only if the drug has no mechanistic route to the event and the event is absent from its label. Events that are pharmacologically promiscuous — death, myocardial infarction, GI haemorrhage, rhabdomyolysis, diabetes mellitus — are excluded as control events entirely, because too many drugs have a defensible route to them. The eight events used are ones with mechanism-specific causes: osteonecrosis of jaw, tendon rupture, bladder cancer, pathological gambling, somnambulism, tuberculosis, T-cell lymphoma, and *C. difficile* colitis.
+
+**Scoring.** A pair counts as a false positive if any single quarter meets all four signal criteria — the same rule the case arm uses to declare a signal. Pairs with fewer than 3 reports across the whole window are reported but excluded from the rate: the n ≥ 3 criterion means they could never have signalled, and counting them as passes would inflate specificity.
+
+**Why 43 pairs and not 6.** With zero failures out of 6, the exact 95% upper bound on the false-positive rate is about 39% — nearly uninformative. At ~40 informative pairs that bound falls to roughly 7%, which is tight enough to state. The arm is sized for the confidence interval, not for the point estimate.
+
+Curation rationale for every pair, including exclusions and their reasons, is in `data/negative_controls.csv`. Results are computed by `scripts/02_signal_detection.R` into `data/negative_controls.rds` and shown on the Methods tab.
+
+**Known limitation.** Negative controls can be misclassified, and one in this set was: ciprofloxacin paired with osteonecrosis of jaw fires hard, because ciprofloxacin is *indicated for* osteomyelitis and is therefore co-reported with jaw necrosis as its treatment. That is confounding by indication (protopathic bias), not a method failure. It is retained in the CSV with the reason recorded and excluded from the primary rate rather than silently deleted. Schuemie et al. make the same point: a negative control set is a sanity check on the threshold, not a validation study.
 
 ---
 
@@ -704,6 +725,10 @@ Evans, S.J.W., Waller, P.C., & Davis, S. (2001). Use of proportional reporting r
 Rothman, K.J., Lanes, S., & Sacks, S.T. (2004). The reporting odds ratio and its advantages over the proportional reporting ratio. *Pharmacoepidemiology and Drug Safety*, 13(8), 519–523.
 
 Rothman, K.J. (2008). *Modern Epidemiology* (3rd ed.). Lippincott Williams & Wilkins. (Log-normal CI approximation for ratio measures.)
+
+Ryan, P.B., Schuemie, M.J., Welebob, E., Duke, J., Valentine, S., & Hartzema, A.G. (2013). Defining a reference set to support methodological research in drug safety. *Drug Safety*, 36(S1), S33–S47.
+
+Schuemie, M.J., Ryan, P.B., Hripcsak, G., Madigan, D., & Suchard, M.A. (2016). Measuring signal detection performance: can we trust negative controls and do we need them? *Drug Safety*, 39(11), 1039–1042.
 
 European Medicines Agency. (2012). *Guideline on good pharmacovigilance practices (GVP), Module IX — Signal management*. EMA/827661/2011.
 
