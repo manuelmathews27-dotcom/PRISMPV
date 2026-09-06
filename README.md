@@ -262,98 +262,36 @@ This is contextual, not predictive. FAERS alone cannot predict when FDA will act
 
 ## Drug name resolution
 
-`resolve_drug_names()` in `R/00_utils.R` translates a brand name to its canonical active ingredient via the openFDA Drug Labeling API before querying FAERS. For example:
+`resolve_drug_names()` translates a brand name to its canonical active ingredient
+via the openFDA labeling API before querying FAERS — `LIPITOR` → `ATORVASTATIN`,
+`OZEMPIC` → `SEMAGLUTIDE`. Combination products are skipped; salt forms, dosage
+forms and route words are stripped via `PHARMA_QUALIFIERS`. Falls back to the input
+on any API error or ambiguous result.
 
-- `LIPITOR` → `ATORVASTATIN`
-- `HUMIRA` → `ADALIMUMAB`
-- `OZEMPIC` → `SEMAGLUTIDE`
+`build_url()` searches three FAERS fields with OR logic —
+`patient.drug.medicinalproduct`, `openfda.brand_name`, `openfda.generic_name` — so a
+report matches whether the reporter used the brand or the generic.
 
-The function skips combination products (names containing `AND`, `;`, `/`, `,`) and
-strips pharmaceutical qualifiers (salt forms, dosage-form words, route words) using
-the `PHARMA_QUALIFIERS` constant. Falls back to the original input on any API error
-or ambiguous result.
+**Biologic suffixes.** FDA requires a 4-letter suffix on biologic nonproprietary
+names (`tafasitamab-cxix`). `canonical_ingredient_token()` strips it and replaces
+remaining non-letters with a space, so a hyphenated combination
+(`SACUBITRIL-VALSARTAN`) splits into two words and falls through rather than
+collapsing into one invalid token. Deleting the hyphen instead would weld the suffix
+onto the stem — a name matching no FAERS records, which surfaces as "no signal"
+rather than as a failed lookup:
 
-### Biologic suffixes
-
-FDA requires a 4-letter suffix on biologic nonproprietary names, such as
-`tafasitamab-cxix`. `canonical_ingredient_token()` strips the suffix and replaces
-any remaining non-letters with a space rather than deleting them, so a hyphenated
-combination such as `SACUBITRIL-VALSARTAN` splits into two words and falls through
-instead of collapsing into a single invalid token.
-
-Deleting the hyphen instead would weld the suffix onto the stem — `TAFASITAMABCXIX`,
-which matches no FAERS records and surfaces as "no signal" rather than as a failed
-lookup:
-
-| Canonical produced | FAERS reports | Correct form | Reports |
+| Welded | Reports | Correct | Reports |
 |---|---|---|---|
 | `TAFASITAMABCXIX` | 0 | `TAFASITAMAB` | 1,267 |
 | `RETIFANLIMABDLWR` | 0 | `RETIFANLIMAB` | 87 |
 | `AXATILIMABCSFR` | 0 | `AXATILIMAB` | 128 |
 
-### Discontinued brands
-
-Brands with no current FDA label, such as `LEVAQUIN` and `COUMADIN`, return HTTP 404
-from the labeling API. Checking a boxed warning against the raw brand name alone
-would therefore find nothing and classify a long-standing warning as an emerging
-signal. `fetch_label_results()` retries with the generic name, taken from the
-cohort's brand-to-generic map and falling back to `resolve_drug_names()`.
-
-Withdrawn drugs such as Vioxx and Avandia cannot be recovered this way, because
-openFDA holds no label for them under any name.
-
-`build_url()` then searches FAERS across three fields with OR logic:
-- `patient.drug.medicinalproduct` (free-text as reported)
-- `patient.drug.openfda.brand_name` (standardized brand name)
-- `patient.drug.openfda.generic_name` (standardized generic name)
-
-This catches FAERS reports regardless of whether the reporter used the brand or
-generic name.
-
-### Phrase quoting
-
-Multi-word values are wrapped in `%22`. Without the quotes Lucene splits them:
-`reactionmeddrapt:TENDON PAIN` parses as `reactionmeddrapt:TENDON` OR a free-text
-match on `PAIN`. Single-word terms are unaffected, but roughly 70 of the 116 curated
-PT terms contain more than one word:
-
-| Term | Unquoted | Exact phrase |
-|---|---|---|
-| tendon pain | 3,561,634 | 7,475 |
-| hepatic failure | 929,971 | 43,799 |
-| acute kidney injury | 901,197 | 150,318 |
-| herpes zoster | 225,468 | 60,592 |
-
-**Matching is exact-field, not substring.** Queries use
-`patient.reaction.reactionmeddrapt.exact`, which matches the whole Preferred Term.
-
-Quoting alone is not enough: a quoted phrase is still a substring match, so a short
-PT absorbs every longer one containing it — `thrombosis` would sweep in `deep vein
-thrombosis`, and `cardiac failure` would sweep `cardiac failure congestive`. Both
-pairs are separately curated terms, so one selection would silently include the other.
-
-That inflation does not cancel in the ratio. Measured over 2023–2025, PRR moves
-materially **and in both directions** between the two matching modes, because a
-drug's case mix within a PT family differs from the population's:
-
-| Drug / event | Substring | Exact | Shift |
-|---|---|---|---|
-| Fosamax / osteonecrosis | 6.26 | 3.44 | −45% |
-| Remicade / lymphoma | 2.44 | 3.55 | +46% |
-| Humira / tuberculosis | 5.99 | 4.07 | −32% |
-| Lipitor / diabetes mellitus | 2.56 | 3.13 | +22% |
-
-Chi-squared uses the raw cells and is affected outright. Aggregate cohort figures
-move less than the per-pair shifts suggest, because most pairs stay on the same
-side of the threshold.
-
-**Exact matching has a precondition:** every curated term must be a real MedDRA PT.
-A non-PT returns zero rather than an error, which reads in the UI as "no reports"
-and is invisible. Several plausible-looking terms are not PTs at all: MedDRA
-inverts some word orders (`neoplasm malignant`, `haemorrhage intracranial`) and
-subdivides others (`stroke` exists only as `ischaemic stroke` and `haemorrhagic
-stroke`). `tests/test_pt_terms.R` validates all 116 terms against openFDA on
-every deploy.
+**Discontinued brands.** `LEVAQUIN` and `COUMADIN` have no current label, so the
+labeling API returns 404 and a boxed-warning check against the brand alone would
+classify a long-standing warning as an emerging signal. `fetch_label_results()`
+retries with the generic name — from the cohort's brand-to-generic map, then
+`resolve_drug_names()`. Withdrawn drugs (Vioxx, Avandia) are unrecoverable: openFDA
+holds no label for them under any name.
 
 ---
 
@@ -834,118 +772,13 @@ ICH E2E. (2004). *Pharmacovigilance planning*. International Conference on Harmo
 
 ---
 
-## API reference — R/00_utils.R
+## Code reference
 
-All functions below are sourced by both the pipeline scripts and `app.R`.
+Shared helpers live in `R/00_utils.R`, documented at the point of definition:
+`compute_prr()` (PRR, ROR, CIs, Yates chi-squared from openFDA marginals),
+`check_signal()` (Evans + Rothman criteria), `resolve_drug_names()` and
+`canonical_ingredient_token()` (brand → active ingredient), `build_url()`,
+`fetch_total()`, and the response cache.
 
-### Constants
-
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `SIGNAL_MIN_REPORTS` | `3L` | Minimum report count (count_a) for a signal to be considered |
-| `SIGNAL_MIN_PRR` | `2` | Minimum PRR threshold (Evans criteria) |
-| `SIGNAL_MIN_CHISQ` | `4` | Minimum chi-squared threshold (Evans criteria) |
-| `AUDIT_LOG_PATH` | `"data/audit_log.csv"` | Path where audit log rows are appended |
-| `PHARMA_QUALIFIERS` | (vector) | Salt forms, dosage-form words, and route words stripped from resolved generic names |
-
-### `resolve_drug_names(drug_name)`
-
-Translates a brand or generic drug name to its canonical active ingredient by querying the openFDA Drug Labeling API.
-
-**Parameters:**
-- `drug_name` — character; brand or generic name (case-insensitive)
-
-**Returns:** character scalar — canonical active ingredient (uppercase), or the original `drug_name` uppercased on failure.
-
-**Behavior:** Skips combination products. Strips `PHARMA_QUALIFIERS` tokens. Falls back to original input on HTTP error, empty result, or ambiguous match.
-
-### `build_url(drug_name, pt_term, q_start, q_end)`
-
-Builds an openFDA FAERS API query URL for a drug-AE-quarter combination.
-
-**Parameters:**
-- `drug_name` — character or NULL; if provided, searches three drug name fields with OR logic
-- `pt_term` — character or NULL; MedDRA Preferred Term (lowercase, space-separated)
-- `q_start` — character; quarter start date in `YYYYMMDD` format
-- `q_end` — character; quarter end date in `YYYYMMDD` format
-
-**Returns:** character; full openFDA API URL with `&limit=1` (only the total count is needed).
-
-### `fetch_total(url)`
-
-Fetches the total report count for a single openFDA API URL (synchronous).
-
-**Parameters:**
-- `url` — character; openFDA API URL
-
-**Returns:** integer; total count from `meta.results.total`, `0L` on HTTP 404, `NA_integer_` on other errors or parse failures.
-
-### `parse_multi_resp(resp)`
-
-Parses a single response object from `curl::curl_fetch_multi` into a report count.
-
-**Parameters:**
-- `resp` — curl response object or NULL
-
-**Returns:** integer; same semantics as `fetch_total()`.
-
-### `compute_prr(df)`
-
-Computes PRR, ROR, their 95% CIs, and Yates-corrected chi-squared from a data frame with
-`count_a`, `count_b`, `count_c`, `count_d` columns. Reconstructs the 2×2 cells from
-the openFDA marginals first. Rather than flooring the marginals, it applies a
-degenerate-cell guard: if any required marginal or derived cell is zero or negative,
-PRR, CI and chi-squared are all `NA` for that row.
-
-**Parameters:**
-- `df` — data frame with columns `count_a`, `count_b`, `count_c`, `count_d`
-
-**Returns:** the input data frame with additional columns:
-
-| Column | Description |
-|--------|-------------|
-| `c_cell` | Reconstructed cell: event in other drugs (`C − a`) |
-| `cd_cell` | Reconstructed other-drug total (`D − B`) |
-| `bd_cell` | Reconstructed non-event total (`D − C`) |
-| `PRR` | Proportional Reporting Ratio |
-| `PRR_log_se` | Log-scale standard error of PRR |
-| `PRR_lo` | 95% CI lower bound (log-normal approximation) |
-| `PRR_hi` | 95% CI upper bound |
-| `b_cell` | Reconstructed cell: drug, no event (`count_b − a`) |
-| `d_cell` | Reconstructed cell: other drug, no event (`cd_cell − c_cell`) |
-| `ROR` | Reporting Odds Ratio |
-| `ROR_log_se` | Log-scale standard error of ROR |
-| `ROR_lo` / `ROR_hi` | ROR 95% CI bounds |
-| `chi_sq` | Pearson chi-squared with Yates continuity correction |
-
-### `check_signal(count_a, PRR, chi_sq, PRR_lo)`
-
-Returns TRUE when all Evans + Rothman criteria are met for a single quarter.
-
-**Parameters:**
-- `count_a` — integer; report count
-- `PRR` — numeric; Proportional Reporting Ratio
-- `chi_sq` — numeric; chi-squared statistic
-- `PRR_lo` — numeric or NA; 95% CI lower bound. When NA, the CI gate is skipped.
-
-**Returns:** logical scalar.
-
-### `write_audit_log(...)`
-
-Appends one row to `data/audit_log.csv` for ICH E2E / GVP IX traceability. Creates the file with a header on first write; appends without header on subsequent writes. Errors are caught and logged to the R console (non-fatal).
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `drug` | character | Drug name as entered by user |
-| `ae` | character | AE term queried |
-| `status` | character | Signal status (CONFIRMED / EMERGING / NOT DETECTED / INSUFFICIENT DATA) |
-| `current_prr` | numeric | Most recent quarter PRR |
-| `prr_lo` | numeric | Most recent 95% CI lower bound |
-| `prr_hi` | numeric | Most recent 95% CI upper bound |
-| `n_reports` | integer | Total reports across all queried quarters |
-| `quarters_queried` | integer | Number of quarters in the query window |
-| `session_id` | character | Session identifier (default `""`) |
-
-**Audit log columns:** `timestamp`, `session_id`, `drug_queried`, `ae_queried`, `signal_status`, `prr`, `prr_ci_lo`, `prr_ci_hi`, `total_reports`, `quarters_queried`
+Detection thresholds are constants: `SIGNAL_MIN_REPORTS = 3`, `SIGNAL_MIN_PRR = 2`,
+`SIGNAL_MIN_CHISQ = 4`.
