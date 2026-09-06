@@ -1,0 +1,44 @@
+drug_name,generic_name,pt_term,window_start,window_end,source_class,rationale,status
+Ambien,zolpidem,osteonecrosis of jaw,2010,2020,Nonbenzodiazepine Z-drug,No antiresorptive or antiangiogenic activity; ONJ is a bisphosphonate/denosumab effect.,negative_control
+Lipitor,atorvastatin,osteonecrosis of jaw,2004,2014,HMG-CoA Reductase Inhibitor,No antiresorptive activity; ONJ absent from the atorvastatin label.,negative_control
+Nexium,esomeprazole,osteonecrosis of jaw,2004,2014,Proton Pump Inhibitor,Acid suppression has no mechanistic link to jaw osteonecrosis.,negative_control
+Cipro,ciprofloxacin,osteonecrosis of jaw,2004,2010,Fluoroquinolone,"EXCLUDED post hoc. Ciprofloxacin is indicated for osteomyelitis, so it is co-reported with jaw necrosis as its TREATMENT. Confounding by indication (protopathic bias), not a method failure.",excluded_confounded
+Seroquel,quetiapine,osteonecrosis of jaw,2004,2007,Atypical Antipsychotic,No antiresorptive activity; ONJ absent from the quetiapine label.,negative_control
+Xarelto,rivaroxaban,osteonecrosis of jaw,2011,2015,Factor Xa Inhibitor,Anticoagulation has no mechanistic link to jaw osteonecrosis.,negative_control
+Nexium,esomeprazole,tendon rupture,2004,2014,Proton Pump Inhibitor,Tendinopathy is a fluoroquinolone class effect; no PPI mechanism or label mention.,negative_control
+Protonix,pantoprazole,tendon rupture,2004,2014,Proton Pump Inhibitor,Tendinopathy is a fluoroquinolone class effect; no PPI mechanism or label mention.,negative_control
+Ambien,zolpidem,tendon rupture,2010,2020,Nonbenzodiazepine Z-drug,No connective-tissue effect; tendon rupture absent from the zolpidem label.,negative_control
+Seroquel,quetiapine,tendon rupture,2004,2007,Atypical Antipsychotic,No connective-tissue effect; tendon rupture absent from the quetiapine label.,negative_control
+Humira,adalimumab,tendon rupture,2004,2011,TNF-alpha Inhibitor,No tendon toxicity described for TNF blockade.,negative_control
+Xarelto,rivaroxaban,tendon rupture,2011,2015,Factor Xa Inhibitor,No connective-tissue effect; tendon rupture absent from the rivaroxaban label.,negative_control
+Protonix,pantoprazole,bladder cancer,2004,2014,Proton Pump Inhibitor,Bladder cancer is a pioglitazone-specific signal; no PPI mechanism.,negative_control
+Cipro,ciprofloxacin,bladder cancer,2004,2010,Fluoroquinolone,No carcinogenicity signal for fluoroquinolones at the bladder.,negative_control
+Ambien,zolpidem,bladder cancer,2010,2020,Nonbenzodiazepine Z-drug,No carcinogenicity signal; bladder cancer absent from the zolpidem label.,negative_control
+Lipitor,atorvastatin,bladder cancer,2004,2014,HMG-CoA Reductase Inhibitor,No bladder carcinogenicity signal for statins.,negative_control
+Celebrex,celecoxib,bladder cancer,2000,2007,COX-2 Selective NSAID,No bladder carcinogenicity signal; NSAID literature suggests no excess risk.,negative_control
+Fosamax,alendronate,bladder cancer,2004,2008,Bisphosphonate,No carcinogenicity signal; bladder cancer absent from the alendronate label.,negative_control
+Nexium,esomeprazole,pathological gambling,2004,2014,Proton Pump Inhibitor,Impulse-control disorders require dopaminergic activity; PPIs have none.,negative_control
+Lipitor,atorvastatin,pathological gambling,2004,2014,HMG-CoA Reductase Inhibitor,Impulse-control disorders require dopaminergic activity; statins have none.,negative_control
+Cipro,ciprofloxacin,pathological gambling,2004,2010,Fluoroquinolone,No dopaminergic activity.,negative_control
+Fosamax,alendronate,pathological gambling,2004,2008,Bisphosphonate,No dopaminergic activity; no CNS penetration.,negative_control
+Xarelto,rivaroxaban,pathological gambling,2011,2015,Factor Xa Inhibitor,No dopaminergic activity.,negative_control
+Humira,adalimumab,pathological gambling,2004,2011,TNF-alpha Inhibitor,No dopaminergic activity; monoclonal antibody with minimal CNS penetration.,negative_control
+Lipitor,atorvastatin,somnambulism,2004,2014,HMG-CoA Reductase Inhibitor,Not a sedative-hypnotic; somnambulism absent from the atorvastatin label.,negative_control
+Fosamax,alendronate,somnambulism,2004,2008,Bisphosphonate,Not a sedative-hypnotic; no CNS penetration.,negative_control
+Nexium,esomeprazole,somnambulism,2004,2014,Proton Pump Inhibitor,Not a sedative-hypnotic; somnambulism absent from the esomeprazole label.,negative_control
+Humira,adalimumab,somnambulism,2004,2011,TNF-alpha Inhibitor,Not a sedative-hypnotic; minimal CNS penetration.,negative_control
+Xarelto,rivaroxaban,somnambulism,2011,2015,Factor Xa Inhibitor,Not a sedative-hypnotic; somnambulism absent from the rivaroxaban label.,negative_control
+Enbrel,etanercept,somnambulism,2004,2011,TNF-alpha Inhibitor,Not a sedative-hypnotic; minimal CNS penetration.,negative_control
+Lipitor,atorvastatin,tuberculosis,2004,2014,HMG-CoA Reductase Inhibitor,Not immunosuppressive; TB reactivation is a TNF-blocker class effect.,negative_control
+Ambien,zolpidem,tuberculosis,2010,2020,Nonbenzodiazepine Z-drug,Not immunosuppressive.,negative_control
+Fosamax,alendronate,tuberculosis,2004,2008,Bisphosphonate,Not immunosuppressive.,negative_control
+Nexium,esomeprazole,tuberculosis,2004,2014,Proton Pump Inhibitor,Not immunosuppressive.,negative_control
+Xarelto,rivaroxaban,tuberculosis,2011,2015,Factor Xa Inhibitor,Not immunosuppressive.,negative_control
+Lipitor,atorvastatin,t-cell lymphoma,2004,2014,HMG-CoA Reductase Inhibitor,No lymphoproliferative signal; secondary T-cell malignancy is a CAR-T class effect.,negative_control
+Ambien,zolpidem,t-cell lymphoma,2010,2020,Nonbenzodiazepine Z-drug,No lymphoproliferative signal.,negative_control
+Nexium,esomeprazole,t-cell lymphoma,2004,2014,Proton Pump Inhibitor,No lymphoproliferative signal.,negative_control
+Fosamax,alendronate,t-cell lymphoma,2004,2008,Bisphosphonate,No lymphoproliferative signal.,negative_control
+Lipitor,atorvastatin,clostridium difficile colitis,2004,2014,HMG-CoA Reductase Inhibitor,"Not an antibiotic and does not suppress gastric acid, the two established CDAD mechanisms.",negative_control
+Ambien,zolpidem,clostridium difficile colitis,2010,2020,Nonbenzodiazepine Z-drug,Neither antibiotic nor acid-suppressing.,negative_control
+Fosamax,alendronate,clostridium difficile colitis,2004,2008,Bisphosphonate,Neither antibiotic nor acid-suppressing.,negative_control
+Xarelto,rivaroxaban,clostridium difficile colitis,2011,2015,Factor Xa Inhibitor,Neither antibiotic nor acid-suppressing.,negative_control
