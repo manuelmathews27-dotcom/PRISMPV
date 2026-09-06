@@ -101,24 +101,28 @@ ROR = (a × d_cell) / (b_cell × c_cell)
 SE  = sqrt(1/a + 1/b_cell + 1/c_cell + 1/d_cell)
 ```
 
-Both measures are reported because the regulators differ: **FDA** screens with PRR
-(and EBGM internally), while **EMA** uses ROR in EudraVigilance. For a rare event
-the two converge, so ROR functions as a cross-check rather than a second opinion —
-a material divergence indicates the event is *not* rare in the exposed population,
-and the Monitor tab says so explicitly when the two differ by more than 25%.
+Both are reported because the regulators differ: **FDA** screens with PRR (and EBGM
+internally), **EMA** uses ROR in EudraVigilance. For a rare event the two converge,
+so ROR is a cross-check — a divergence beyond 25% means the event is *not* rare in
+the exposed population, which the Monitor tab states explicitly.
 
 **Signal criteria are applied to PRR only.** ROR is displayed and exported, never
 thresholded, so the detection rule stays a single documented method.
 
-ROR is deliberately *not* plotted on the quarterly trend. For rare events it would
-draw a second line almost on top of the first, telling the same story twice and
-inviting a question ("why do these differ?") whose honest answer is "they barely
-do." It belongs as a number.
+### Term matching
 
-The same degenerate-cell guard applies: a zero in any cell yields `NA` rather than
-a plausible-looking value. `tests/test_prr_formula.R` pins ROR and its CI against
-the textbook odds ratio for every case, which is also the only coverage the `b`
-and `d` reconstruction has.
+Queries use `patient.reaction.reactionmeddrapt.exact`, matching the whole Preferred
+Term. A quoted phrase alone is still a substring match, so a short PT would absorb
+every longer one containing it — `thrombosis` would sweep in `deep vein thrombosis`,
+and both are separately curated terms. That inflation does not cancel in the ratio:
+it moves PRR in either direction depending on how a drug's case mix within a PT
+family compares with the population's.
+
+This requires every curated term to be a real MedDRA PT, since a non-PT returns zero
+rather than an error. MedDRA inverts some word orders (`neoplasm malignant`,
+`haemorrhage intracranial`) and subdivides others (`stroke` exists only as
+`ischaemic stroke` and `haemorrhagic stroke`). `tests/test_pt_terms.R` validates all
+116 terms against openFDA on every deploy.
 
 ### Signal criteria (Evans + Rothman)
 
@@ -488,30 +492,19 @@ run_pipeline.R
 
 ### 01_faers_pull.R
 
-Pulls quarterly FAERS report counts from the openFDA API for each of the 40 cohort drug-AE pairs. For each drug-AE-quarter combination, four API calls are made (sequentially within a drug, 0.25-second delay between calls to stay within openFDA rate limits):
-
-- `count_a` — drug + event
-- `count_b` — drug, any event
-- `count_c` — event, any drug
-- `count_d` — all reports in the quarter
-
-Outputs:
-- `data/faers_raw.rds` — raw counts (one row per drug / AE / quarter)
-- `data/provenance.rds` — pipeline run metadata (timestamp, R version, platform, date range, drugs queried, record count)
-
-**Runtime:** approximately 45–60 minutes for 42 drugs. Set `OPENFDA_API_KEY` to avoid the anonymous daily cap — see [openFDA API key and caching](#openfda-api-key-and-caching).
+Pulls quarterly FAERS counts for each cohort drug-AE pair — four API calls per
+drug/AE/quarter (`count_a` drug+event, `count_b` drug, `count_c` event, `count_d`
+all reports), with a 0.25s delay to stay inside openFDA's rate limit. Bounded retry
+with backoff on 429/5xx, and a completeness gate that refuses to save if any count
+is missing. Outputs `data/faers_raw.rds` and `data/provenance.rds`. Runtime ~45–60
+minutes for 42 drugs.
 
 ### 02_signal_detection.R
 
-Loads `faers_raw.rds`, computes PRR and chi-squared via `compute_prr()`, applies `check_signal()` to flag each quarter, and identifies the first quarter where each drug-AE pair met signal criteria. Joins with `data/label_changes.csv` to compute:
-
-- `signal_start_date` — first quarter with signal
-- `lag_days` / `lag_months` / `lag_years` — time from first signal to label change
-- `signal_detected_before_change` — boolean
-
-Prints a summary of median/min/max lag to the console.
-
-Output: `data/combined.rds`
+Computes PRR, ROR and chi-squared via `compute_prr()`, flags each quarter with
+`check_signal()`, finds each pair's first signalling quarter, and joins
+`data/label_changes.csv` to derive `lag_days` / `lag_months` / `lag_years` and
+`signal_detected_before_change`. Outputs `data/combined.rds`.
 
 ### Data freshness
 
@@ -588,31 +581,17 @@ The two gates cover different failures: the tests catch a broken formula or
 resolver before it ships, and the smoke test prevents a green run on a deployed app
 that does not load.
 
-### Manual deploy (rarely needed)
+### Manual deploy
 
 ```r
-library(rsconnect)
-rsconnect::deployApp(
-  appDir  = ".",
-  appName = "PRISMPV",
-  account = "mmdothim",
-  server  = "shinyapps.io"
-)
+rsconnect::deployApp(appDir = ".", appName = "PRISMPV",
+                     account = "mmdothim", server = "shinyapps.io")
 ```
 
-**Important:** Always use `appName = "PRISMPV"`. The old `signal-to-label`
-deployment is archived and should not be redeployed.
-
-The `rsconnect/` directory contains `.dcf` config files for three deployment slots
-(`PRISMPV`, `prismrx`, `signal-to-label`). Only `PRISMPV` is the active production
-deployment.
-
-### Pre-deployment checklist
-
-- Run `run_pipeline.R` to regenerate `data/faers_raw.rds`, `data/combined.rds`, and `data/provenance.rds` if the cohort or date ranges have changed.
-- Verify `data/label_changes.csv` is up to date.
-- Confirm `shiny::runApp()` works locally before deploying.
-- `data/audit_log.csv` is written at runtime on the server and is not bundled in the deployment. The user-facing export is the assessment record — see [Signal assessment record](#signal-assessment-record-export).
+Always use `appName = "PRISMPV"`; the archived `signal-to-label` slot should not be
+redeployed. `data/audit_log.csv` is written at runtime on the server and is not
+bundled — the user-facing export is the
+[assessment record](#signal-assessment-record-export).
 
 ---
 
