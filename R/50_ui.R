@@ -454,8 +454,8 @@ ui <- page_navbar(
       card(
         card_header(icon("book"), " Reference Cohort"),
         card_body(
-          p("The reference cohort includes", tags$strong("40 drugs"), "across",
-            tags$strong("10 therapeutic classes"), "where FDA took regulatory action (Boxed Warning, Contraindication,
+          p("The reference cohort includes", tags$strong("42 drugs"), "across",
+            tags$strong("12 mechanistic classes"), "where FDA took regulatory action (Boxed Warning, Contraindication,
             Warning, or Withdrawal) after post-market safety signals. These are known, documented cases."),
           p("For each drug, we pulled FAERS data for the adverse event that led to the label change,
             computed PRR per quarter from approval through the label change date, and measured the",
@@ -471,6 +471,41 @@ ui <- page_navbar(
                     FDA will act.")
           ),
           p(class = "text-muted", "This is why PRISM shows historical context, not predictions.")
+        )
+      ),
+
+      # Specificity arm. Rendered entirely server-side because
+      # data/negative_controls.rds may not exist yet (it is produced by the
+      # pipeline, not committed ahead of it) and this file is sourced at app
+      # startup -- a hard reference to a missing object here would take the
+      # deployed app down, which is exactly how it broke once before.
+      card(
+        card_header(icon("shield-halved"), " Specificity: Negative Control Arm"),
+        card_body(
+          p("Every drug in the reference cohort was selected ", tags$em("because"),
+            " FDA acted on it, so nearly all of them signal. That measures how ",
+            tags$strong("fast"), " the method detects real signals and says nothing about how ",
+            tags$strong("often"), " it fires when it should not \u2014 a method that flagged ",
+            "everything would score identically on the cohort above."),
+          p("The negative control arm closes that gap. Each pair takes a drug already in the ",
+            "cohort, over that drug's own window, and pairs it with an adverse event it has ",
+            "no plausible mechanism for and no label mention \u2014 for example ",
+            tags$em("atorvastatin and somnambulism"), " or ", tags$em("rivaroxaban and tuberculosis"),
+            ". The identical detection rule is applied, with nothing relaxed, so anything ",
+            "that fires is a false positive by construction."),
+          uiOutput("negctl_summary"),
+          tags$h6(class = "mt-3 fw-semibold", "Pair-level results"),
+          DTOutput("negctl_table"),
+          p(class = "text-muted mt-2",
+            "Pairs with fewer than 3 reports across the whole window are listed but excluded ",
+            "from the rate: the n \u2265 3 criterion means they could never have signalled, so ",
+            "counting them as passes would inflate specificity. Following Schuemie et al., a ",
+            "negative control set is a sanity check on the threshold, not a validation study \u2014 ",
+            "pairs can be misclassified, and one in this set was."),
+          p(class = "text-muted",
+            tags$strong("Method: "), "negative control outcomes, after the OHDSI/OMOP approach ",
+            "(Ryan et al. 2013; Schuemie et al. 2016). Curation rationale for every pair is in ",
+            tags$code("data/negative_controls.csv"), ".")
         )
       ),
 
