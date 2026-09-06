@@ -31,7 +31,7 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 19. [Cohort analysis findings](#cohort-analysis-findings)
 20. [Data sources](#data-sources)
 21. [References](#references)
-22. [API reference — R/00_utils.R](#api-reference--r00_utilsr)
+22. [Code reference](#code-reference)
 
 ---
 
@@ -146,12 +146,10 @@ Based on the most recent 6 quarters:
 
 ### Signal duration metrics
 
-The Monitor tab reports two complementary duration measures:
-
-- **Signal Duration** — months since the signal was first detected in any quarter. Used for regulatory timeline comparison against historical lag data.
-- **Current Streak** — consecutive quarters ending at the most recent quarter where signal criteria are met. Returns "None" if the latest quarter does not meet criteria. Indicates signal persistence and stability.
-
-A long duration with no current streak may indicate an intermittent or fading signal. A short duration with a long streak suggests a newly emerging but consistent signal.
+**Signal Duration** is months since the signal was first detected in any quarter;
+**Current Streak** is consecutive signalling quarters ending at the most recent one.
+A long duration with no current streak indicates a fading signal; a short duration
+with a long streak, a newly emerging but consistent one.
 
 ---
 
@@ -184,44 +182,34 @@ If a BBW is found and the queried adverse event (or its synonyms / medical-root 
 
 ## Reference Cohort charts
 
-**Primary view — signal-to-label lag.** One row per drug, sorted by lag and
-anchored at zero, faceted by mechanistic class. Colour encodes only the sign of
-the lag: a bar to the right means the FAERS signal preceded the label change, a
-bar to the left means FDA acted first. Real dates appear as a text column rather
-than as geometry, because the x-axis can encode either comparable lag lengths or
-a calendar, not both. Plot height is computed from the row count server-side so
-row spacing stays constant as the cohort grows.
+**Primary view — signal-to-label lag.** One row per drug, sorted by lag and anchored
+at zero, faceted by mechanistic class. Colour encodes only the sign: a bar right
+means the FAERS signal preceded the label change, left means FDA acted first. Dates
+appear as a text column rather than geometry, since the x-axis can encode comparable
+lag lengths or a calendar, not both. Plot height is computed from the row count so
+spacing stays constant as the cohort grows.
 
 The cohort answers a cross-drug question — how early is the signal relative to FDA
-action — which is one number per drug, so a single row per drug is the encoding
-that fits it. A per-drug time series answers a different question and, on sparse
-quarterly counts, is genuinely spiky rather than badly styled.
+action — which is one number per drug, so a single row per drug is the encoding that
+fits it.
 
 **Drill-down — quarterly PRR trend.** Collapsed by default, showing the evidence
-behind a single row for the drug selected in the sidebar:
+behind one row:
 
-- **One y-axis.** PRR only, log-scaled. Plotting counts on a secondary axis would
-  require an arbitrary scaling factor, and any apparent relationship between the
-  two series would be an artefact of that constant rather than of the data. The
-  log scale matters because PRR spans two orders of magnitude across the cohort —
-  Ambien/somnambulism reaches ~161 against a typical 2–5, which flattens every
-  other drug on a linear axis.
-- **Report count is dot size.** A larger dot is a better-supported estimate, so
-  a high PRR on a small dot reads as fragile — which is the honest picture for
-  the rare-event products. Yescarta has computable PRR in only 11 of 32 quarters.
-- Points are filled dark when they meet all signal criteria, pale when not.
+- **One y-axis**, PRR only, log-scaled. Counts on a secondary axis would need an
+  arbitrary scaling factor, making any apparent relationship between the series an
+  artefact of that constant. Log scale because PRR spans two orders of magnitude —
+  Ambien/somnambulism reaches ~161 against a typical 2–5.
+- **Report count is dot size**, so a high PRR on a small dot reads as fragile.
+- Points fill dark when they meet all signal criteria, pale when not.
 
-Annotation boxes for the signal and label-change dates flip to the left of their
-line past 70% of the query window. 15 of the 42 drugs have a label change late
-enough in their pull window that a right-hand box would run off the panel — Ambien
-sits at 87% and Yescarta at 81%, along with the PPIs, statins, Z-drugs, Vioxx and
-Xeljanz.
+Signal and label-change annotations flip left of their line past 70% of the query
+window; 15 of the 42 drugs have a label change late enough that a right-hand box
+would run off the panel.
 
-A drug with no computable PRR in any quarter renders an explicit empty state
-rather than erroring. `compute_prr()` returns `NA` for degenerate cells, so the
-filtered frame can be empty; the downstream `max()` and `range()` calls then
-produce `-Inf`/`NaN` and the annotation branch throws "missing value where
-TRUE/FALSE needed".
+A drug with no computable PRR in any quarter renders an explicit empty state —
+`compute_prr()` returns `NA` for degenerate cells, so the filtered frame can be
+empty and the downstream `max()`/`range()` calls would otherwise produce `NaN`.
 
 ---
 
@@ -377,31 +365,22 @@ underlying risk.
 
 ### API key
 
-PRISM reads an optional key from the `OPENFDA_API_KEY` environment variable.
-Without one it runs at the anonymous limit of roughly 1,000 requests per day per IP;
-with one that ceiling is about 120,000.
+PRISM reads `OPENFDA_API_KEY` from the environment. Without one it runs at the
+anonymous limit of ~1,000 requests/day per IP; with one, ~120,000. A single live
+query issues roughly 50 requests (4 counts × 12 quarters, plus label and
+name-resolution lookups), so the anonymous cap is reached after about 20 queries
+across all users of the public app. Keys are free and instant at
+<https://open.fda.gov/apis/authentication/>.
 
-A single live query issues roughly 50 requests (4 counts × 12 quarters, plus label
-and name-resolution lookups), so the anonymous cap is reached after about 20 queries
-across all users of the public app.
+Locally: `cp .env.example .env`, then run the container with
+`--env-file /home/manny/prism/.env`. For the deployed app, add a repo secret named
+`OPENFDA_API_KEY`. shinyapps.io supports no secure environment variables
+(`rsconnect`'s `envVars=` is Posit Connect only), so the workflow writes the key
+into the bundle as a generated `R/zzz_env.R` — acceptable for a rate-limit token
+that carries no data access, but not a pattern for a real credential.
 
-```bash
-cp .env.example .env      # .env is gitignored — never commit a key
-# then supply it to the container:
-docker run --env-file /home/manny/prism/.env ...
-```
-
-Get a free key instantly at <https://open.fda.gov/apis/authentication/>.
-
-For the deployed app, add a repo secret named `OPENFDA_API_KEY`; the workflow
-injects it at build time. shinyapps.io supports no secure environment variables
-(`rsconnect`'s `envVars=` is Posit Connect only and errors on shinyapps), so the
-key is written into the bundle as a generated `R/zzz_env.R`. This is acceptable for
-a rate-limit token, which carries no data access and can be regenerated at any time.
-It is not a suitable pattern for a real credential.
-
-The key is appended at fetch time, never in the URL builders, so it can never enter
-a cache key; `redact_key()` strips it from any logged URL.
+The key is appended at fetch time, never in the URL builders, so it cannot enter a
+cache key; `redact_key()` strips it from any logged URL.
 
 ### Response cache
 
