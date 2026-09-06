@@ -235,20 +235,16 @@ ui <- page_navbar(
       card(
         card_header(
           "Signal-to-label lag across the cohort",
-          # The disclosure has to sit WITH the chart. It was previously only in
-          # the "How to read this chart" card two cards down, which a reader
-          # scanning the bars never reaches -- and the bars are the claim.
           tags$div(
             style = paste0("font-size:0.78rem;font-weight:400;color:#64748b;",
                            "margin-top:4px;line-height:1.35;"),
-            "Lag is measured from the ", tags$strong("first"), " quarter meeting ",
-            "signal criteria. That rule scores ~40 quarters independently, and the ",
+            "A signal starts at the first quarter where criteria were met in ",
+            tags$strong("2 of any trailing 6 quarters"),
+            " \u2014 the same rule that marks a live query CONFIRMED on the Monitor ",
+            "tab. Accepting a single isolated crossing instead would nearly double ",
+            "these lead times, and the ",
             tags$span(style = "color:#b45309;font-weight:600;", "negative control arm"),
-            " on the Methods tab measures its specificity at 54%. A spurious early ",
-            "crossing can only move a bar ", tags$strong("longer"),
-            ", never shorter, so these lead times are upper estimates. Requiring the ",
-            "signal to persist (2 of any trailing 6 quarters) halves the cohort ",
-            "median, from 37.2 to 17.0 months."
+            " on the Methods tab shows why that rule was rejected."
           )
         ),
         # height is set server-side (see cohort_lag_height) so it tracks the
@@ -510,14 +506,14 @@ ui <- page_navbar(
             tags$em("atorvastatin and somnambulism"), " or ", tags$em("rivaroxaban and tuberculosis"),
             ". The identical detection rule is applied, with nothing relaxed, so anything ",
             "that fires is a false positive by construction."),
-          p("The arm scores every pair under ", tags$strong("two rules"),
-            " and reports both. Rule A calls a signal if any single quarter meets ",
-            "the criteria — that is the rule the signal-to-label lag on the ",
-            "Reference Cohort tab is anchored on. Rule B requires persistence: ",
-            tags$strong("2 of any trailing 6 quarters"), ", the same rule the ",
-            "Monitor tab uses to label a live query CONFIRMED. The pairs, counts ",
-            "and thresholds are identical; only the rule for collapsing forty ",
-            "quarterly verdicts into one signal differs."),
+          p("PRISM uses ", tags$strong("one"), " definition of a signal throughout: ",
+            tags$strong("2 crossings within any trailing 6 quarters"),
+            ". This arm is how that rule was chosen. Scoring the same pairs under ",
+            "the looser alternative \u2014 accepting any single crossing \u2014 is ",
+            "shown alongside it, because a threshold is only defensible if you can ",
+            "say what the alternative would have cost. The pairs, counts and ",
+            "criteria are identical in both columns; only the rule for collapsing ",
+            "~40 quarterly verdicts into one signal differs."),
           uiOutput("negctl_summary"),
           tags$h6(class = "mt-3 fw-semibold", "Pair-level results"),
           DTOutput("negctl_table"),

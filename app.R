@@ -1169,19 +1169,19 @@ server <- function(input, output, session) {
     }
     tagList(
       div(class = "d-flex flex-wrap gap-3 mt-3",
-        ruleblock("Rule A — any single quarter crosses",
-                  "The rule the signal-to-label lag is anchored on.",
+        ruleblock("Rejected — any single quarter crosses",
+                  "The looser alternative. Not used anywhere in PRISM.",
                   s$n_false_pos, s$specificity, s$fp_rate_hi95, "#b45309"),
         if (has_ruleB)
-          ruleblock(sprintf("Rule B — %d of any trailing %d quarters",
+          ruleblock(sprintf("In use — %d of any trailing %d quarters",
                             s$persistence_min, s$persistence_window),
-                    "The persistence rule the Monitor tab uses for CONFIRMED.",
+                    "Governs the live status, signal duration, and cohort lag.",
                     s$n_false_pos_persistent, s$specificity_persistent,
                     s$fp_rate_hi95_persistent, "#166534")
         else
           div(class = "alert alert-secondary py-2 px-3 mb-0",
               style = "flex:1 1 320px;font-size:0.85rem;",
-              "Rule B results are pending the next pipeline run.")
+              "Results for the rule in use are pending the next pipeline run.")
       ),
       p(class = "text-muted mt-2", style = "font-size:0.82rem;",
         "Same pairs, same counts, same thresholds — only the rule for turning a ",
@@ -1189,7 +1189,7 @@ server <- function(input, output, session) {
         "independently gives ~40 chances to cross: at a nominal 5% per-quarter error ",
         "rate, the chance of at least one false crossing is about 87%. That is the ",
         "gap between the two numbers above, and it is a property of the rule rather ",
-        "than of the data.")
+        "than of the data — which is why the looser one was rejected.")
     )
   })
 
@@ -1215,8 +1215,8 @@ server <- function(input, output, session) {
           !informative                                     ~ "Too sparse to test",
           !has_ruleB & ever_signalled                      ~ "FALSE POSITIVE",
           ever_signalled & !is.na(ever_signalled_persistent) &
-            ever_signalled_persistent                      ~ "FP under both rules",
-          ever_signalled                                   ~ "FP under Rule A only",
+            ever_signalled_persistent                      ~ "FP under the rule in use",
+          ever_signalled                                   ~ "FP only under the rejected rule",
           TRUE                                             ~ "Correctly silent"
         ),
         `Max PRR` = ifelse(is.na(max_PRR), NA, round(max_PRR, 2)),
@@ -1233,10 +1233,10 @@ server <- function(input, output, session) {
       DT::formatStyle(
         "Result",
         color = DT::styleEqual(
-          c("FP under both rules", "FP under Rule A only",
+          c("FP under the rule in use", "FP only under the rejected rule",
             "Correctly silent", "Excluded - confounded"),
           c("#b45309", "#a16207", "#166534", "#64748b")),
-        fontWeight = DT::styleEqual("FP under both rules", "700", default = "400")
+        fontWeight = DT::styleEqual("FP under the rule in use", "700", default = "400")
       )
   })
 }
