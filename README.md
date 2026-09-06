@@ -711,20 +711,72 @@ resolve for display but fall back to the all-drug benchmark.
 
 ## Cohort analysis findings
 
-Analysis of the reference cohort revealed several systematic limitations of FAERS-based signal detection:
+Re-derived 2026-09-05 after the query layer moved from substring to exact MedDRA
+Preferred Term matching (see [Signal detection](#signal-detection)). Two findings
+previously documented here did not survive that correction; they are recorded
+below rather than quietly removed, because *why* they were wrong is the useful
+part.
 
-**Entire-class failures:**
-- All 4 PPIs (Nexium, Prilosec, Prevacid, Protonix) show no FAERS signal for C. difficile colitis. The entire class fails to generate disproportionality for this known risk.
-- All 4 bisphosphonates (Fosamax, Actonel, Boniva, Reclast) detected signals only after the label change for osteonecrosis of jaw. ONJ was identified from dental case reports in the literature, not from FAERS spontaneous reporting.
+**Corrected — the PPI "class-wide failure" was an artefact of the query, not a
+property of FAERS.**
 
-**Drugs where FAERS signal detection was not applicable:**
-- Seroquel and Zyprexa show no signal for cerebrovascular accident / mortality. The BBW for increased mortality in elderly dementia patients was based on 17 placebo-controlled clinical trials, not spontaneous reports. FAERS cannot stratify by age or indication.
-- 6 additional drugs show no FAERS signal: Floxin, Voltaren, Eliquis, Sonata, Intermezzo, and Januvia.
+This section previously claimed that none of the four PPIs generated a signal for
+*Clostridium difficile* colitis. Under exact PT matching all four do:
 
-**Outliers:**
-- Ambien has an extreme PRR of 57.6 for somnambulism and a 9.3-year signal-to-label lag, making it a significant outlier in both signal strength and regulatory response time.
+| Drug | Signal quarters | Max PRR | First signal |
+|------|-----------------|---------|--------------|
+| Protonix | 17 | 17.71 | 2006 Q4 |
+| Prevacid | 12 | 11.13 | 2006 Q3 |
+| Nexium | 10 | 7.71 | 2008 Q1 |
+| Prilosec | 4 | 7.81 | 2008 Q3 |
 
-These findings underscore that FAERS disproportionality analysis has well-defined blind spots: class-wide effects, risks identified through clinical trials or published literature, and AEs with fragmented MedDRA coding.
+Substring matching inflated `count_c` — the event across *all* drugs — by the
+whole *C. difficile* PT family, while the drugs' own reports stayed concentrated
+in the exact term. The denominator grew faster than the numerator and PRR was
+diluted below threshold. The "blind spot" was in the tool.
+
+**Corrected — the antipsychotics do signal on mortality.** Seroquel, Zyprexa and
+Risperdal each reach signal criteria for `death` (3, 4 and 4 quarters). The
+underlying regulatory point still stands and is worth keeping: the 2005 boxed
+warning came from a meta-analysis of 17 placebo-controlled trials, and FAERS
+cannot stratify by age or indication, so it could not have supported that
+conclusion on its own. But "no signal" was the wrong evidence for it.
+
+**Holds — bisphosphonate ONJ was found in the literature, not in FAERS.** Every
+first signal *postdates* its label change:
+
+| Drug | Label change | First FAERS signal |
+|------|--------------|--------------------|
+| Fosamax | 2005-11-12 | 2006 Q2 |
+| Actonel | 2005-11-12 | 2006 Q3 |
+| Reclast | 2009-09-01 | 2010 Q2 |
+| Boniva | 2007-05-09 | never signals |
+
+Osteonecrosis of the jaw was identified from dental case series. FAERS reporting
+followed the FDA notification rather than preceding it.
+
+**Holds, with a mechanism — Seroquel's negative lag is stimulated reporting.**
+Its first signal is 2007 Q1 against an April 2005 label change: the signal
+appears roughly 21 months *after* the regulator acted, which is the cohort's
+minimum lag (−20.8 months). Once a warning is published, clinicians code for the
+event, and reporting rises because of the label change rather than before it —
+notoriety bias. A negative lag is not a detection failure; it is the label
+causing the data.
+
+**Holds — Ambien remains the strength outlier**, though the magnitude changed
+with exact matching: max PRR **161.4** (previously reported as 57.6), across 42
+signal quarters, with a 9.3-year signal-to-label lag.
+
+**Still no signal:** Floxin (tendon rupture) and Sonata (somnambulism). Eliquis,
+previously listed here, reaches signal criteria in 14 quarters for
+gastrointestinal haemorrhage under exact matching. Intermezzo is marginal at one
+quarter.
+
+**What this episode is actually evidence for.** The original findings were
+plausible, internally consistent, and wrong, and nothing in the app surfaced that
+— a diluted PRR looks exactly like a real negative. Disproportionality results
+are only as good as the term matching underneath them, and a "class-wide blind
+spot" is a claim that deserves the same scepticism as a positive signal.
 
 ---
 
