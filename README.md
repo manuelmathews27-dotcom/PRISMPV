@@ -455,16 +455,18 @@ shiny::runApp()
 
 ## Tests
 
-Three regression suites. The first two gate `run_pipeline.R` **and** every deploy,
-so neither a cohort refresh nor a shipped build can proceed with a failing test.
+Four regression suites. The three offline ones gate `run_pipeline.R` **and** every
+deploy, so neither a cohort refresh nor a shipped build can proceed with a failing
+test. A syntax gate parses every `.R` file before the deploy step runs.
 
 ```bash
-Rscript tests/test_prr_formula.R      # PRR, ROR, Rothman CI, Yates chi-squared
-Rscript tests/test_resolve_token.R    # generic-name -> canonical ingredient
-Rscript tests/test_pt_terms.R         # every curated term is a real MedDRA PT
+Rscript tests/test_prr_formula.R         # PRR, ROR, Rothman CI, Yates chi-squared
+Rscript tests/test_resolve_token.R       # generic-name -> canonical ingredient
+Rscript tests/test_negative_controls.R   # negative control curation rules
+Rscript tests/test_pt_terms.R            # every curated term is a real MedDRA PT
 ```
 
-The first two are pure and offline. `test_pt_terms.R` needs network — it asks
+The first three are pure and offline. `test_pt_terms.R` needs network — it asks
 openFDA whether each of the 116 curated terms resolves under exact-field matching
 — and runs in CI only. It skips itself cleanly (exit 0) when openFDA is
 unreachable, so it can never redden a deploy for an unrelated reason.
@@ -476,6 +478,24 @@ reconstruction and the Yates correction.
 `test_resolve_token.R` covers `canonical_ingredient_token()`, including the FDA
 biologic suffix case, where deleting the hyphen yields a canonical name matching no
 FAERS records (see [Drug name resolution](#drug-name-resolution)).
+
+`test_negative_controls.R` enforces the curation rules for the specificity arm.
+Its central assertion is that no negative control may pair a drug with an event
+its **own class** was labelled for. That rule exists because an earlier attempt
+at a comparison arm used same-class drugs as controls, which cannot work: when
+FDA labels a risk class-wide, every member receives the label, so a same-class
+control is an uncollected case rather than a control. FDA's Feb 2012 statin
+diabetes change named Lescol and Livalo by name. Measurement agreed — 7 of 8
+era-matched comparators signalled, Belsomra reaching PRR 36 against Ambien's 38
+for the same event. The test also bars promiscuous control events, requires a
+written rationale per pair, and fails if the arm shrinks below 20 primary pairs,
+where the confidence interval stops being worth reporting.
+
+**Parse gate.** CI runs `parse()` over `app.R`, `run_pipeline.R`, and every file
+in `R/`, `scripts/`, and `tests/` before deploying. The R suites source only
+`R/00_utils.R` and `R/20_pt_terms.R`, so a syntax fault in `app.R` or the UI
+module used to reach shinyapps.io and be caught only by the post-deploy smoke
+test — after the bad bundle was already live.
 
 ---
 

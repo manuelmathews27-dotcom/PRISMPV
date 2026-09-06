@@ -14,7 +14,8 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 # Gate 0: run regression tests before any data work.
 # Fails loudly if anyone reverts the cell-reconstruction fix or the Yates chi-sq,
 # or the biologic-suffix handling in canonical_ingredient_token().
-for (t in c("tests/test_prr_formula.R", "tests/test_resolve_token.R")) {
+for (t in c("tests/test_prr_formula.R", "tests/test_resolve_token.R",
+            "tests/test_negative_controls.R")) {
   if (system2("Rscript", t, stdout = "", stderr = "") != 0)
     stop("Pipeline halted: ", t, " failed")
 }

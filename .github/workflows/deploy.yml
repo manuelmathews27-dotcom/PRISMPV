@@ -78,6 +78,10 @@ jobs:
           set -e
           Rscript tests/test_prr_formula.R
           Rscript tests/test_resolve_token.R
+          # Curation guard: no negative control may pair a drug with an event its
+          # own class was labelled for. Offline, and the check that would have
+          # caught the abandoned same-class control arm before it was written.
+          Rscript tests/test_negative_controls.R
           # Needs network: confirms every curated term is a real MedDRA PT.
           # Queries use .exact matching, so a non-PT returns zero rather than an
           # error — it reads in the UI as "no reports" and is invisible without
