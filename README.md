@@ -293,10 +293,10 @@ lookup:
 ### Discontinued brands
 
 Brands with no current FDA label, such as `LEVAQUIN` and `COUMADIN`, return HTTP 404
-from the labeling API. A boxed-warning check against the raw name therefore found
-nothing and classified an existing warning as an emerging signal.
-`fetch_label_results()` retries with the generic name, taken from the cohort's
-brand-to-generic map and falling back to `resolve_drug_names()`.
+from the labeling API. Checking a boxed warning against the raw brand name alone
+would therefore find nothing and classify a long-standing warning as an emerging
+signal. `fetch_label_results()` retries with the generic name, taken from the
+cohort's brand-to-generic map and falling back to `resolve_drug_names()`.
 
 Withdrawn drugs such as Vioxx and Avandia cannot be recovered this way, because
 openFDA holds no label for them under any name.
