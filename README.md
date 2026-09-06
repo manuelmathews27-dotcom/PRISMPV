@@ -578,51 +578,32 @@ bundled — the user-facing export is the
 
 ```
 prism/
-├── app.R                      # Server logic + shinyApp() entry point
-├── R/                         # Sourced automatically by Shiny, in name order,
-│   │                          # BEFORE app.R — the numeric prefixes make that
-│   │                          # dependency order explicit rather than incidental.
-│   ├── 00_utils.R             # Packages, openFDA client, PRR maths, caching,
-│   │                          # name resolution. Must load first: 10_ calls
-│   │                          # compute_prr() at load time, and 50_ builds the
-│   │                          # `ui` object at source time.
-│   ├── 10_cohort_data.R       # Reference cohort load, class remap, lookups
-│   ├── 20_pt_terms.R          # Curated MedDRA Preferred Terms
-│   ├── 30_signal_query.R      # Live query path, BBW + label coverage checks
-│   ├── 40_timeline.R          # Regulatory timeline + cohort lag chart
-│   └── 50_ui.R                # UI definition
+├── app.R                  # Server logic + shinyApp() entry point (927 lines)
+├── R/                     # Auto-sourced by Shiny in name order, BEFORE app.R
+│   ├── 00_utils.R         # Packages, openFDA client, PRR/ROR maths, caching
+│   ├── 10_cohort_data.R   # Cohort load, class remap, lookups
+│   ├── 20_pt_terms.R      # Curated MedDRA Preferred Terms
+│   ├── 30_signal_query.R  # Live query path, BBW + label coverage, synonyms
+│   ├── 40_timeline.R      # Regulatory timeline + cohort lag chart
+│   └── 50_ui.R            # UI definition
 ├── scripts/
-│   ├── 01_faers_pull.R        # Pull FAERS data from openFDA API
-│   ├── 02_signal_detection.R  # Compute PRR, identify first signal quarter
-│   └── refresh_cohort.sh      # Quarterly refresh (installed as prism-refresh)
-├── tests/
-│   ├── test_prr_formula.R     # Regression: PRR, Rothman CI, Yates chi-squared
-│   └── test_resolve_token.R   # Regression: canonical ingredient token
-├── .github/workflows/
-│   └── deploy.yml             # CI: tests -> key injection -> deploy -> smoke test
-├── data/
-│   ├── label_changes.csv      # Curated: 42 drugs with label change dates and types
-│   ├── faers_raw.rds          # Pipeline output: raw counts per drug/AE/quarter
-│   ├── combined.rds           # Pipeline output: signals + label change lag
-│   ├── provenance.rds         # Pipeline run metadata
-│   └── audit_log.csv          # Query audit trail (ICH E2E / GVP IX)
-├── deploy/caddy/              # Live Caddy block, pulled from the VPS by auto-sync
-├── .env.example               # Template for OPENFDA_API_KEY (.env is gitignored)
-├── run_pipeline.R             # Test gate + the three pipeline scripts in order
-├── install_packages.R         # One-time dependency installer
-└── rsconnect/                 # shinyapps.io deployment config
+│   ├── 01_faers_pull.R    # Pull FAERS counts from openFDA
+│   ├── 02_signal_detection.R
+│   └── refresh_cohort.sh  # Quarterly refresh (installed as prism-refresh)
+├── tests/                 # test_prr_formula.R, test_resolve_token.R, test_pt_terms.R
+├── .github/workflows/deploy.yml
+├── data/                  # label_changes.csv (curated) + pipeline .rds output
+│                          # + audit_log.csv (ICH E2E / GVP IX trail)
+├── deploy/caddy/          # Live Caddy block, pulled from the VPS by auto-sync
+├── run_pipeline.R         # Test gate + pipeline scripts in order
+├── install_packages.R     # One-time dependency installer
+└── .env.example           # Template for OPENFDA_API_KEY (.env is gitignored)
 ```
 
-`app.R` holds the server logic and the entry point — 927 lines. UI, the openFDA
-client, the synonym engine and the timeline model each live in their own file
-under `R/`.
-
-**Load order is a real constraint, not cosmetic.** Shiny sources `R/`
-alphabetically before `app.R`, so `R/00_utils.R` attaches every package the app
-uses — they cannot live in `app.R`, because `R/50_ui.R` calls `page_navbar()` at
-source time and would run first. Getting this wrong parses cleanly and fails at
-startup with an HTTP 500.
-
+**The numeric prefixes are load-bearing.** Shiny sources `R/` alphabetically before
+`app.R`, so `00_utils.R` must attach every package the app uses — they cannot live
+in `app.R`, because `50_ui.R` calls `page_navbar()` at source time and would run
+first. Getting this wrong parses cleanly and fails at startup with an HTTP 500.
 
 ---
 
