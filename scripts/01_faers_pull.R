@@ -108,7 +108,32 @@ cohort <- list(
   list(drug = "AMBIEN",        pt = "somnambulism",                   start = 2010, end = 2020),
   list(drug = "LUNESTA",       pt = "somnambulism",                   start = 2010, end = 2020),
   list(drug = "SONATA",        pt = "somnambulism",                   start = 2010, end = 2020),
-  list(drug = "INTERMEZZO",    pt = "somnambulism",                   start = 2012, end = 2020)
+  list(drug = "INTERMEZZO",    pt = "somnambulism",                   start = 2012, end = 2020),
+
+  # ── CONTROL ARM ─────────────────────────────────────────────────────────────
+  # Drugs with NO label change for the tracked event, matched to a case class.
+  # Without these the cohort is selected on the outcome — every drug had an FDA
+  # action — so it can describe timing but cannot say how often the method fires
+  # on a drug the regulator never acted on.
+  #
+  # Windows match the case window for the same class so exposure is comparable.
+  # Four candidates were dropped outright (Latuda, Cibinqo, Jardiance, Tradjenta):
+  # each was approved AFTER its class window closed, so a null result would have
+  # reflected absence of exposure rather than absence of signal.
+  list(drug = "LESCOL",        pt = "diabetes mellitus",              start = 2004, end = 2014),
+  list(drug = "LIVALO",        pt = "diabetes mellitus",              start = 2004, end = 2014),
+  list(drug = "DEXILANT",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
+  list(drug = "ACIPHEX",       pt = "clostridium difficile colitis",  start = 2004, end = 2014),
+  list(drug = "GEODON",        pt = "death",                          start = 2004, end = 2007),
+  list(drug = "TECARTUS",      pt = "t-cell lymphoma",                start = 2018, end = 2025),
+  list(drug = "ZETIA",         pt = "rhabdomyolysis",                 start = 2004, end = 2013),
+  list(drug = "BELSOMRA",      pt = "somnambulism",                   start = 2010, end = 2020),
+  # Thin exposure — marketed for only part of the case window, so a null here is
+  # weaker evidence than a null from a full-window control.
+  list(drug = "SIMPONI",       pt = "tuberculosis",                   start = 2004, end = 2011),
+  list(drug = "SAVAYSA",       pt = "gastrointestinal haemorrhage",   start = 2013, end = 2016),
+  list(drug = "CARVYKTI",      pt = "t-cell lymphoma",                start = 2018, end = 2025),
+  list(drug = "STELARA",       pt = "tuberculosis",                   start = 2004, end = 2011)
 )
 
 
