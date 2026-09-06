@@ -132,6 +132,20 @@ if (file.exists("data/faers_negative_controls.rds")) {
     left_join(neg_meta |> select(drug, pt, rationale, status, source_class),
               by = c("drug", "pt"))
 
+  # The join is the one place this arm can fail silently. If a drug/event key in
+  # the pulled data does not match the CSV, `status` becomes NA, the primary
+  # filter drops the pair, and specificity is computed over a smaller set than
+  # reported -- with no error. Fail loudly instead.
+  if (any(is.na(neg_pairs$status))) {
+    stop("negative control join failed for: ",
+         paste(sprintf("%s/%s", neg_pairs$drug[is.na(neg_pairs$status)],
+                       neg_pairs$pt[is.na(neg_pairs$status)]), collapse = ", "))
+  }
+  if (nrow(neg_pairs) != nrow(neg_meta)) {
+    stop("negative control arm: expected ", nrow(neg_meta), " pairs, computed ",
+         nrow(neg_pairs), " -- the pull and the CSV disagree")
+  }
+
   # Primary analysis excludes pairs found to be confounded (status marked in the
   # CSV with the reason). Those are curation failures, not method failures, and
   # are reported separately rather than quietly dropped.
