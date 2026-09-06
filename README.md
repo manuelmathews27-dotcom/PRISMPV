@@ -753,8 +753,46 @@ a 9.3-year signal-to-label lag.
 **No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
 Intermezzo is marginal at one quarter.
 
-Median signal-to-label lag across the cohort is **37.2 months**, with signals
-detected for 36 of 42 drugs.
+### Signal-to-label lag depends heavily on the rule
+
+Median lag across the cohort is **37.2 months** (36 of 42 drugs) when a signal is
+declared at the first quarter meeting the criteria. Requiring persistence — 2 of
+any trailing 6 quarters — the median falls to **17.0 months** (33 of 42 drugs).
+
+The gap is not a detail. Over half the apparent early-warning margin comes from
+isolated single-quarter crossings, and the [negative control
+arm](#negative-control-arm-specificity) measures how often that rule fires on
+pairs with no plausible association: **17 of 37**. Under the persistence rule
+that drops to **10 of 37**, and every single-quarter false positive disappears —
+Ambien/bladder cancer, Ambien/tendon rupture, Celebrex/bladder cancer,
+Cipro/gambling, Fosamax/bladder cancer, Protonix/tendon rupture. That is textbook
+multiplicity: ~40 quarters is ~40 chances to cross.
+
+The 17.0-month figure is the more defensible one, and it is still a real lead
+time. The 37.2-month figure is reported alongside it rather than dropped, because
+the difference between them is the finding.
+
+| | Any-quarter rule | Persistence rule |
+|---|---|---|
+| Median lag | 37.2 months | **17.0 months** |
+| Drugs with a signal | 36 / 42 | 33 / 42 |
+| Specificity (negative controls) | 54.1% | **73.0%** |
+| False-positive rate, 95% upper bound | 63.1% | 44.1% |
+
+### What persistence does not fix
+
+Ten pairs survive the stricter rule, and they are a different problem. Three
+unrelated classes all signal for osteonecrosis of jaw — esomeprazole (PRR 34.2
+across 15 quarters), atorvastatin (15.8, 14 quarters), zolpidem (14.0, 10
+quarters) — alongside adalimumab and tendon rupture (7.4, 7 quarters). None has a
+mechanism for the event. All reach the same elderly and oncology populations that
+receive bisphosphonates, so the disproportionality is real and reflects
+**channelling in the FAERS denominator**, not pharmacology. No threshold removes
+it, which is the concrete reason disproportionality output is a screening step
+that requires clinical review rather than a conclusion.
+
+With 37 informative pairs the interval is wide (95% upper bound 44.1%), so 73%
+should be read as "roughly three in four", not a precise estimate.
 
 ---
 

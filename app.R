@@ -1142,6 +1142,12 @@ server <- function(input, output, session) {
     }
     s   <- negative_controls$summary
     fmt <- function(x) sprintf("%.1f%%", 100 * x)
+    # Version skew guard. The app and the .rds ship in separate commits: code
+    # lands as soon as it is written, data only after the ~40-minute pipeline
+    # run. A build in that window has dual-rule code reading a single-rule
+    # artifact, where the Rule B fields are simply absent -- and sprintf() on
+    # NULL errors, taking the whole Methods tab down. Degrade to Rule A instead.
+    has_ruleB <- !is.null(s$specificity_persistent)
     # Two rules, same pairs, same data. Rule A is what the signal-to-label lag is
     # anchored on; Rule B is the persistence rule the Monitor tab already uses for
     # CONFIRMED. Showing them together is the point of the arm -- the gap between
@@ -1166,11 +1172,16 @@ server <- function(input, output, session) {
         ruleblock("Rule A — any single quarter crosses",
                   "The rule the signal-to-label lag is anchored on.",
                   s$n_false_pos, s$specificity, s$fp_rate_hi95, "#b45309"),
-        ruleblock(sprintf("Rule B — %d of any trailing %d quarters",
-                          s$persistence_min, s$persistence_window),
-                  "The persistence rule the Monitor tab uses for CONFIRMED.",
-                  s$n_false_pos_persistent, s$specificity_persistent,
-                  s$fp_rate_hi95_persistent, "#166534")
+        if (has_ruleB)
+          ruleblock(sprintf("Rule B — %d of any trailing %d quarters",
+                            s$persistence_min, s$persistence_window),
+                    "The persistence rule the Monitor tab uses for CONFIRMED.",
+                    s$n_false_pos_persistent, s$specificity_persistent,
+                    s$fp_rate_hi95_persistent, "#166534")
+        else
+          div(class = "alert alert-secondary py-2 px-3 mb-0",
+              style = "flex:1 1 320px;font-size:0.85rem;",
+              "Rule B results are pending the next pipeline run.")
       ),
       p(class = "text-muted mt-2", style = "font-size:0.82rem;",
         "Same pairs, same counts, same thresholds — only the rule for turning a ",
@@ -1188,18 +1199,29 @@ server <- function(input, output, session) {
         data.frame(Status = "Not yet computed - run the quarterly pipeline."),
         rownames = FALSE, options = list(dom = "t"), style = "bootstrap4"))
     }
-    tbl <- negative_controls$pairs |>
+    pairs <- negative_controls$pairs
+    # Same version-skew guard as the summary: an older artifact has neither
+    # ever_signalled_persistent nor n_quarters, and referencing a missing column
+    # inside case_when() is an error, not an NA.
+    has_ruleB <- "ever_signalled_persistent" %in% names(pairs)
+    if (!has_ruleB) pairs$ever_signalled_persistent <- NA
+    if (!"n_quarters" %in% names(pairs)) pairs$n_quarters <- NA_integer_
+
+    tbl <- pairs |>
       arrange(desc(ever_signalled), desc(max_PRR)) |>
       mutate(
         Result = dplyr::case_when(
-          status != "negative_control"  ~ "Excluded - confounded",
-          !informative                  ~ "Too sparse to test",
-          ever_signalled_persistent     ~ "FP under both rules",
-          ever_signalled                ~ "FP under Rule A only",
-          TRUE                          ~ "Correctly silent"
+          status != "negative_control"                     ~ "Excluded - confounded",
+          !informative                                     ~ "Too sparse to test",
+          !has_ruleB & ever_signalled                      ~ "FALSE POSITIVE",
+          ever_signalled & !is.na(ever_signalled_persistent) &
+            ever_signalled_persistent                      ~ "FP under both rules",
+          ever_signalled                                   ~ "FP under Rule A only",
+          TRUE                                             ~ "Correctly silent"
         ),
         `Max PRR` = ifelse(is.na(max_PRR), NA, round(max_PRR, 2)),
-        Quarters  = paste0(signal_quarters, " / ", n_quarters)
+        Quarters  = ifelse(is.na(n_quarters), as.character(signal_quarters),
+                           paste0(signal_quarters, " / ", n_quarters))
       ) |>
       select(Drug = drug, Event = pt, Reports = n_reports, `Max PRR`,
              `Signal quarters` = Quarters, Result, Rationale = rationale)
