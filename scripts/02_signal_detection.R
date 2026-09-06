@@ -63,6 +63,10 @@ first_signals <- signals |>
 label_changes <- read.csv("data/label_changes.csv", stringsAsFactors = FALSE) |>
   mutate(label_change_date = as.Date(label_change_date))
 
+# cohort_role rides along from label_changes.csv so downstream consumers can
+# separate the arms; default to "case" if an older CSV lacks the column.
+if (!"cohort_role" %in% names(label_changes)) label_changes$cohort_role <- "case"
+
 combined <- label_changes |>
   mutate(drug_name_upper = toupper(drug_name)) |>
   left_join(first_signals, by = c("drug_name_upper" = "drug")) |>
@@ -81,11 +85,37 @@ combined <- label_changes |>
 saveRDS(combined, "data/combined.rds")
 message("Signal detection complete. Results saved to data/combined.rds")
 
-# Quick summary print
-cat("\n── Signal-to-Label Lag Summary ──────────────────────────────\n")
-cat(sprintf("  Drugs analyzed         : %d\n",   nrow(combined)))
-cat(sprintf("  Signals detected       : %d\n",   sum(!is.na(combined$signal_start_quarter))))
-cat(sprintf("  Median lag (months)    : %.1f\n", median(combined$lag_months, na.rm = TRUE)))
-cat(sprintf("  Min lag (months)       : %.1f\n", min(combined$lag_months,    na.rm = TRUE)))
-cat(sprintf("  Max lag (months)       : %.1f\n", max(combined$lag_months,    na.rm = TRUE)))
+# ── Summary, split by arm ────────────────────────────────────────────────────
+# Cases and controls MUST be reported separately. Pooling them would state a
+# signal rate over a set that mixes drugs FDA acted on with drugs it did not,
+# which is the exact confusion the control arm exists to resolve. Controls carry
+# no label_change_date, so every lag statistic is case-only by construction.
+if (!"cohort_role" %in% names(combined)) combined$cohort_role <- "case"
+cases    <- combined[combined$cohort_role == "case", ]
+controls <- combined[combined$cohort_role == "control", ]
+
+pct <- function(n, d) if (d == 0) "n/a" else sprintf("%d/%d (%.0f%%)", n, d, 100 * n / d)
+
+cat("\n── Signal-to-Label Lag Summary (CASES) ──────────────────────\n")
+cat(sprintf("  Drugs analyzed         : %d\n",   nrow(cases)))
+cat(sprintf("  Signals detected       : %s\n",   pct(sum(!is.na(cases$signal_start_quarter)), nrow(cases))))
+cat(sprintf("  Median lag (months)    : %.1f\n", median(cases$lag_months, na.rm = TRUE)))
+cat(sprintf("  Min lag (months)       : %.1f\n", min(cases$lag_months,    na.rm = TRUE)))
+cat(sprintf("  Max lag (months)       : %.1f\n", max(cases$lag_months,    na.rm = TRUE)))
+
+if (nrow(controls) > 0) {
+  cat("\n── Control arm (no label change for the tracked event) ──────\n")
+  cat(sprintf("  Controls analyzed      : %d\n", nrow(controls)))
+  cat(sprintf("  Signals detected       : %s\n",
+              pct(sum(!is.na(controls$signal_start_quarter)), nrow(controls))))
+  cat("  Per control:\n")
+  for (i in seq_len(nrow(controls))) {
+    cat(sprintf("    %-12s %-30s %s\n",
+                controls$drug_name[i], controls$adverse_event[i],
+                if (is.na(controls$signal_start_quarter[i])) "no signal"
+                else paste("SIGNAL from", controls$signal_start_quarter[i])))
+  }
+  cat("\n  A control that signals is not automatically a false positive: it may\n")
+  cat("  share a class effect that FDA labelled only for other members.\n")
+}
 cat("─────────────────────────────────────────────────────────────\n\n")
