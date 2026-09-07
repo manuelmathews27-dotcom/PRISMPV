@@ -1173,29 +1173,44 @@ server <- function(input, output, session) {
                 div(style = "font-size:1.5rem;font-weight:650;color:#334155;", fmt(hi))))
       )
     }
+    # The headline is ONE number: specificity under the rule PRISM uses. The
+    # rejected alternative is real justification for that threshold, but it forces
+    # a two-rule explanation on every reader, so it sits behind a toggle -- there
+    # for anyone who asks how the threshold was chosen, invisible otherwise.
     tagList(
       div(class = "d-flex flex-wrap gap-3 mt-3",
-        ruleblock("Rejected — any single quarter crosses",
-                  "The looser alternative. Not used anywhere in PRISM.",
-                  s$n_false_pos, s$specificity, s$fp_rate_hi95, "#b45309"),
         if (has_ruleB)
-          ruleblock(sprintf("In use — %d of any trailing %d quarters",
+          ruleblock(sprintf("Specificity \u2014 %d of any trailing %d quarters",
                             s$persistence_min, s$persistence_window),
-                    "Governs the live status, signal duration, and cohort lag.",
+                    "The rule PRISM uses for live status, signal duration and cohort lag.",
                     s$n_false_pos_persistent, s$specificity_persistent,
                     s$fp_rate_hi95_persistent, "#166534")
         else
-          div(class = "alert alert-secondary py-2 px-3 mb-0",
-              style = "flex:1 1 320px;font-size:0.85rem;",
-              "Results for the rule in use are pending the next pipeline run.")
+          ruleblock("Specificity", "Any-quarter rule (persistence pending next run).",
+                    s$n_false_pos, s$specificity, s$fp_rate_hi95, "#166534")
       ),
-      p(class = "text-muted mt-2", style = "font-size:0.82rem;",
-        "Same pairs, same counts, same thresholds — only the rule for turning a ",
-        "series of quarterly verdicts into one signal differs. Scoring ~40 quarters ",
-        "independently gives ~40 chances to cross: at a nominal 5% per-quarter error ",
-        "rate, the chance of at least one false crossing is about 87%. That is the ",
-        "gap between the two numbers above, and it is a property of the rule rather ",
-        "than of the data — which is why the looser one was rejected.")
+      if (has_ruleB) tagList(
+        tags$button(
+          class = "btn btn-sm btn-outline-secondary mt-3",
+          `data-bs-toggle` = "collapse",
+          `data-bs-target` = "#threshold-choice",
+          "How this threshold was chosen"
+        ),
+        div(id = "threshold-choice", class = "collapse mt-2",
+          div(class = "d-flex flex-wrap gap-3",
+            ruleblock("Rejected \u2014 any single quarter crosses",
+                      "The looser alternative. Not used anywhere in PRISM.",
+                      s$n_false_pos, s$specificity, s$fp_rate_hi95, "#b45309")
+          ),
+          p(class = "text-muted mt-2", style = "font-size:0.82rem;",
+            "Same pairs, same counts, same thresholds \u2014 only the rule for turning ",
+            "a series of quarterly verdicts into one signal differs. Scoring ~40 ",
+            "quarters independently gives ~40 chances to cross: at a nominal 5% ",
+            "per-quarter error rate, the chance of at least one false crossing is ",
+            "about 87%. That gap is a property of the rule rather than of the data, ",
+            "which is why the looser one was rejected.")
+        )
+      ),
     )
   })
 
