@@ -835,9 +835,11 @@ ICH E2E. (2004). *Pharmacovigilance planning*. International Conference on Harmo
 
 Shared helpers live in `R/00_utils.R`, documented at the point of definition:
 `compute_prr()` (PRR, ROR, CIs, Yates chi-squared from openFDA marginals),
-`check_signal()` (Evans + Rothman criteria), `resolve_drug_names()` and
+`check_signal()` (per-quarter Evans + Rothman criteria),
+`first_persistent_index()` (the persistence rule that turns a series of quarterly
+verdicts into one signal), `resolve_drug_names()` and
 `canonical_ingredient_token()` (brand → active ingredient), `build_url()`,
 `fetch_total()`, and the response cache.
 
 Detection thresholds are constants: `SIGNAL_MIN_REPORTS = 3`, `SIGNAL_MIN_PRR = 2`,
-`SIGNAL_MIN_CHISQ = 4`.
+`SIGNAL_MIN_CHISQ = 4`, `PERSISTENCE_MIN = 2`, `PERSISTENCE_WINDOW = 6`.
