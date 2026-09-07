@@ -47,9 +47,9 @@ PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identif
 | Tab | Description |
 |-----|-------------|
 | **Monitor Your Drug** | Live openFDA query for any drug + adverse event: signal status, PRR and ROR with CIs, BBW detection, cohort benchmark (when applicable), and a downloadable assessment record |
-| **Reference Cohort** | Signal-to-label lag across all 42 cohort drugs, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
+| **Reference Cohort** | Signal-to-label lag for the 33 of 42 cohort drugs with a detected signal, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
 | **Drug Table** | Searchable table of cohort data with data provenance panel |
-| **Methodology** | Signal detection math, thresholds, PRR vs ROR vs EBGM/IC, and limitations |
+| **Methodology** | Signal detection math, thresholds, PRR vs ROR vs EBGM/IC, the negative control arm and its specificity result, and limitations |
 
 ---
 
