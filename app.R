@@ -1210,7 +1210,7 @@ server <- function(input, output, session) {
             "about 87%. That gap is a property of the rule rather than of the data, ",
             "which is why the looser one was rejected.")
         )
-      ),
+      )
     )
   })
 
@@ -1234,10 +1234,13 @@ server <- function(input, output, session) {
         Result = dplyr::case_when(
           status != "negative_control"                     ~ "Excluded - confounded",
           !informative                                     ~ "Too sparse to test",
+          # Judged by the ONE rule PRISM uses. A pair that crosses in a single
+          # quarter but never persists is correctly silent under that rule, and
+          # calling it anything else would reintroduce the two-rule framing the
+          # toggle above deliberately hides.
           !has_ruleB & ever_signalled                      ~ "FALSE POSITIVE",
-          ever_signalled & !is.na(ever_signalled_persistent) &
-            ever_signalled_persistent                      ~ "FP under the rule in use",
-          ever_signalled                                   ~ "FP only under the rejected rule",
+          !is.na(ever_signalled_persistent) &
+            ever_signalled_persistent                      ~ "FALSE POSITIVE",
           TRUE                                             ~ "Correctly silent"
         ),
         `Max PRR` = ifelse(is.na(max_PRR), NA, round(max_PRR, 2)),
@@ -1254,10 +1257,9 @@ server <- function(input, output, session) {
       DT::formatStyle(
         "Result",
         color = DT::styleEqual(
-          c("FP under the rule in use", "FP only under the rejected rule",
-            "Correctly silent", "Excluded - confounded"),
-          c("#b45309", "#a16207", "#166534", "#64748b")),
-        fontWeight = DT::styleEqual("FP under the rule in use", "700", default = "400")
+          c("FALSE POSITIVE", "Correctly silent", "Excluded - confounded"),
+          c("#b45309", "#166534", "#64748b")),
+        fontWeight = DT::styleEqual("FALSE POSITIVE", "700", default = "400")
       )
   })
 }

@@ -50,8 +50,9 @@ predict_timeline <- function(months_active, drug_class = NULL, benchmark_df) {
 #    instead of as geometry.
 #  * Colour encodes the sign of the lag — the finding — and nothing else. Adding
 #    a second colour encoding (era, change type) would fight it.
-#  * Faceting by class turns 42 rows into 12 scannable blocks and makes the
-#    class-wide blind spots legible: a class where nothing was detected shows up
+#  * Faceting by class turns the signalling drugs (33 of 42) into scannable
+#    per-class blocks and makes the
+#    class-wide blind spots legible: a class where little was detected shows up
 #    as a visibly short block rather than as absent rows.
 plot_cohort_lag <- function(data = combined, facet_by_class = TRUE) {
   d <- data |>
