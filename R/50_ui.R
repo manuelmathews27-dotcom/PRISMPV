@@ -434,7 +434,8 @@ ui <- page_navbar(
       card(
         card_header(icon("check-double"), " Signal Classification Criteria"),
         card_body(
-          p("A signal is", tags$strong("met"), "in a given quarter when all four of the following hold:"),
+          p("Detection has two layers. A quarter ", tags$strong("crosses"),
+            " when all four of the following hold:"),
           tags$table(class = "table table-sm table-bordered", style = "max-width: 500px; font-size: 0.9rem;",
             tags$thead(
               tags$tr(tags$th("Criterion"), tags$th("Threshold"), tags$th("Rationale"))
@@ -446,19 +447,25 @@ ui <- page_navbar(
               tags$tr(tags$td("\u03c7\u00b2"), tags$td("\u2265 4.0"), tags$td("Independence test"))
             )
           ),
-          p(class = "mt-3", "Signal status is based on the most recent 6 quarters:"),
+          p(class = "mt-3",
+            "A ", tags$strong("signal"), " requires 2 crossings within any trailing 6 ",
+            "quarters. A single isolated crossing is not a signal. Applied to the most ",
+            "recent 6 quarters, this gives the status shown on the Monitor tab:"),
           tags$ul(
             tags$li(tags$span(class = "badge bg-danger", "CONFIRMED"), " Signal met in 2+ of the last 6 quarters"),
             tags$li(tags$span(class = "badge bg-warning text-dark", "EMERGING"), " Signal met in exactly 1 of the last 6 quarters"),
             tags$li(tags$span(class = "badge bg-success", "NOT DETECTED"), " Signal not met in any of the last 6 quarters")
           ),
-          p(class = "text-muted mt-2", "These thresholds come from Evans et al. (2001). We added a
-            CI lower bound > 1 requirement (per Rothman) to reduce false positives in quarters with very few reports."),
+          p(class = "text-muted mt-2",
+            "The per-quarter thresholds are from Evans et al. (2001), with a CI lower bound ",
+            "> 1 requirement added (per Rothman) to limit false positives in quarters with ",
+            "few reports. The persistence requirement was set from the negative control arm ",
+            "below, which measured its effect on the false-positive rate."),
           tags$h6(class = "mt-3 fw-semibold", "Signal duration metrics"),
           p("The Monitor tab reports two complementary duration measures:"),
           tags$ul(
-            tags$li(tags$strong("Signal Duration"), " \u2014 months since the signal began, where a signal begins at the first quarter meeting criteria in 2 of any trailing 6 quarters. Same rule as the status above and as the cohort lag, so the three are directly comparable."),
-            tags$li(tags$strong("Current Streak"), " \u2014 consecutive quarters where signal criteria are currently met. Indicates signal persistence and stability.")
+            tags$li(tags$strong("Signal Duration"), " \u2014 months since the signal began, under the persistence rule above. The same rule defines the cohort lag, so the two are directly comparable."),
+            tags$li(tags$strong("Current Streak"), " \u2014 consecutive quarters, counting back from the latest, in which the criteria were met.")
           ),
           p(class = "text-muted", "A long duration with a short streak may indicate an intermittent signal. A short duration with a long streak suggests a newly emerging but consistent signal.")
         )
@@ -470,20 +477,24 @@ ui <- page_navbar(
           p("The reference cohort includes", tags$strong("42 drugs"), "across",
             tags$strong("12 mechanistic classes"), "where FDA took regulatory action (Boxed Warning, Contraindication,
             Warning, or Withdrawal) after post-market safety signals. These are known, documented cases."),
-          p("For each drug, we pulled FAERS data for the adverse event that led to the label change,
-            computed PRR per quarter from approval through the label change date, and measured the",
-            tags$strong("signal-to-label lag"),
-            ": how long it took from when the FAERS signal first appeared to when FDA acted."),
+          p("For each drug, PRISM pulls quarterly FAERS counts for the adverse event that led
+            to the labelling action, computes PRR per quarter across a window spanning that
+            action, and measures the", tags$strong("signal-to-label lag"),
+            ": the interval between signal onset and the date FDA acted."),
           tags$h6(class = "mt-3 fw-semibold", "What the cohort tells us"),
           tags$ul(
-            tags$li("For some classes (fluoroquinolones, antidiabetics, antithrombotics), FAERS signals
-                    showed up well before FDA acted."),
-            tags$li("For others (PPIs, bisphosphonates), FAERS was not the driver. FDA acted based on
-                    clinical trials and published case series instead."),
-            tags$li("Lag times range from under 1 month to over 111 months, so FAERS alone cannot predict when
-                    FDA will act.")
+            tags$li("For several classes \u2014 fluoroquinolones, proton pump inhibitors,
+                    Factor Xa inhibitors \u2014 the FAERS signal preceded FDA action by years."),
+            tags$li("For others, FAERS was not the driver. The bisphosphonate osteonecrosis
+                    warning followed dental case series, and the atypical antipsychotic
+                    mortality warning followed a meta-analysis of 17 placebo-controlled
+                    trials that FAERS could not have reproduced."),
+            tags$li("Lag ranges from \u221223.8 to 108.9 months. A negative lag indicates the
+                    labelling action preceded the reporting increase, consistent with
+                    notoriety bias rather than detection.")
           ),
-          p(class = "text-muted", "This is why PRISM shows historical context, not predictions.")
+          p(class = "text-muted", "PRISM therefore presents historical context rather than
+            predictions.")
         )
       ),
 
