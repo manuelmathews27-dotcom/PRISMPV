@@ -275,6 +275,19 @@ and this is the artefact that would be attached to a signal validation form.
 Plain CSV by choice — it opens in Excel, it diffs cleanly in version control, and
 it carries no formatting that could obscure a value.
 
+**READUS-PV alignment.** The record's disclosures follow the READUS-PV reporting guideline for disproportionality analyses (Fusaroli et al., *Drug Safety*, 2024). READUS-PV is a reporting standard for publications — voluntary, journal-dependent, and complementary to GVP Module IX Addendum I rather than a regulatory requirement — so the claim here is alignment, not compliance, and its manuscript-structure items do not apply to a per-query record.
+
+Four items it requires were previously left implicit and are now stated explicitly:
+
+| Item | What the record now says |
+|---|---|
+| Study population | All FAERS reports received in the window; no restriction by age, sex, reporter, country, or seriousness |
+| Case definition | Reports listing the drug in **any** role — `drugcharacterization` is not filtered, so suspect, interacting and concomitant mentions all count |
+| Comparator | All other drug-event reports in the same window; no active comparator |
+| Case-by-case evaluation | Not performed — disproportionality only, no causality assessment |
+
+The case definition is the consequential one. Counting concomitant mentions inflates the numerator for widely co-prescribed drugs, and it is a defensible but rarely-disclosed choice. Stating it is the point of the guideline.
+
 ---
 
 ## Regulatory Timeline Intelligence
@@ -826,6 +839,8 @@ Ryan, P.B., Schuemie, M.J., Welebob, E., Duke, J., Valentine, S., & Hartzema, A.
 Schuemie, M.J., Ryan, P.B., Hripcsak, G., Madigan, D., & Suchard, M.A. (2016). Measuring signal detection performance: can we trust negative controls and do we need them? *Drug Safety*, 39(11), 1039–1042.
 
 European Medicines Agency. (2012). *Guideline on good pharmacovigilance practices (GVP), Module IX — Signal management*. EMA/827661/2011.
+
+Fusaroli, M., Salvo, F., Khouri, C., & Raschi, E. (2024). The Reporting of a Disproportionality Analysis for Drug Safety Signal Detection Using Individual Case Safety Reports in PharmacoVigilance (READUS-PV): Development and Statement. *Drug Safety*, 47, 575–584.
 
 ICH E2E. (2004). *Pharmacovigilance planning*. International Conference on Harmonisation of Technical Requirements for Registration of Pharmaceuticals for Human Use.
 
