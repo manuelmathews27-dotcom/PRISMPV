@@ -546,6 +546,46 @@ ui <- page_navbar(
         )
       ),
 
+      # Placed before Limitations deliberately: the case-definition disclosure is
+      # a limitation, and READUS-PV exists to stop it being left implicit. It was
+      # previously stated only inside the downloaded CSV, where a reader clicking
+      # through the app would never see it.
+      card(
+        card_header(icon("clipboard-check"), " Reporting Standard: READUS-PV"),
+        card_body(
+          p("The downloadable assessment record follows ", tags$strong("READUS-PV"),
+            ", the reporting guideline for disproportionality analyses using individual ",
+            "case safety reports (Fusaroli et al., ", tags$em("Drug Safety"), ", 2024). ",
+            "READUS-PV is a reporting standard for publications \u2014 voluntary, and ",
+            "complementary to GVP Module IX Addendum I rather than a regulatory ",
+            "requirement \u2014 so this is alignment with its disclosure items, not a ",
+            "compliance claim."),
+          p("Four items it requires were previously implicit in PRISM and are now stated ",
+            "in every exported record:"),
+          tags$ul(
+            tags$li(tags$strong("Study population"),
+                    " \u2014 all FAERS reports received in the query window, with no ",
+                    "restriction by age, sex, reporter type, country or seriousness."),
+            tags$li(tags$strong("Case definition"),
+                    " \u2014 reports listing the drug in any role. ",
+                    tags$code("drugcharacterization"), " is not filtered, so suspect, ",
+                    "interacting and concomitant mentions are all counted."),
+            tags$li(tags$strong("Comparator"),
+                    " \u2014 all other drug-event reports in the same window. No ",
+                    "restricted or active comparator is applied."),
+            tags$li(tags$strong("Case-by-case evaluation"),
+                    " \u2014 not performed. Disproportionality only, with no individual ",
+                    "case review and no causality assessment.")
+          ),
+          p(class = "text-muted",
+            "The case definition is the consequential one. Counting concomitant mentions ",
+            "inflates the numerator for widely co-prescribed drugs, which is a defensible ",
+            "choice but one that changes how a PRR should be read. Restricting to suspect ",
+            "drugs would be the alternative; stating which was chosen is the point of the ",
+            "guideline.")
+        )
+      ),
+
       card(
         card_header(icon("scale-balanced"), " Limitations"),
         card_body(
@@ -583,6 +623,10 @@ ui <- page_navbar(
                     and transparent large-scale pattern discovery.",
                     tags$em("Statistical Methods in Medical Research"),
                     ", 22(1), 57\u201369. [Shrinkage IC refinement]"),
+            tags$li("Fusaroli M, Salvo F, Khouri C, Raschi E. (2024). The Reporting of a Disproportionality
+                    Analysis for Drug Safety Signal Detection Using Individual Case Safety Reports in
+                    PharmacoVigilance (READUS-PV): Development and Statement.",
+                    tags$em("Drug Safety"), ", 47, 575\u2013584."),
             tags$li("Ryan PB, Schuemie MJ, Welebob E, et al. (2013). Defining a reference set to support
                     methodological research in drug safety.", tags$em("Drug Safety"),
                     ", 36(S1), S33\u2013S47. [OMOP negative control reference set]"),
