@@ -262,7 +262,8 @@ query has run. It produces a timestamped CSV containing:
 | Block | Contents |
 |-------|----------|
 | Provenance | Generation time (UTC), drug queried, the canonical ingredient it resolved to, MedDRA PT, data source, query window, quarters analysed |
-| Method | Named method and the thresholds, read from the live constants rather than retyped |
+| Study design | Study population, case definition (including that `drugcharacterization` is unfiltered), comparator, and whether case-by-case review was performed |
+| Method | Named method and the thresholds, read from the live constants rather than retyped; R version |
 | Result | Signal status, current PRR and ROR with 95% CIs, total reports, quarters meeting criteria, months since the signal began |
 | Limits | A stated interpretation caveat — no denominator, reporting and notoriety bias, no stratification by indication or age |
 | Quarterly data | Every quarter's four counts, PRR, ROR, chi-squared and pass/fail |
