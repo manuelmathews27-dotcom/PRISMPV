@@ -234,17 +234,18 @@ ui <- page_navbar(
       # counts. Height scales with the number of drugs so facets never squash.
       card(
         card_header(
-          "Signal-to-label lag across the cohort",
           tags$div(
-            style = paste0("font-size:0.78rem;font-weight:400;color:#64748b;",
-                           "margin-top:4px;line-height:1.35;"),
-            "A signal starts at the first quarter where criteria were met in ",
-            tags$strong("2 of any trailing 6 quarters"),
-            " \u2014 the same rule that marks a live query CONFIRMED on the Monitor ",
-            "tab. Accepting a single isolated crossing instead would nearly double ",
-            "these lead times, and the ",
-            tags$span(style = "color:#b45309;font-weight:600;", "negative control arm"),
-            " on the Methods tab shows why that rule was rejected."
+            style = "font-size:1.15rem;font-weight:650;color:#1e1b4b;letter-spacing:-0.01em;",
+            "Signal-to-label lag across the cohort"
+          ),
+          # One line only. The fuller explanation lives in "How to read this
+          # chart" below; stacking three paragraphs above the plot pushed the
+          # chart itself off the first screen.
+          tags$div(
+            style = paste0("font-size:0.8rem;font-weight:400;color:#64748b;",
+                           "margin-top:5px;"),
+            "Months between the FAERS signal and the FDA labelling action. ",
+            "Bars to the right mean the signal came first."
           )
         ),
         # height is set server-side (see cohort_lag_height) so it tracks the
@@ -268,13 +269,15 @@ ui <- page_navbar(
       card(
         card_header("How to read this chart"),
         card_body(
-          tags$p(tags$strong("Lag chart"), " \u2014 each row is one drug. The bar runs from ",
-                 "zero (the FDA label change) to the month the FAERS signal was first ",
-                 "detected. Bars to the ", tags$strong("right"), " mean the signal came ",
-                 "first; bars to the ", tags$strong("left"),
-                 " mean FDA acted before FAERS showed anything \u2014 usually because the ",
-                 "risk was found in trials or published case series, not spontaneous ",
-                 "reports. The dashed orange line is the cohort median."),
+          tags$p(tags$strong("Lag chart"), " \u2014 one row per drug, ordered by lag and ",
+                 "grouped by mechanistic class. A bar to the left means FDA acted before ",
+                 "FAERS showed anything, which generally indicates the risk was identified ",
+                 "in trials or published case series rather than in spontaneous reports. ",
+                 "The dashed orange line marks the cohort median."),
+          tags$p(tags$strong("Signal onset"), " \u2014 the first quarter meeting the criteria ",
+                 "in 2 of any trailing 6 quarters, the same threshold used for CONFIRMED ",
+                 "status on the Monitor tab. Drugs not reaching it have no bar. Specificity ",
+                 "for this rule is reported on the Methodology tab."),
           tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 the evidence ",
                  "behind a single row, for the drug selected in the sidebar:"),
           tags$ul(
