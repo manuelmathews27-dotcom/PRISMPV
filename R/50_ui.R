@@ -292,12 +292,13 @@ ui <- page_navbar(
                     ": the PRR = 2 threshold. The axis is log-scaled because PRR ",
                     "spans two orders of magnitude across the cohort."),
             tags$li(span(style="color:darkgreen;font-weight:600;", "Green dotted line"),
-                    ": quarter the signal was first confirmed."),
+                    ": the quarter of signal onset."),
             tags$li(span(style="color:firebrick;font-weight:600;", "Red line"),
                     ": date of the FDA label update."),
             tags$li(tags$strong("Signal criteria"),
-                    ": PRR \u2265 2, 95% CI lower bound > 1, n \u2265 3, ",
-                    "\u03c7\u00b2 \u2265 4 (Evans + Rothman CI).")
+                    ": a quarter crosses at PRR \u2265 2, 95% CI lower bound > 1, ",
+                    "n \u2265 3, \u03c7\u00b2 \u2265 4 (Evans + Rothman CI). A signal ",
+                    "requires 2 crossings within any trailing 6 quarters.")
           )
         )
       )
