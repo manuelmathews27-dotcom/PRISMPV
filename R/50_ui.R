@@ -228,8 +228,13 @@ ui <- page_navbar(
       card(
         card_header(
           tags$div(
-            style = paste0("font-size:1.35rem;font-weight:700;color:#1e1b4b;",
-                           "letter-spacing:-0.015em;text-align:center;"),
+            # width:100% is load-bearing. bslib renders .card-header as a flex
+            # container, so a child div is only as wide as its text and
+            # text-align has nothing to centre within. Without the width the
+            # title silently stays left-aligned.
+            style = paste0("width:100%;display:block;text-align:center;",
+                           "font-size:1.35rem;font-weight:700;color:#1e1b4b;",
+                           "letter-spacing:-0.015em;"),
             "Drugs reported with this event"
           )
         ),
@@ -248,23 +253,22 @@ ui <- page_navbar(
       card(
         card_header("How to read this"),
         card_body(
-          tags$p("openFDA returns the drugs most often reported with an event, but a ",
-                 "raw count reflects how widely a drug is prescribed as much as anything ",
-                 "else. Common drugs top the count list whether or not they are ",
-                 "associated with the event. PRR corrects for that by comparing each ",
-                 "drug's share of the event against the share across all other drugs."),
-          tags$p(tags$strong("This is a single-window screen."), " The persistence rule ",
-                 "used elsewhere in PRISM needs a quarterly series, so it is not applied ",
-                 "here. A row meeting the per-quarter criteria is a candidate for ",
-                 "follow-up in the Monitor tab, not a confirmed signal."),
-          tags$p(class = "text-muted",
-                 "Candidates are drawn from the openFDA generic name field, so a brand ",
-                 "queried elsewhere appears here under its active ingredient. That field ",
-                 "is not normalised \u2014 the same ingredient returns separate entries for ",
-                 "salt forms, dose forms and biosimilar suffixes \u2014 so candidates are ",
-                 "collapsed to one row per ingredient before any statistics are computed. ",
-                 "Counts then use the same drug-matching rule as the Monitor tab, which ",
-                 "covers every name variant of that ingredient.")
+          tags$p(tags$strong("Why PRR and not report count."), " openFDA returns the drugs ",
+                 "most often reported with an event, but a raw count tracks how widely a ",
+                 "drug is prescribed. Common drugs top that list whether or not they are ",
+                 "associated with the event. PRR compares each drug's share of the event ",
+                 "against the share across all other drugs, which removes that effect."),
+          tags$p(tags$strong("This is a screen, not a verdict."), " Results cover one ",
+                 "window, so the persistence rule used elsewhere in PRISM does not apply ",
+                 "here. Treat a row that meets the criteria as a candidate to look up in ",
+                 "the Monitor tab, where the quarterly series and the full rule do apply."),
+          tags$p(tags$strong("On drug names."), " Candidates come from the openFDA generic ",
+                 "name field, so a brand queried elsewhere appears here under its active ",
+                 "ingredient. That field is not normalised: one ingredient can return ",
+                 "separate entries for salt forms, dose forms and biosimilar suffixes. ",
+                 "Candidates are collapsed to one row per ingredient before any statistics ",
+                 "are computed, and the counts behind each row use the same drug matching ",
+                 "as the Monitor tab.")
         )
       )
     )
@@ -296,8 +300,13 @@ ui <- page_navbar(
       card(
         card_header(
           tags$div(
-            style = paste0("font-size:1.35rem;font-weight:700;color:#1e1b4b;",
-                           "letter-spacing:-0.015em;text-align:center;"),
+            # width:100% is load-bearing. bslib renders .card-header as a flex
+            # container, so a child div is only as wide as its text and
+            # text-align has nothing to centre within. Without the width the
+            # title silently stays left-aligned.
+            style = paste0("width:100%;display:block;text-align:center;",
+                           "font-size:1.35rem;font-weight:700;color:#1e1b4b;",
+                           "letter-spacing:-0.015em;"),
             "Signal-to-label lag across the cohort"
           )
         ),
@@ -331,36 +340,33 @@ ui <- page_navbar(
       card(
         card_header("How to read this chart"),
         card_body(
-          tags$p(tags$strong("Lag chart"), " \u2014 one row per drug, ordered by lag and ",
-                 "grouped by mechanistic class. A bar to the left means FDA acted before ",
-                 "FAERS showed anything, which generally indicates the risk was identified ",
-                 "in trials or published case series rather than in spontaneous reports. ",
-                 "The dashed orange line marks the cohort median."),
-          tags$p(tags$strong("Signal onset"), " \u2014 the first quarter meeting the criteria ",
-                 "in 2 of any trailing 6 quarters, the same threshold used for CONFIRMED ",
-                 "status on the Monitor tab. Drugs not reaching it have no bar. Specificity ",
-                 "for this rule is reported on the Methodology tab."),
-          tags$p(tags$strong("Quarterly PRR trend"), " (collapsed above) \u2014 the evidence ",
-                 "behind a single row, for the drug selected in the sidebar:"),
+          tags$p(tags$strong("Lag chart."), " One row per drug, ordered by lag and grouped ",
+                 "by mechanistic class. Bars to the left mean the FDA acted before anything ",
+                 "appeared in FAERS. That usually means the risk was found in trials or ",
+                 "published case series rather than in spontaneous reports. The dashed ",
+                 "orange line is the cohort median."),
+          tags$p(tags$strong("Signal onset."), " A quarter crosses when it meets all four ",
+                 "criteria: PRR \u2265 2, 95% CI lower bound > 1, n \u2265 3, and ",
+                 "\u03c7\u00b2 \u2265 4. A signal requires two crossings within any six ",
+                 "consecutive quarters, which is the same threshold the Monitor tab uses for ",
+                 "CONFIRMED. Drugs that never reach it have no bar. The Methodology tab ",
+                 "reports how often this rule fires on drug-event pairs with no known ",
+                 "association."),
+          tags$p(tags$strong("Quarterly PRR trend."), " Collapsed above. Shows the quarter-by-",
+                 "quarter evidence behind one row, for the drug selected in the sidebar."),
           tags$ul(
-            tags$li(tags$strong("Dot size"),
-                    ": reports for that drug/event in the quarter. Bigger dots are ",
-                    "better-supported estimates; a high PRR on a tiny dot is fragile."),
+            tags$li(tags$strong("Dot size"), " is the number of reports that quarter. A high ",
+                    "PRR on a small dot rests on few reports and is unstable."),
             tags$li(span(style="color:#1e1b4b;font-weight:600;", "Dark dots"),
-                    ": quarters meeting all signal criteria. ",
-                    span(style="color:#8b93a3;font-weight:600;", "Pale dots"),
-                    ": below criteria."),
+                    " are quarters that crossed. ",
+                    span(style="color:#8b93a3;font-weight:600;", "Pale dots"), " did not."),
             tags$li(span(style="color:#e05c00;font-weight:600;", "Dashed line"),
-                    ": the PRR = 2 threshold. The axis is log-scaled because PRR ",
-                    "spans two orders of magnitude across the cohort."),
+                    " is PRR = 2. The axis is log-scaled because PRR spans two orders of ",
+                    "magnitude across the cohort."),
             tags$li(span(style="color:darkgreen;font-weight:600;", "Green dotted line"),
-                    ": the quarter of signal onset."),
+                    " is the quarter of signal onset."),
             tags$li(span(style="color:firebrick;font-weight:600;", "Red line"),
-                    ": date of the FDA label update."),
-            tags$li(tags$strong("Signal criteria"),
-                    ": a quarter crosses at PRR \u2265 2, 95% CI lower bound > 1, ",
-                    "n \u2265 3, \u03c7\u00b2 \u2265 4 (Evans + Rothman CI). A signal ",
-                    "requires 2 crossings within any trailing 6 quarters.")
+                    " is the date of the FDA labelling action.")
           )
         )
       )
