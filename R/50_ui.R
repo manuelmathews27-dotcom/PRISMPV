@@ -210,6 +210,59 @@ ui <- page_navbar(
 
   # ── Tab 2: Reference Cohort ──────────────────────────────────────────────
   nav_panel(
+    title = "Reverse Search",
+    icon  = icon("magnifying-glass-arrow-right"),
+    layout_sidebar(
+      sidebar = sidebar(
+        width = 300,
+        selectizeInput("rev_ae", "Adverse event (MedDRA Preferred Term)",
+                       choices = pt_terms, selected = "osteonecrosis of jaw",
+                       options = list(placeholder = "Select or type a term")),
+        actionButton("rev_go", "Find drugs", class = "btn-primary w-100"),
+        hr(),
+        p(class = "text-muted", style = "font-size:0.8rem;",
+          "Ranks drugs by disproportionate reporting for the selected event over ",
+          "the same window the Monitor tab uses. Select a candidate there to see ",
+          "its quarterly series and whether it meets the persistence rule.")
+      ),
+      card(
+        card_header(
+          tags$div(
+            style = "font-size:1.15rem;font-weight:650;color:#1e1b4b;letter-spacing:-0.01em;",
+            "Drugs reported with this event"
+          ),
+          tags$div(
+            style = paste0("font-size:0.8rem;font-weight:400;color:#64748b;",
+                           "margin-top:5px;"),
+            "Ordered by PRR. Report count alone is not a signal."
+          )
+        ),
+        card_body(
+          uiOutput("rev_status"),
+          DTOutput("rev_table")
+        )
+      ),
+      card(
+        card_header("How to read this"),
+        card_body(
+          tags$p("openFDA returns the drugs most often reported with an event, but a ",
+                 "raw count reflects how widely a drug is prescribed as much as anything ",
+                 "else. Common drugs top the count list whether or not they are ",
+                 "associated with the event. PRR corrects for that by comparing each ",
+                 "drug's share of the event against the share across all other drugs."),
+          tags$p(tags$strong("This is a single-window screen."), " The persistence rule ",
+                 "used elsewhere in PRISM needs a quarterly series, so it is not applied ",
+                 "here. A row meeting the per-quarter criteria is a candidate for ",
+                 "follow-up in the Monitor tab, not a confirmed signal."),
+          tags$p(class = "text-muted",
+                 "Drugs are aggregated on the openFDA generic name field, so a brand ",
+                 "queried elsewhere may appear here under its active ingredient.")
+        )
+      )
+    )
+  ),
+
+  nav_panel(
     title = "Reference Cohort",
     icon  = icon("clock-rotate-left"),
 

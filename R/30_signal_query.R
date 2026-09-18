@@ -395,3 +395,82 @@ months_since_first_signal <- function(df) {
 
 # Format a Date to "YYYY QN" quarter label
 fmt_quarter <- function(d) paste0(format(d, "%Y"), " Q", quarter(d))
+
+
+# ── Reverse search: adverse event -> drugs ───────────────────────────────────
+# The Monitor tab answers "does this drug signal for this event". This answers
+# the inverse, which is the question a safety reviewer actually starts from:
+# given an event of interest, which drugs are disproportionately reported with it?
+#
+# Two stages, because openFDA cannot return disproportionality directly:
+#   1. One aggregation call (count=...generic_name.exact) ranks drugs by report
+#      count for the event. Count alone is NOT a signal -- it tracks how widely
+#      a drug is prescribed as much as anything else, which is exactly the
+#      confusion PRR exists to correct.
+#   2. For each candidate, one further call supplies count_b (drug, any event).
+#      count_c and count_d are shared across all rows, so a top-25 search costs
+#      ~27 requests, not 100.
+#
+# Window matches the Monitor tab: ends 3 quarters back so the FAERS reporting
+# lag cannot make a drug look quiet simply because its reports have not landed.
+reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = NULL) {
+  current_q <- floor_date(Sys.Date(), "quarter")
+  q_start   <- format(current_q - months(3 * n_quarters), "%Y%m%d")
+  q_end     <- format(current_q - months(9) + months(3) - days(1), "%Y%m%d")
+
+  if (!is.null(progress_cb)) progress_cb(value = 0.15, detail = "ranking drugs for this event")
+
+  agg_url <- paste0(
+    "https://api.fda.gov/drug/event.json?search=",
+    "patient.reaction.reactionmeddrapt.exact:", quote_term(pt_term),
+    "+AND+receivedate:[", q_start, "+TO+", q_end, "]",
+    "&count=patient.drug.openfda.generic_name.exact&limit=", top_n)
+
+  agg <- tryCatch({
+    h <- curl::new_handle()
+    curl::handle_setopt(h, timeout = 30L, connecttimeout = 10L)
+    resp <- curl::curl_fetch_memory(openfda_authed_url(agg_url), handle = h)
+    if (resp$status_code != 200) return(NULL)
+    jsonlite::fromJSON(rawToChar(resp$content))$results
+  }, error = function(e) NULL)
+
+  if (is.null(agg) || !is.data.frame(agg) || nrow(agg) == 0) return(NULL)
+
+  drugs <- as.character(agg$term)
+  a_vec <- as.numeric(agg$count)
+
+  if (!is.null(progress_cb)) progress_cb(value = 0.4, detail = "computing disproportionality")
+
+  # Shared marginals: one call each, reused by every row.
+  count_c <- fetch_total(build_url(NULL, pt_term, q_start, q_end))
+  count_d <- fetch_total(build_url(NULL, NULL,    q_start, q_end))
+
+  b_vec <- vapply(seq_along(drugs), function(i) {
+    if (!is.null(progress_cb) && i %% 5 == 0)
+      progress_cb(value = 0.4 + 0.5 * i / length(drugs),
+                  detail = paste0("drug ", i, " of ", length(drugs)))
+    as.numeric(fetch_total(build_url(drugs[i], NULL, q_start, q_end)))
+  }, numeric(1))
+
+  out <- data.frame(
+    drug    = drugs,
+    count_a = a_vec,
+    count_b = b_vec,
+    count_c = as.numeric(count_c),
+    count_d = as.numeric(count_d),
+    stringsAsFactors = FALSE
+  ) |>
+    compute_prr() |>
+    dplyr::mutate(
+      # Single-window verdict, so the persistence rule cannot apply here. This is
+      # a screening view: it ranks candidates for follow-up in the Monitor tab,
+      # where the quarterly series and the persistence rule do apply.
+      meets_quarter_criteria = check_signal(count_a, PRR, chi_sq, PRR_lo)
+    ) |>
+    dplyr::arrange(dplyr::desc(PRR))
+
+  attr(out, "query_window") <- paste0(
+    format(as.Date(q_start, "%Y%m%d"), "%Y-%m-%d"), " to ",
+    format(as.Date(q_end,   "%Y%m%d"), "%Y-%m-%d"))
+  out
+}

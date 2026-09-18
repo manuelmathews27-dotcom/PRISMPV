@@ -1167,6 +1167,72 @@ server <- function(input, output, session) {
   # rather than error. Guarding here (not in the UI) keeps the app bootable on a
   # commit that ships the code before the data.
 
+  # ── Reverse Search: adverse event -> drugs ─────────────────────────────────
+  # Guarded end to end. A network failure or an event with too few reports must
+  # render a message, not an error: this tab shares a session with the Monitor
+  # tab, and an uncaught condition here would surface as a broken page.
+
+  rev_result <- eventReactive(input$rev_go, {
+    ae <- tolower(trimws(input$rev_ae %||% ""))
+    if (!nzchar(ae)) return(NULL)
+    withProgress(message = "Searching FAERS", value = 0, {
+      tryCatch(
+        reverse_search(ae, progress_cb = function(value, detail)
+          setProgress(value = value, detail = detail)),
+        error = function(e) structure(list(), class = "rev_error",
+                                      message = conditionMessage(e))
+      )
+    })
+  }, ignoreNULL = TRUE)
+
+  output$rev_status <- renderUI({
+    if (input$rev_go == 0) {
+      return(div(class = "alert alert-secondary py-2 px-3",
+                 style = "font-size:0.85rem;",
+                 "Select an adverse event and choose Find drugs."))
+    }
+    r <- rev_result()
+    if (inherits(r, "rev_error")) {
+      return(div(class = "alert alert-danger py-2 px-3", style = "font-size:0.85rem;",
+                 "Search failed: ", attr(r, "message") %||% "openFDA did not respond."))
+    }
+    if (is.null(r) || nrow(r) == 0) {
+      return(div(class = "alert alert-warning py-2 px-3", style = "font-size:0.85rem;",
+                 "No drugs returned for this event in the query window. Rare terms ",
+                 "may have too few reports to aggregate."))
+    }
+    n_flag <- sum(r$meets_quarter_criteria, na.rm = TRUE)
+    div(class = "text-muted mb-2", style = "font-size:0.85rem;",
+        sprintf("%d drugs ranked. %d meet the per-quarter criteria in this window. Window: %s.",
+                nrow(r), n_flag, attr(r, "query_window") %||% ""))
+  })
+
+  output$rev_table <- DT::renderDT({
+    r <- rev_result()
+    if (is.null(r) || inherits(r, "rev_error") || nrow(r) == 0) {
+      return(DT::datatable(data.frame(), options = list(dom = "t"),
+                           rownames = FALSE, style = "bootstrap4"))
+    }
+    tbl <- r |>
+      mutate(
+        Drug      = drug,
+        Reports   = count_a,
+        PRR       = round(PRR, 2),
+        `PRR 95% CI` = ifelse(is.na(PRR_lo), "",
+                              sprintf("%.2f\u2013%.2f", PRR_lo, PRR_hi)),
+        ROR       = ifelse(is.na(ROR), NA, round(ROR, 2)),
+        `chi-sq`  = round(chi_sq, 1),
+        Criteria  = ifelse(meets_quarter_criteria, "Met", "Not met")
+      ) |>
+      select(Drug, Reports, PRR, `PRR 95% CI`, ROR, `chi-sq`, Criteria)
+    DT::datatable(tbl, rownames = FALSE, filter = "top", style = "bootstrap4",
+                  options = list(pageLength = 15, scrollX = TRUE,
+                                 order = list(list(2, "desc")))) |>
+      DT::formatStyle("Criteria",
+        color = DT::styleEqual(c("Met", "Not met"), c("#b45309", "#64748b")),
+        fontWeight = DT::styleEqual("Met", "700", default = "400"))
+  })
+
   output$negctl_summary <- renderUI({
     if (is.null(negative_controls)) {
       return(div(class = "alert alert-secondary py-2 px-3 mb-0",
