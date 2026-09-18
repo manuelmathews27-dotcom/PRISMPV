@@ -31,8 +31,9 @@ A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Re
 19. [Drug cohort](#drug-cohort)
 20. [Cohort analysis findings](#cohort-analysis-findings)
 21. [Data sources](#data-sources)
-22. [References](#references)
-23. [Code reference](#code-reference)
+22. [Licence and intended use](#licence-and-intended-use)
+23. [References](#references)
+24. [Code reference](#code-reference)
 
 ---
 
@@ -48,6 +49,7 @@ PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identif
 |-----|-------------|
 | **Monitor Your Drug** | Live openFDA query for any drug + adverse event: signal status, PRR and ROR with CIs, BBW detection, cohort benchmark (when applicable), and a downloadable assessment record |
 | **Reference Cohort** | Signal-to-label lag for the 33 of 42 cohort drugs with a detected signal, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
+| **Reverse Search** | Given an adverse event, ranks drugs by disproportionate reporting over the same window the Monitor tab uses |
 | **Drug Table** | Searchable table of cohort data with data provenance panel |
 | **Methodology** | Signal detection math, thresholds, PRR vs ROR vs EBGM/IC, the negative control arm and its specificity result, and limitations |
 
@@ -685,6 +687,7 @@ prism/
 ├── deploy/caddy/          # Live Caddy block, pulled from the VPS by auto-sync
 ├── run_pipeline.R         # Test gate + pipeline scripts in order
 ├── install_packages.R     # One-time dependency installer
+├── LICENSE                # MIT
 └── .env.example           # Template for OPENFDA_API_KEY (.env is gitignored)
 ```
 
@@ -824,6 +827,30 @@ should be read as "roughly three in four", not a precise estimate.
 - **FAERS:** [openFDA Drug Event API](https://open.fda.gov/apis/drug/event/) — optional API key via `OPENFDA_API_KEY`
 - **Drug labeling:** [openFDA Drug Labeling API](https://open.fda.gov/apis/drug/label/) — queried in real time for BBW and contraindication checks
 - **Label changes:** Manually curated from FDA safety communications, drug safety labeling changes, and published literature (`data/label_changes.csv`)
+
+---
+
+## Licence and intended use
+
+Released under the [MIT Licence](LICENSE). © 2026 Manuel Mathews.
+
+FAERS data retrieved through the openFDA API is US Government work and is not
+subject to domestic copyright. The curated content in this repository —
+`data/label_changes.csv` and `data/negative_controls.csv`, including the labelling
+dates, class assignments and per-pair curation rationale — is original work and
+is covered by the licence above.
+
+**Not for clinical or regulatory decision-making.** PRISM performs
+disproportionality analysis on spontaneous reports. A signal is a hypothesis for
+assessment, not evidence of causation, and the output is unsuitable for patient
+care, prescribing, or regulatory submission. It is published for educational and
+research use.
+
+**Unrelated projects sharing the name.** "PRISM" is a common acronym and at least
+one other pharmacovigilance tool uses it. This project was developed
+independently; no code from any similarly named project was consulted or reused,
+and the statistical methods are implemented from the primary literature cited
+below.
 
 ---
 
