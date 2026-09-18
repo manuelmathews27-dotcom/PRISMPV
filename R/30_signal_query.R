@@ -413,7 +413,8 @@ fmt_quarter <- function(d) paste0(format(d, "%Y"), " Q", quarter(d))
 #
 # Window matches the Monitor tab: ends 3 quarters back so the FAERS reporting
 # lag cannot make a drug look quiet simply because its reports have not landed.
-reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = NULL) {
+reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
+                           candidate_pool = 100, progress_cb = NULL) {
   current_q <- floor_date(Sys.Date(), "quarter")
   q_start   <- format(current_q - months(3 * n_quarters), "%Y%m%d")
   q_end     <- format(current_q - months(9) + months(3) - days(1), "%Y%m%d")
@@ -424,7 +425,7 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = N
     "https://api.fda.gov/drug/event.json?search=",
     "patient.reaction.reactionmeddrapt.exact:", quote_term(pt_term),
     "+AND+receivedate:[", q_start, "+TO+", q_end, "]",
-    "&count=patient.drug.openfda.generic_name.exact&limit=", top_n)
+    "&count=patient.drug.openfda.generic_name.exact&limit=", candidate_pool)
 
   agg <- tryCatch({
     h <- curl::new_handle()
@@ -436,7 +437,29 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = N
 
   if (is.null(agg) || !is.data.frame(agg) || nrow(agg) == 0) return(NULL)
 
-  drugs <- as.character(agg$term)
+  # Collapse name variants to one row per ingredient.
+  #
+  # The aggregation buckets by the EXACT product string, so the same ingredient
+  # returns several nested rows: LETROZOLE / LETROZOLE TABLETS, ASPIRIN /
+  # ASPIRIN 81 MG, ADALIMUMAB plus five biosimilar suffixes. Those rows are not
+  # independent -- build_url()'s phrase match on the bare ingredient already
+  # covers every variant (measured: base match == union of all variants for
+  # adalimumab, letrozole and pantoprazole), so the shorter row's count already
+  # contains the longer row's reports. Listing both wasted slots in the top-N
+  # and read as two findings where there is one.
+  #
+  # Querying the canonical token is therefore both correct and complete.
+  # canonical_ingredient_token() returns NA for combination products, where no
+  # single ingredient applies; those keep their original string.
+  canon <- vapply(drugs, function(x) {
+    ct <- canonical_ingredient_token(x)
+    if (is.na(ct)) toupper(trimws(x)) else ct
+  }, character(1), USE.NAMES = FALSE)
+  # Truncate to top_n BEFORE fetching counts. The aggregation is already ordered
+  # by report count, so the first top_n distinct ingredients are the ones worth
+  # evaluating; fetching counts for the whole candidate pool would cost ~200 live
+  # calls per search instead of ~52.
+  drugs <- utils::head(canon[!duplicated(canon)], top_n)
 
   if (!is.null(progress_cb)) progress_cb(value = 0.4, detail = "computing disproportionality")
 
