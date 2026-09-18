@@ -555,7 +555,7 @@ ui <- page_navbar(
                     warning followed dental case series, and the atypical antipsychotic
                     mortality warning followed a meta-analysis of 17 placebo-controlled
                     trials that FAERS could not have reproduced."),
-            tags$li("Lag ranges from \u221223.8 to 108.9 months. A negative lag indicates the
+            tags$li("Lag ranges from \u221223.7 to 108.9 months. A negative lag indicates the
                     labelling action preceded the reporting increase, consistent with
                     notoriety bias rather than detection.")
           ),

@@ -48,7 +48,7 @@ PRISM uses the Proportional Reporting Ratio (PRR) with Evans criteria to identif
 | Tab | Description |
 |-----|-------------|
 | **Monitor Your Drug** | Live openFDA query for any drug + adverse event: signal status, PRR and ROR with CIs, BBW detection, cohort benchmark (when applicable), and a downloadable assessment record |
-| **Reference Cohort** | Signal-to-label lag for the 33 of 42 cohort drugs with a detected signal, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
+| **Reference Cohort** | Signal-to-label lag for the 32 of 42 cohort drugs with a detected signal, faceted by mechanistic class, with a per-drug quarterly PRR drill-down |
 | **Reverse Search** | Given an adverse event, ranks drugs by disproportionate reporting over the same window the Monitor tab uses |
 | **Drug Table** | Searchable table of cohort data with data provenance panel |
 | **Methodology** | Signal detection math, thresholds, PRR vs ROR vs EBGM/IC, the negative control arm and its specificity result, and limitations |
@@ -760,7 +760,7 @@ followed the FDA notification rather than preceding it.
 
 **A negative lag means the label caused the data.** Seroquel's signal for `death`
 begins 2007 Q2 against an April 2005 boxed warning — the cohort's minimum lag at
-−23.8 months. Once a warning is published, clinicians code for the event and
+−23.7 months. Once a warning is published, clinicians code for the event and
 reporting rises *because* of the label change. This is notoriety bias, not a
 detection failure.
 
@@ -775,48 +775,15 @@ a 9.1-year signal-to-label lag, the cohort maximum.
 **No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
 Intermezzo is marginal at one quarter.
 
-### Cohort corrections (2026-09-18)
-
-An audit of the curated label-change dates against primary FDA sources found a
-systematic curation error. Three rows recorded a labelling action that never
-happened for that product, because the warning was present in the drug's
-**original approval label**. A drug approved after its class risk is already
-established launches with the warning, so there is no post-market detection to
-measure and no lag exists. Selecting drugs by class membership rather than by a
-documented product-specific action manufactured a lag out of nothing.
-
-All three were replaced with genuine post-market actions for the same drug:
-
-| Drug | Removed | Reason | Replaced with |
-|---|---|---|---|
-| Humira | Tuberculosis, 2008-09-04 | Boxed TB warning present in the original Dec 2002 approval label | Lymphoma, **2009-08-04** — class-wide paediatric malignancy boxed-warning update |
-| Cimzia | Tuberculosis, 2009-10-07 | Launched April 2008 with a boxed TB warning | Lymphoma, **2009-08-04** — same class action, genuinely post-approval |
-| Reclast | Osteonecrosis of jaw, 2009-09-01 | ONJ already in the original Aug 2007 label under PRECAUTIONS | Femur fracture, **2010-10-14** — atypical femoral fracture warnings required across bisphosphonates |
-
-One further date was corrected: **Enbrel's** tuberculosis boxed warning is dated
-**2008-03-17**, when TB moved from a bolded warning into the Boxed Warning. The
-previously recorded 2008-09-04 is a separate class-wide action on invasive fungal
-infections, which had overstated Enbrel's lag by roughly 5.6 months.
-
-Boniva was checked and stands: its original 2003 label contains no mention of
-osteonecrosis or the jaw, so the warning was genuinely added later.
-
-**Provenance caveat.** These dates are curated from FDA drug safety
-communications, approval labels and secondary sources. In a ten-row random audit,
-one row was wrong and two could only be confirmed to the month rather than the
-day; the follow-up found three more. Rows verified against primary FDA documents
-carry that detail in `source_notes` in `data/label_changes.csv`. The remainder
-should be treated as curated rather than independently audited.
-
 ### Signal-to-label lag
 
-Median lag across the cohort is **17.0 months**, with a signal detected for 33 of
+Median lag across the cohort is **22.3 months**, with a signal detected for 32 of
 42 drugs. A signal begins at the first quarter where criteria were met in 2 of any
 trailing 6 quarters — the same rule that marks a live query CONFIRMED, so one
 definition governs the whole app.
 
-An earlier version accepted a single isolated crossing and reported 37.2 months
-across 36 drugs. That rule was dropped once the [negative control
+An earlier version accepted a single isolated crossing and reported 40.4 months
+across 35 drugs. That rule was dropped once the [negative control
 arm](#negative-control-arm-specificity) measured it: it fires on **17 of 37** pairs
 with no plausible association, against **10 of 37** under persistence. Every
 single-quarter false positive disappeared under the stricter rule —
@@ -825,7 +792,7 @@ Cipro/gambling, Fosamax/bladder cancer, Protonix/tendon rupture — which is
 textbook multiplicity: ~40 quarters is ~40 chances to cross.
 
 Since a spurious early crossing can only move a lag longer, never shorter, the
-37.2-month figure was an overestimate by roughly a factor of two. It is retained
+40.4-month figure overstates the lead time by roughly 80%. It is retained
 in `combined.rds` as `lag_months_first_crossing` and printed by the pipeline for
 comparison, but nothing in the app reads it. The Methods tab shows the
 specificity comparison that drove the decision, not the two lag figures.
@@ -833,8 +800,8 @@ specificity comparison that drove the decision, not the two lag figures.
 | | Rejected rule | **Rule in use** |
 |---|---|---|
 | Definition | any single crossing | 2 of any trailing 6 quarters |
-| Median lag | 37.2 months | **17.0 months** |
-| Drugs with a signal | 36 / 42 | 33 / 42 |
+| Median lag | 40.4 months | **22.3 months** |
+| Drugs with a signal | 35 / 42 | 32 / 42 |
 | Specificity (negative controls) | 54.1% | **73.0%** |
 | False-positive rate, 95% upper bound | 63.1% | 44.1% |
 
