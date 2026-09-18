@@ -407,9 +407,9 @@ fmt_quarter <- function(d) paste0(format(d, "%Y"), " Q", quarter(d))
 #      count for the event. Count alone is NOT a signal -- it tracks how widely
 #      a drug is prescribed as much as anything else, which is exactly the
 #      confusion PRR exists to correct.
-#   2. For each candidate, one further call supplies count_b (drug, any event).
-#      count_c and count_d are shared across all rows, so a top-25 search costs
-#      ~27 requests, not 100.
+#   2. For each candidate, two further calls supply count_a and count_b under the
+#      SAME drug-matching rule. count_c and count_d are shared across all rows,
+#      so a top-25 search costs ~52 requests, not 100.
 #
 # Window matches the Monitor tab: ends 3 quarters back so the FAERS reporting
 # lag cannot make a drug look quiet simply because its reports have not landed.
@@ -437,7 +437,6 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = N
   if (is.null(agg) || !is.data.frame(agg) || nrow(agg) == 0) return(NULL)
 
   drugs <- as.character(agg$term)
-  a_vec <- as.numeric(agg$count)
 
   if (!is.null(progress_cb)) progress_cb(value = 0.4, detail = "computing disproportionality")
 
@@ -445,12 +444,22 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25, progress_cb = N
   count_c <- fetch_total(build_url(NULL, pt_term, q_start, q_end))
   count_d <- fetch_total(build_url(NULL, NULL,    q_start, q_end))
 
-  b_vec <- vapply(seq_along(drugs), function(i) {
+  # count_a is re-fetched through build_url rather than taken from the
+  # aggregation above. The aggregation counts ONLY openfda.generic_name matches,
+  # while count_b matches medicinalproduct OR brand_name OR generic_name. Mixing
+  # them puts a narrower drug definition in the numerator than the denominator,
+  # which understates PRR -- measured at 101 vs 121 reports for dexamethasone
+  # (-17%) on 2023-2025 osteonecrosis data. The aggregation is therefore used
+  # only to pick WHICH drugs to evaluate, never for the arithmetic.
+  ab <- lapply(seq_along(drugs), function(i) {
     if (!is.null(progress_cb) && i %% 5 == 0)
       progress_cb(value = 0.4 + 0.5 * i / length(drugs),
                   detail = paste0("drug ", i, " of ", length(drugs)))
-    as.numeric(fetch_total(build_url(drugs[i], NULL, q_start, q_end)))
-  }, numeric(1))
+    c(a = as.numeric(fetch_total(build_url(drugs[i], pt_term, q_start, q_end))),
+      b = as.numeric(fetch_total(build_url(drugs[i], NULL,    q_start, q_end))))
+  })
+  a_vec <- vapply(ab, function(x) x[["a"]], numeric(1))
+  b_vec <- vapply(ab, function(x) x[["b"]], numeric(1))
 
   out <- data.frame(
     drug    = drugs,
