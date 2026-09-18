@@ -256,12 +256,12 @@ ui <- page_navbar(
                  "follow-up in the Monitor tab, not a confirmed signal."),
           tags$p(class = "text-muted",
                  "Candidates are drawn from the openFDA generic name field, so a brand ",
-                 "queried elsewhere may appear here under its active ingredient. That ",
-                 "field is not fully normalised: near-duplicates such as ",
-                 tags$em("LETROZOLE"), " and ", tags$em("LETROZOLE TABLETS"),
-                 " can occupy separate rows. Counts used in the statistics are re-fetched ",
-                 "under the same drug-matching rule the Monitor tab uses, so the ratio is ",
-                 "computed consistently even where the candidate list is untidy.")
+                 "queried elsewhere appears here under its active ingredient. That field ",
+                 "is not normalised \u2014 the same ingredient returns separate entries for ",
+                 "salt forms, dose forms and biosimilar suffixes \u2014 so candidates are ",
+                 "collapsed to one row per ingredient before any statistics are computed. ",
+                 "Counts then use the same drug-matching rule as the Monitor tab, which ",
+                 "covers every name variant of that ingredient.")
         )
       )
     )

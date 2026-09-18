@@ -108,6 +108,11 @@ PHARMA_QUALIFIERS <- c(
   "FILM", "COATED", "EXTENDED", "RELEASE", "SOLUTION", "INJECTION",
   "OPHTHALMIC", "TOPICAL", "NASAL", "TRANSDERMAL", "PATCH", "CREAM",
   "GEL", "OINTMENT", "DROPS", "SPRAY", "MEDICATED", "SYSTEM",
+  # Hydration state. Observed as DOCETAXEL ANHYDROUS splitting from DOCETAXEL in
+  # the reverse-search candidate list. No drug is named for its hydration state,
+  # so these are always qualifiers. (Names left unquoted here on purpose: a
+  # quoted word inside this block reads as a list entry to naive parsers.)
+  "ANHYDROUS", "MONOHYDRATE", "DIHYDRATE", "HYDRATE",
   # Connectors & short words
   "AND", "FOR", "IN", "WITH", "OF", "MG", "ML", "USP")
 
