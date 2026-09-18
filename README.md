@@ -828,6 +828,8 @@ should be read as "roughly three in four", not a precise estimate.
 - **Drug labeling:** [openFDA Drug Labeling API](https://open.fda.gov/apis/drug/label/) — queried in real time for BBW and contraindication checks
 - **Label changes:** Manually curated from FDA safety communications, drug safety labeling changes, and published literature (`data/label_changes.csv`)
 
+**Provenance caveat.** The label-change dates in `data/label_changes.csv` are curated, not independently audited row by row. Two failure modes matter and both shift a drug's lag directly: a date that is simply wrong, and a date that belongs to a *class-wide* action rather than a product-specific one. The second is the subtler risk — a drug approved after its class risk is established launches with the warning already in its original label, so no post-market detection occurred and no lag exists to measure. Rows checked against primary FDA documents record that in `source_notes`; the rest should be read as curated.
+
 ---
 
 ## Licence and intended use

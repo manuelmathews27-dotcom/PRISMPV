@@ -664,6 +664,10 @@ ui <- page_navbar(
             tags$li("PRISM searches three drug name fields (brand name, generic name, and free-text
                     medicinal product) but can still miss reports with misspellings, abbreviations,
                     or non-US trade names."),
+            tags$li("Cohort label-change dates are curated from FDA drug safety communications,
+                    approval labels and secondary sources. They are not independently audited row
+                    by row, and a date that is off, or attached to a class action rather than a
+                    product-specific one, shifts that drug's lag directly."),
             tags$li("This tool is for educational and research purposes only. It is not regulatory advice.")
           )
         )
