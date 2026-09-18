@@ -87,15 +87,15 @@ cohort <- list(
   list(drug = "PREVACID",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
   list(drug = "PROTONIX",      pt = "clostridium difficile colitis",  start = 2004, end = 2014),
   # ── TNF-alpha Inhibitor (4) ──
-  list(drug = "HUMIRA",        pt = "tuberculosis",                   start = 2004, end = 2011),
+  list(drug = "HUMIRA",        pt = "lymphoma",                       start = 2004, end = 2012),
   list(drug = "ENBREL",        pt = "tuberculosis",                   start = 2004, end = 2011),
   list(drug = "REMICADE",      pt = "lymphoma",                       start = 2004, end = 2008),
-  list(drug = "CIMZIA",        pt = "tuberculosis",                   start = 2008, end = 2012),
+  list(drug = "CIMZIA",        pt = "lymphoma",                       start = 2008, end = 2012),
   # ── Bisphosphonate (4) ──
   list(drug = "FOSAMAX",       pt = "osteonecrosis of jaw",           start = 2004, end = 2008),
   list(drug = "ACTONEL",       pt = "osteonecrosis of jaw",           start = 2004, end = 2008),
   list(drug = "BONIVA",        pt = "osteonecrosis of jaw",           start = 2004, end = 2009),
-  list(drug = "RECLAST",       pt = "osteonecrosis of jaw",           start = 2007, end = 2011),
+  list(drug = "RECLAST",       pt = "femur fracture",                 start = 2007, end = 2013),
   # ── Factor Xa Inhibitor (2) ──
   list(drug = "XARELTO",       pt = "gastrointestinal haemorrhage",   start = 2011, end = 2015),
   list(drug = "ELIQUIS",       pt = "gastrointestinal haemorrhage",   start = 2013, end = 2016),

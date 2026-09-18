@@ -18,7 +18,12 @@
 #   "malignant neoplasm"       -> MedDRA inverts it: "neoplasm malignant".
 # None of the three is a reference-cohort pair, so this does not disturb
 # combined.rds; it only changes what the Monitor dropdown can query.
-pt_terms <- sort(c(
+# unique(): five terms were listed twice (anaemia, neutropenia, aplastic anaemia,
+# febrile neutropenia, neuropathy peripheral) after the haematology block was
+# added on top of entries that already existed elsewhere in the list. sort()
+# alone kept both copies, so the dropdown showed them twice and every count of
+# "curated terms" was inflated.
+pt_terms <- sort(unique(c(
   # ── Cardiac ──
   "myocardial infarction", "cardiac arrest", "cardiac failure",
   "ventricular tachycardia", "ventricular fibrillation",
@@ -62,7 +67,7 @@ pt_terms <- sort(c(
   "intestinal obstruction", "clostridium difficile colitis",
   # ── Musculoskeletal ──
   "rhabdomyolysis", "tendon rupture", "tendonitis",
-  "osteonecrosis of jaw", "osteonecrosis",
+  "osteonecrosis of jaw", "osteonecrosis", "femur fracture",
   "pathological fracture", "amputation",
   # ── Skin ──
   "Stevens-Johnson syndrome", "toxic epidermal necrolysis",
@@ -101,4 +106,4 @@ pt_terms <- sort(c(
   # ── General ──
   "death", "multiple organ dysfunction syndrome",
   "drug interaction", "drug dependence"
-))
+)))

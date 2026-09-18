@@ -451,7 +451,7 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
   # Querying the canonical token is therefore both correct and complete.
   # canonical_ingredient_token() returns NA for combination products, where no
   # single ingredient applies; those keep their original string.
-  canon <- vapply(drugs, function(x) {
+  canon <- vapply(as.character(agg$term), function(x) {
     ct <- canonical_ingredient_token(x)
     if (is.na(ct)) toupper(trimws(x)) else ct
   }, character(1), USE.NAMES = FALSE)

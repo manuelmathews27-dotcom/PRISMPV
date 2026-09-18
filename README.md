@@ -125,7 +125,7 @@ This requires every curated term to be a real MedDRA PT, since a non-PT returns 
 rather than an error. MedDRA inverts some word orders (`neoplasm malignant`,
 `haemorrhage intracranial`) and subdivides others (`stroke` exists only as
 `ischaemic stroke` and `haemorrhagic stroke`). `tests/test_pt_terms.R` validates all
-127 terms against openFDA on every deploy.
+119 terms against openFDA on every deploy.
 
 ### Signal criteria (Evans + Rothman)
 
@@ -376,7 +376,7 @@ Both maps are applied by `expand_ae_terms()`, which also extracts meaningful ind
 
 ## Adverse event term selection
 
-The Monitor tab provides a curated dropdown of 127 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
+The Monitor tab provides a curated dropdown of 119 MedDRA Preferred Terms selected for regulatory relevance — serious, unexpected, life-threatening, or historically linked to FDA action. Organized by system organ class:
 
 Cardiac, Vascular/Thromboembolic, Hepatic, Renal, Neurological, Neuropsychiatric, Respiratory, Gastrointestinal, Musculoskeletal, Skin, Endocrine/Metabolic, Haematological, Immune/Allergic, Infectious, Oncology, Ocular, General.
 
@@ -499,7 +499,7 @@ Rscript tests/test_pt_terms.R            # every curated term is a real MedDRA P
 ```
 
 The first three are pure and offline. `test_pt_terms.R` needs network — it asks
-openFDA whether each of the 127 curated terms resolves under exact-field matching
+openFDA whether each of the 119 curated terms resolves under exact-field matching
 — and runs in CI only. It skips itself cleanly (exit 0) when openFDA is
 unreachable, so it can never redden a deploy for an unrelated reason.
 
@@ -774,6 +774,39 @@ a 9.1-year signal-to-label lag, the cohort maximum.
 
 **No signal detected:** Floxin (tendon rupture) and Sonata (somnambulism).
 Intermezzo is marginal at one quarter.
+
+### Cohort corrections (2026-09-18)
+
+An audit of the curated label-change dates against primary FDA sources found a
+systematic curation error. Three rows recorded a labelling action that never
+happened for that product, because the warning was present in the drug's
+**original approval label**. A drug approved after its class risk is already
+established launches with the warning, so there is no post-market detection to
+measure and no lag exists. Selecting drugs by class membership rather than by a
+documented product-specific action manufactured a lag out of nothing.
+
+All three were replaced with genuine post-market actions for the same drug:
+
+| Drug | Removed | Reason | Replaced with |
+|---|---|---|---|
+| Humira | Tuberculosis, 2008-09-04 | Boxed TB warning present in the original Dec 2002 approval label | Lymphoma, **2009-08-04** — class-wide paediatric malignancy boxed-warning update |
+| Cimzia | Tuberculosis, 2009-10-07 | Launched April 2008 with a boxed TB warning | Lymphoma, **2009-08-04** — same class action, genuinely post-approval |
+| Reclast | Osteonecrosis of jaw, 2009-09-01 | ONJ already in the original Aug 2007 label under PRECAUTIONS | Femur fracture, **2010-10-14** — atypical femoral fracture warnings required across bisphosphonates |
+
+One further date was corrected: **Enbrel's** tuberculosis boxed warning is dated
+**2008-03-17**, when TB moved from a bolded warning into the Boxed Warning. The
+previously recorded 2008-09-04 is a separate class-wide action on invasive fungal
+infections, which had overstated Enbrel's lag by roughly 5.6 months.
+
+Boniva was checked and stands: its original 2003 label contains no mention of
+osteonecrosis or the jaw, so the warning was genuinely added later.
+
+**Provenance caveat.** These dates are curated from FDA drug safety
+communications, approval labels and secondary sources. In a ten-row random audit,
+one row was wrong and two could only be confirmed to the month rather than the
+day; the follow-up found three more. Rows verified against primary FDA documents
+carry that detail in `source_notes` in `data/label_changes.csv`. The remainder
+should be treated as curated rather than independently audited.
 
 ### Signal-to-label lag
 

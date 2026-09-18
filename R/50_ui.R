@@ -228,18 +228,21 @@ ui <- page_navbar(
       card(
         card_header(
           tags$div(
-            style = "font-size:1.15rem;font-weight:650;color:#1e1b4b;letter-spacing:-0.01em;",
+            style = paste0("font-size:1.35rem;font-weight:700;color:#1e1b4b;",
+                           "letter-spacing:-0.015em;text-align:center;"),
             "Drugs reported with this event"
-          ),
-          tags$div(
-            style = paste0("font-size:0.8rem;font-weight:400;color:#64748b;",
-                           "margin-top:5px;"),
-            "Ordered by PRR. Report count alone is not a signal."
           )
         ),
         card_body(
           uiOutput("rev_status"),
-          DTOutput("rev_table")
+          DTOutput("rev_table"),
+          # Caption below the table, matching the cohort lag chart.
+          tags$div(
+            style = paste0("font-size:0.82rem;color:#475569;text-align:center;",
+                           "padding:10px 16px 4px;"),
+            "Ranked by PRR, not by report count. A common drug tops the count ",
+            "list whether or not it is associated with the event."
+          )
         )
       ),
       card(
@@ -293,22 +296,23 @@ ui <- page_navbar(
       card(
         card_header(
           tags$div(
-            style = "font-size:1.15rem;font-weight:650;color:#1e1b4b;letter-spacing:-0.01em;",
+            style = paste0("font-size:1.35rem;font-weight:700;color:#1e1b4b;",
+                           "letter-spacing:-0.015em;text-align:center;"),
             "Signal-to-label lag across the cohort"
-          ),
-          # One line only. The fuller explanation lives in "How to read this
-          # chart" below; stacking three paragraphs above the plot pushed the
-          # chart itself off the first screen.
-          tags$div(
-            style = paste0("font-size:0.8rem;font-weight:400;color:#64748b;",
-                           "margin-top:5px;"),
-            "Months between the FAERS signal and the FDA labelling action. ",
-            "Bars to the right mean the signal came first."
           )
         ),
         # height is set server-side (see cohort_lag_height) so it tracks the
         # number of drugs in view; "auto" lets that value through.
-        plotOutput("cohort_lag", height = "auto")
+        plotOutput("cohort_lag", height = "auto"),
+        # Caption sits BELOW the plot: the reader needs the axis explained after
+        # seeing it, and keeping the header to the title alone stops the chart
+        # being pushed down the page.
+        tags$div(
+          style = paste0("font-size:0.82rem;color:#475569;text-align:center;",
+                         "padding:10px 16px 4px;"),
+          "Months between the FAERS signal and the FDA labelling action. ",
+          "Bars to the right mean the signal came first."
+        )
       ),
       # DRILL-DOWN: the quarterly trend still exists, for the one drug selected
       # in the sidebar. Collapsed by default so it does not greet the reader.
