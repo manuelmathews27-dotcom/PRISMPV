@@ -255,8 +255,13 @@ ui <- page_navbar(
                  "here. A row meeting the per-quarter criteria is a candidate for ",
                  "follow-up in the Monitor tab, not a confirmed signal."),
           tags$p(class = "text-muted",
-                 "Drugs are aggregated on the openFDA generic name field, so a brand ",
-                 "queried elsewhere may appear here under its active ingredient.")
+                 "Candidates are drawn from the openFDA generic name field, so a brand ",
+                 "queried elsewhere may appear here under its active ingredient. That ",
+                 "field is not fully normalised: near-duplicates such as ",
+                 tags$em("LETROZOLE"), " and ", tags$em("LETROZOLE TABLETS"),
+                 " can occupy separate rows. Counts used in the statistics are re-fetched ",
+                 "under the same drug-matching rule the Monitor tab uses, so the ratio is ",
+                 "computed consistently even where the candidate list is untidy.")
         )
       )
     )
