@@ -59,7 +59,9 @@ detection_notes <- list(
 )
 
 get_detection_type <- function(tc, ae) {
-  if (tc == "Bisphosphonate") "Bisphosphonate"
+  # Event-gated like the antipsychotic branch: the note is about ONJ, and Reclast's
+  # cohort row is femur fracture (since 2026-09-18), which it does not describe.
+  if (tc == "Bisphosphonate" && grepl("osteonecrosis", ae, ignore.case = TRUE)) "Bisphosphonate"
   else if (tc == "Atypical Antipsychotic" && grepl("mortality|death", ae, ignore.case = TRUE)) "Antipsychotic"
   else NULL
 }
