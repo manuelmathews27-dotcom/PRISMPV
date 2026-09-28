@@ -705,13 +705,13 @@ first. Getting this wrong parses cleanly and fails at startup with an HTTP 500.
 | Class | Drugs | Adverse event tracked |
 |-------|-------|----------------------|
 | Atypical Antipsychotic | Abilify, Risperdal, Seroquel, Zyprexa | Increased mortality in elderly dementia patients; Pathological gambling |
-| Bisphosphonate | Actonel, Boniva, Fosamax, Reclast | Osteonecrosis of jaw |
+| Bisphosphonate | Actonel, Boniva, Fosamax, Reclast | Osteonecrosis of jaw; Femur fracture (Reclast) |
 | CAR-T Cell Therapy | Abecma, Breyanzi, Kymriah, Yescarta | T-cell lymphoma |
 | Fluoroquinolone | Avelox, Cipro, Floxin, Levaquin | Tendon rupture |
 | HMG-CoA Reductase Inhibitor | Crestor, Lipitor, Pravachol, Zocor | Diabetes mellitus; Rhabdomyolysis |
 | Nonbenzodiazepine Z-drug | Ambien, Intermezzo, Lunesta, Sonata | Somnambulism |
 | Proton Pump Inhibitor | Nexium, Prevacid, Prilosec, Protonix | Clostridium difficile colitis |
-| TNF-alpha Inhibitor | Cimzia, Enbrel, Humira, Remicade | Lymphoma; Tuberculosis |
+| TNF-alpha Inhibitor | Cimzia, Enbrel, Humira, Remicade | Lymphoma; Tuberculosis (Enbrel) |
 | COX-2 Selective NSAID | Celebrex, Mobic, Vioxx | Myocardial infarction |
 | JAK Inhibitor | Olumiant, Rinvoq, Xeljanz | Myocardial infarction |
 | Factor Xa Inhibitor | Eliquis, Xarelto | Gastrointestinal haemorrhage |
@@ -723,11 +723,11 @@ as *Antidiabetic* spans a TZD, an SGLT2 inhibitor and a DPP-4 inhibitor, and
 antiplatelet — so a class-specific signal-to-label estimate would average across
 drugs with no shared pharmacology.
 
-As a result, seven classes fall below the timeline model's three-drug minimum and
-use the all-drug benchmark instead. This is intended: a class-specific estimate
+As a result, two classes (Factor Xa Inhibitor and PPAR-gamma Agonist) fall below the
+timeline model's three-drug minimum and use the all-drug benchmark instead. This is intended: a class-specific estimate
 drawn from an artificial grouping is less useful than no class-specific estimate.
 
-The drug-class lookup (`drug_class_map` in `app.R`) extends beyond the 40 cohort
+The drug-class lookup (`drug_class_map` in `R/10_cohort_data.R`) extends beyond the 42 cohort
 drugs to cover commonly queried relatives, and is kept in sync with the cohort
 classes. It also carries classes with no cohort members yet — **GLP-1 Receptor
 Agonist** (Ozempic, Wegovy, Trulicity, Mounjaro, Zepbound), **IL-12/23**,
@@ -739,7 +739,10 @@ resolve for display but fall back to the all-drug benchmark.
 ## Cohort analysis findings
 
 Derived from the 42-drug cohort using exact MedDRA PT matching (data current as of
-2026-09-05).
+2026-09-05). The 2026-09-18 cohort revision (Humira and Cimzia retargeted from
+tuberculosis to lymphoma, Reclast from osteonecrosis of jaw to femur fracture, Enbrel's
+label date corrected to 2008-03-17) was followed by a pipeline rebuild; figures below
+predate it and are pending re-verification against the rebuilt `combined.rds`.
 
 **FAERS detects the cytopenia and infection risks it is often assumed to miss.**
 All four PPIs signal for *Clostridium difficile* colitis — Protonix in 17 quarters
@@ -752,8 +755,11 @@ signal postdates its label change:
 |------|--------------|--------------------|
 | Fosamax | 2005-11-12 | 2006 Q2 |
 | Actonel | 2005-11-12 | 2006 Q3 |
-| Reclast | 2009-09-01 | 2010 Q2 |
 | Boniva | 2007-05-09 | never signals |
+
+Reclast was dropped from this finding on 2026-09-18: ONJ was already in its original
+2007 label, so there was no post-market ONJ action to measure. It is now tracked for
+atypical femur fracture (FDA action 2010-10-14).
 
 Osteonecrosis of the jaw was identified from dental case series; FAERS reporting
 followed the FDA notification rather than preceding it.
