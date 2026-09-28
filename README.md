@@ -739,10 +739,8 @@ resolve for display but fall back to the all-drug benchmark.
 ## Cohort analysis findings
 
 Derived from the 42-drug cohort using exact MedDRA PT matching (data current as of
-2026-09-05). The 2026-09-18 cohort revision (Humira and Cimzia retargeted from
-tuberculosis to lymphoma, Reclast from osteonecrosis of jaw to femur fracture, Enbrel's
-label date corrected to 2008-03-17) was followed by a pipeline rebuild; figures below
-predate it and are pending re-verification against the rebuilt `combined.rds`.
+2026-09-18, after the cohort revision that retargeted Humira and Cimzia to lymphoma,
+Reclast to femur fracture, and corrected Enbrel's label date to 2008-03-17).
 
 **FAERS detects the cytopenia and infection risks it is often assumed to miss.**
 All four PPIs signal for *Clostridium difficile* colitis — Protonix in 17 quarters
