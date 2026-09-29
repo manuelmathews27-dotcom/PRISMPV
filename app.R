@@ -1,4 +1,4 @@
-# app.R — PRISM — Pharmacovigilance Real-time Intelligence Signal Monitor
+# app.R — PRISM — Pharmacovigilance Regulatory Intelligence Signal Monitor
 # Tabs:
 #   1. Monitor Your Drug  — live FAERS query + signal status + benchmark
 #   2. Reference Cohort   — historical 40-drug analysis

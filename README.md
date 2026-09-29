@@ -1,4 +1,4 @@
-# PRISM — Pharmacovigilance Real-time Intelligence Signal Monitor
+# PRISM — Pharmacovigilance Regulatory Intelligence Signal Monitor
 
 A Shiny dashboard that detects drug safety signals from the FDA Adverse Event Reporting System (FAERS) and measures how early those signals appear relative to official FDA label changes.
 

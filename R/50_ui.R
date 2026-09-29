@@ -764,7 +764,7 @@ ui <- page_navbar(
       ),
       tags$span(
         style = "font-size:0.75rem; color:#64748b;",
-        "Pharmacovigilance Real-time Intelligence Signal Monitor"
+        "Pharmacovigilance Regulatory Intelligence Signal Monitor"
       ),
       if (!is.null(provenance)) tags$span(
         style = "font-size:0.72rem; color:#94a3b8; margin-left:12px;",
