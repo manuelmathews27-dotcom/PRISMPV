@@ -471,7 +471,8 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
   req_drug <- NA_character_
   if (!is.null(extra_drug) && nzchar(trimws(extra_drug))) {
     req_drug <- resolve_drug_names(extra_drug)
-    if (!req_drug %in% drugs) drugs <- c(drugs, req_drug)
+    req_added <- !req_drug %in% drugs
+    if (req_added) drugs <- c(drugs, req_drug)
   }
 
   if (!is.null(progress_cb)) progress_cb(value = 0.4, detail = "computing disproportionality")
@@ -512,8 +513,23 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
       # where the quarterly series and the persistence rule do apply.
       meets_quarter_criteria = check_signal(count_a, PRR, chi_sq, PRR_lo)
     ) |>
-    dplyr::arrange(dplyr::desc(PRR)) |>
-    dplyr::mutate(requested = !is.na(req_drug) & drug == req_drug)
+    dplyr::arrange(dplyr::desc(PRR))
+
+  # A brand whose ingredient does not reduce to one token (CIMZIA -> "CERTOLIZUMAB
+  # PEGOL") is scored under the brand and would sit beside the same product's
+  # generic row with near-identical counts. Same reports and a drug total within
+  # 1% means the same product: keep the list's row and mark it instead.
+  if (!is.na(req_drug) && isTRUE(req_added)) {
+    ri  <- which(out$drug == req_drug)
+    dup <- which(out$drug != req_drug & out$count_a > 0 &
+                 out$count_a == out$count_a[ri[1]] &
+                 abs(out$count_b - out$count_b[ri[1]]) <= 0.01 * out$count_b[ri[1]])
+    if (length(ri) == 1 && length(dup) >= 1) {
+      req_drug <- out$drug[dup[1]]
+      out <- out[-ri, ]
+    }
+  }
+  out <- dplyr::mutate(out, requested = !is.na(req_drug) & drug == req_drug)
 
   attr(out, "query_window") <- paste0(
     format(as.Date(q_start, "%Y%m%d"), "%Y-%m-%d"), " to ",
