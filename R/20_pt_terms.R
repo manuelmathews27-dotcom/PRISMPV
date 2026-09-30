@@ -55,7 +55,10 @@ pt_terms <- sort(unique(c(
   # ── Neuropsychiatric ──
   "suicidal ideation", "suicide attempt", "completed suicide",
   "psychotic disorder", "hallucination",
-  "pathological gambling", "somnambulism",
+  # MedDRA renamed this PT. FAERS codes it "pathological gambling" only through
+  # 2015 and "gambling disorder" from 2016 on, so the old term alone returns zero
+  # for the live window (2023+). Both kept: the old one for pre-2016 queries.
+  "pathological gambling", "gambling disorder", "somnambulism",
   "serotonin syndrome", "neuroleptic malignant syndrome",
   # ── Respiratory ──
   "interstitial lung disease", "pneumonitis", "pulmonary fibrosis",
