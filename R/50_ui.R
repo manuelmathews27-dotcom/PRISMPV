@@ -218,6 +218,8 @@ ui <- page_navbar(
         selectizeInput("rev_ae", "Adverse event (MedDRA Preferred Term)",
                        choices = pt_terms, selected = "osteonecrosis of jaw",
                        options = list(placeholder = "Select or type a term")),
+        textInput("rev_drug", "Also score this drug (optional)",
+                  placeholder = "Brand or generic, e.g. Evenity"),
         actionButton("rev_go", "Find drugs", class = "btn-primary w-100"),
         hr(),
         p(class = "text-muted", style = "font-size:0.8rem;",
@@ -268,7 +270,11 @@ ui <- page_navbar(
                  "separate entries for salt forms, dose forms and biosimilar suffixes. ",
                  "Candidates are collapsed to one row per ingredient before any statistics ",
                  "are computed, and the counts behind each row use the same drug matching ",
-                 "as the Monitor tab.")
+                 "as the Monitor tab."),
+          tags$p(tags$strong("Scoring one product."), " The list holds the drugs most often ",
+                 "reported with the event, so a smaller product can signal and still not ",
+                 "appear. Enter it under Also score this drug and it is scored the same way, ",
+                 "marked as requested, and ranked among the drugs shown.")
         )
       )
     )

@@ -414,7 +414,8 @@ fmt_quarter <- function(d) paste0(format(d, "%Y"), " Q", quarter(d))
 # Window matches the Monitor tab: ends 3 quarters back so the FAERS reporting
 # lag cannot make a drug look quiet simply because its reports have not landed.
 reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
-                           candidate_pool = 100, progress_cb = NULL) {
+                           candidate_pool = 100, progress_cb = NULL,
+                           extra_drug = NULL) {
   current_q <- floor_date(Sys.Date(), "quarter")
   q_start   <- format(current_q - months(3 * n_quarters), "%Y%m%d")
   q_end     <- format(current_q - months(9) + months(3) - days(1), "%Y%m%d")
@@ -461,6 +462,18 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
   # calls per search instead of ~52.
   drugs <- utils::head(canon[!duplicated(canon)], top_n)
 
+  # Optional requested drug. The list above holds the most-reported drugs, and
+  # ranking the whole pool by PRR instead does not rescue a smaller product:
+  # measured 2026-09-30 over 1,000 candidates, Briviact and Fintepla still ranked
+  # ~40th for their labelled events and Bimzelx ~105th. So a reviewer asking about
+  # one product gets it scored directly (+2 calls) and placed among the rows shown.
+  # Resolved the same way as the Monitor tab, so brand names work.
+  req_drug <- NA_character_
+  if (!is.null(extra_drug) && nzchar(trimws(extra_drug))) {
+    req_drug <- resolve_drug_names(extra_drug)
+    if (!req_drug %in% drugs) drugs <- c(drugs, req_drug)
+  }
+
   if (!is.null(progress_cb)) progress_cb(value = 0.4, detail = "computing disproportionality")
 
   # Shared marginals: one call each, reused by every row.
@@ -499,7 +512,8 @@ reverse_search <- function(pt_term, n_quarters = 12, top_n = 25,
       # where the quarterly series and the persistence rule do apply.
       meets_quarter_criteria = check_signal(count_a, PRR, chi_sq, PRR_lo)
     ) |>
-    dplyr::arrange(dplyr::desc(PRR))
+    dplyr::arrange(dplyr::desc(PRR)) |>
+    dplyr::mutate(requested = !is.na(req_drug) & drug == req_drug)
 
   attr(out, "query_window") <- paste0(
     format(as.Date(q_start, "%Y%m%d"), "%Y-%m-%d"), " to ",

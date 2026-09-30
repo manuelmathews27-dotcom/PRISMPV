@@ -1177,7 +1177,8 @@ server <- function(input, output, session) {
     if (!nzchar(ae)) return(NULL)
     withProgress(message = "Searching FAERS", value = 0, {
       tryCatch(
-        reverse_search(ae, progress_cb = function(value, detail)
+        reverse_search(ae, extra_drug = input$rev_drug,
+                       progress_cb = function(value, detail)
           setProgress(value = value, detail = detail)),
         error = function(e) structure(list(), class = "rev_error",
                                       message = conditionMessage(e))
@@ -1202,9 +1203,25 @@ server <- function(input, output, session) {
                  "may have too few reports to aggregate."))
     }
     n_flag <- sum(r$meets_quarter_criteria, na.rm = TRUE)
-    div(class = "text-muted mb-2", style = "font-size:0.85rem;",
-        sprintf("%d drugs ranked. %d meet the per-quarter criteria in this window. Window: %s.",
-                nrow(r), n_flag, attr(r, "query_window") %||% ""))
+    # Requested drug: rows are already sorted by PRR, so its row number is its rank
+    # among the drugs shown (NA PRRs sort last).
+    req_line <- NULL
+    ri <- which(r$requested %in% TRUE)
+    if (length(ri) == 1) {
+      req_line <- div(class = "alert alert-info py-2 px-3", style = "font-size:0.85rem;",
+        if (is.na(r$PRR[ri]))
+          sprintf("%s: %d report(s) with this event, too few to compute a PRR.",
+                  r$drug[ri], as.integer(r$count_a[ri]))
+        else
+          sprintf("%s: PRR %.2f on %d reports. Ranks %d of %d by PRR; per-quarter criteria %s.",
+                  r$drug[ri], r$PRR[ri], as.integer(r$count_a[ri]), ri, nrow(r),
+                  if (isTRUE(r$meets_quarter_criteria[ri])) "met" else "not met"))
+    }
+    tagList(
+      req_line,
+      div(class = "text-muted mb-2", style = "font-size:0.85rem;",
+          sprintf("%d drugs ranked. %d meet the per-quarter criteria in this window. Window: %s.",
+                  nrow(r), n_flag, attr(r, "query_window") %||% "")))
   })
 
   output$rev_table <- DT::renderDT({
@@ -1215,7 +1232,7 @@ server <- function(input, output, session) {
     }
     tbl <- r |>
       mutate(
-        Drug      = drug,
+        Drug      = ifelse(requested %in% TRUE, paste0(drug, " (requested)"), drug),
         Reports   = count_a,
         PRR       = round(PRR, 2),
         `PRR 95% CI` = ifelse(is.na(PRR_lo), "",
